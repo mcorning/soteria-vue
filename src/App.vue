@@ -1,56 +1,97 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
+    <v-app-bar app color="primary" dark dense>
+      <a href="http://secours.io">
         <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
+          src="./assets/Secours.ioLogo400X310.png"
+          max-height="4em"
+          max-width="4em"
+          class="pl-0"
+        ></v-img>
+      </a>
+      <v-toolbar-title></v-toolbar-title>
       <v-spacer></v-spacer>
-
       <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
+        v-for="link in links"
+        :key="`${link.label}-header-link`"
         text
+        rounded
+        :to="link.url"
+        >{{ link.label }}</v-btn
       >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
     </v-app-bar>
-
     <v-content>
-      <HelloWorld />
+      <router-view></router-view>
     </v-content>
+    <v-footer color="primary lighten-1" padless>
+      <v-layout justify-center wrap>
+        <v-btn
+          v-for="link in links"
+          :key="`${link.label}-footer-link`"
+          color="white"
+          text
+          rounded
+          class="mx-2"
+          :to="link.url"
+          >{{ link.label }}</v-btn
+        >
+        <v-flex primary lighten-2 py-4 text-center white--text xs12>
+          {{ new Date().getFullYear() }} —
+          <strong>Secours.io</strong>
+        </v-flex>
+      </v-layout>
+    </v-footer>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld";
+// import L from './logger';
 
 export default {
-  name: "App",
+  name: 'App',
 
-  components: {
-    HelloWorld
+  data() {
+    return {
+      members: [],
+      links: [
+        {
+          label: 'Me',
+          url: '/profile'
+        },
+        {
+          label: 'My Data',
+          url: '/'
+        },
+        {
+          label: 'My People',
+          url: '/people'
+        }
+        // {
+        //   label: 'Test',
+        //   url: '/test'
+        // }
+        // {
+        //   label: 'Login',
+        //   url: '/login'
+        // },
+
+        // {
+        //   label: 'Dashboard',
+        //   url: '/dashboard'
+        // }
+      ]
+    };
   },
 
-  data: () => ({
-    //
-  })
+  methods: {
+    toggleTheme() {
+      this.$vuetify.theme.themes.dark.anchor = '#41B883';
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+    }
+  },
+
+  created() {
+    console.log('App.vue created');
+  }
 };
 </script>

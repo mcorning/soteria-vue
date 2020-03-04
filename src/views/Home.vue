@@ -1,18 +1,36 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
-  </div>
+  <v-container justify="center">
+    <div class="home">
+      <Active />
+    </div>
+  </v-container>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+import Active from '@/views/Active.vue';
+// import L from '@/logger';
 
 export default {
-  name: "Home",
+  name: 'home',
+  data: () => ({
+    loading: false,
+    error: null,
+    member: null
+  }),
   components: {
-    HelloWorld
-  }
+    Active
+  },
+
+  // watch: {
+  //   // call the method again if the route changes
+  //   $route: 'getMember'
+  // },
+
+  methods: {},
+  created() {
+    console.log('Home.vue created');
+  },
+  mounted() {}
 };
 </script>
