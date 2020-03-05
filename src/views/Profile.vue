@@ -1,14 +1,14 @@
 <template>
   <v-container>
     <div class="home">
-      <Profile />
+      <ProfileCard />
     </div>
   </v-container>
 </template>
 
 <script>
 // @ is an alias to /src
-import Profile from '@/components/Profile.vue';
+import ProfileCard from '@/components/ProfileCard.vue';
 
 export default {
   name: 'profile',
@@ -16,7 +16,7 @@ export default {
   data: () => ({}),
 
   components: {
-    Profile
+    ProfileCard
   },
 
   methods: {},

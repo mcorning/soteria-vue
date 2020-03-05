@@ -30,7 +30,6 @@
                         label="Attach profile picture"
                         v-model="image"
                         prepend-icon="mdi-camera"
-                        @change="test"
                       ></picture-input></div
                   ></v-col>
                 </v-row>
@@ -60,7 +59,7 @@
                     <v-autocomplete
                       v-model="gender"
                       label="Gender"
-                      :items="genders"
+                      :items="['Male', 'Female', 'NA']"
                     ></v-autocomplete>
 
                     <v-select
@@ -90,45 +89,82 @@
 
 <script>
 import PictureInput from 'vue-picture-input';
-// import { mapActions } from 'vuex';
-// import { mapFields } from 'vuex-map-fields';
+import Member from '@/models/Member';
+
+// import * as R from 'ramda';
 
 export default {
   components: {
     PictureInput
   },
 
-  props: {
-    showProfile: {
-      type: Boolean,
-      default: false
-    }
-  },
-
   computed: {
-    // ...mapFields([
-    //   'member.firstName',
-    //   'member.lastName',
-    //   'member.age',
-    //   'member.image',
-    //   'member.gender'
-    // ]),
+    member() {
+      let x = Member.query().first();
+      return x;
+    },
 
-    firstName() {
-      return 'Katy';
+    firstName: {
+      get() {
+        let x = this.member ? this.member.firstName : '';
+        return x;
+      },
+      set(newName) {
+        Member.$update({
+          where: this.member.id,
+          data: { firstName: newName }
+        });
+      }
     },
-    lastName() {
-      return 'Corning';
+    lastName: {
+      get() {
+        let x = this.member ? this.member.lastName : '';
+        return x;
+      },
+      set(newName) {
+        Member.$update({
+          where: this.member.id,
+          data: { lastName: newName }
+        });
+      }
     },
-    age() {
-      return 70;
+    age: {
+      get() {
+        let x = this.member ? this.member.age : '';
+        return x;
+      },
+      set(newVal) {
+        Member.$update({
+          where: this.member.id,
+          data: { age: newVal }
+        });
+      }
     },
-    image() {
-      return '';
+    gender: {
+      get() {
+        let x = this.member ? this.member.gender : '';
+        return x;
+      },
+      set(newVal) {
+        Member.$update({
+          where: this.member.id,
+          data: { gender: newVal }
+        });
+      }
     },
-    gender() {
-      return 'Female';
+    image: {
+      get() {
+        let x = this.member ? this.member.image : '';
+        return x;
+      },
+      set(newVal) {
+        Member.$update({
+          where: this.member.id,
+          data: { image: newVal }
+        });
+      }
     },
+
     showImage() {
       console.log('show image?', this.image.length > 0);
       return this.image.length > 0 ? 'block' : 'none';
@@ -140,11 +176,6 @@ export default {
   },
 
   data: () => ({
-    files: [],
-    dialog: false,
-
-    genders: ['Male', 'Female', 'NA'],
-
     agreeToTerms: false,
     agreeToTermsRules: [
       value =>
@@ -166,23 +197,7 @@ export default {
     formValidity: false
   }),
 
-  // watch: {
-  //   // call the method again if the route changes
-  //   $route: 'getMember'
-  // },
-
   methods: {
-    // ...mapActions(['clearStorage', 'addImage']),
-    changeImage() {
-      this.image = '';
-    },
-
-    test(val) {
-      console.time('image added in');
-      this.addImage(val);
-      console.timeEnd('image added in');
-    },
-
     onClear() {
       // this.clearStorage().then(state => {
       //   console.log('Cleared State:');

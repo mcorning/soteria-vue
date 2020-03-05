@@ -7,8 +7,10 @@ export default class Profile extends Model {
   static fields() {
     return {
       id: this.uid(),
-      bio: this.attr(''),
-      life_goal: this.attr(''),
+      email: this.string(''),
+      mobile: this.attr(''),
+      address: this.attr(''),
+
       // Profile is a child of Member, so we need an member_id here
       member_id: this.attr(''), // used in relationship below
 

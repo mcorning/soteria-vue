@@ -46,9 +46,14 @@
 
 <script>
 // import L from './logger';
-
+import * as R from 'ramda';
+import store from '@/store';
+import Activity from '@/models/Activity';
+import Member from '@/models/Member';
+import Timeline from '@/models/Timeline';
 export default {
   name: 'App',
+  store,
 
   data() {
     return {
@@ -65,7 +70,7 @@ export default {
         {
           label: 'My People',
           url: '/people'
-        }
+        },
         // {
         //   label: 'Test',
         //   url: '/test'
@@ -75,10 +80,10 @@ export default {
         //   url: '/login'
         // },
 
-        // {
-        //   label: 'Dashboard',
-        //   url: '/dashboard'
-        // }
+        {
+          label: 'About',
+          url: '/about'
+        }
       ]
     };
   },
@@ -89,7 +94,24 @@ export default {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     }
   },
-
+  async mounted() {
+    // Fetch data from indexeddb
+    Member.$fetch().then(m => {
+      if (R.isEmpty(m)) {
+        Member.$create({
+          data: {
+            firstName: '',
+            lastName: '',
+            age: '',
+            gender: '',
+            image: ''
+          }
+        }).then(x => console.log('Added first empty member record', x));
+      }
+    });
+    Timeline.$fetch();
+    Activity.$fetch();
+  },
   created() {
     console.log('App.vue created');
   }

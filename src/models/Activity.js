@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4';
+// import uuidv4 from 'uuid/v4';
 import { Model } from '@vuex-orm/core';
 import Member from './Member';
 import Timeline from './Timeline';
@@ -8,7 +8,8 @@ export default class Activity extends Model {
 
   static fields() {
     return {
-      id: this.uid(() => uuidv4()),
+      // id: this.uid(() => uuidv4()),
+      id: this.uid(),
       departFrom: this.attr(''),
       arriveAt: this.attr(''),
       description: this.string(''),
