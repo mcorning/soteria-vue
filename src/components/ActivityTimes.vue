@@ -64,12 +64,11 @@
 </template>
 
 <script>
-// import { mapState, mapActions } from 'vuex';
-// import { mapFields } from 'vuex-map-fields';
-
 import moment from 'moment';
 // import L from '@/logger';
 import Countdown from './Countdown';
+import Member from '@/models/Member';
+import Activity from '@/models/Activity';
 
 export default {
   components: {
@@ -77,9 +76,17 @@ export default {
   },
 
   computed: {
-    // ...mapState(['use24hrClock', 'activity']),
+    member() {
+      let x = Member.query().first();
+      return x;
+    },
+    activity() {
+      // not general enough...
+      let x = Activity.query().first();
+      console.log(x ? 'Current activity ID: ' + x.id : 'loading app');
+      return x;
+    },
 
-    // ...mapFields(['activity.expectedArrival', 'activity.plannedDeparture']),
     use24hrClock() {
       return false;
     },
@@ -88,21 +95,33 @@ export default {
     },
 
     // Countdown prop
-    arrival() {
-      let a = this.dates[1] || this.dates[0];
-      let adt = `${a} ${this.arrivingAt}`;
-      return new Date(adt);
+    arrival: {
+      get() {
+        let a = this.dates[1] || this.dates[0];
+        let adt = `${a} ${this.arrivingAt}`;
+        return new Date(adt);
+      },
+      set(newVal) {
+        console.log('Updating Arrival prop');
+        this.update({ arrival: newVal });
+      }
+    },
+
+    departure: {
+      get() {
+        let ddt = `${this.dates[0]} ${this.departingAt}`;
+        return new Date(ddt);
+      },
+      set(newVal) {
+        console.log('Updating Departure computed property');
+        this.update({ departure: newVal });
+      }
     },
 
     // arrival time-picker label value
     arriving() {
       this.onChangeArrival();
       return moment(this.arrival).format(this.FULL_DATE);
-    },
-
-    departure() {
-      let ddt = `${this.dates[0]} ${this.departingAt}`;
-      return new Date(ddt);
     },
 
     // departure time-picker label value
@@ -130,18 +149,45 @@ export default {
   },
 
   methods: {
-    // ...mapActions(['updateActivity']),
-    test(that) {
-      console.log(that);
+    update(payload) {
+      if (this.activity) {
+        Activity.$update({
+          where: this.activity.id,
+          data: payload
+        });
+      }
     },
-    onChange(event) {
-      console.log(event.target.name, event.target.value);
-    },
+
     onChangeDeparture() {
-      // this.updateActivity({ field: 'plannedDeparture', value: this.departure });
+      console.log(
+        'Updating Activity Departure',
+        this.activity
+          ? `for ID:  ${this.activity.id} to ${this.departure}`
+          : 'while loading app'
+      );
+
+      this.update({ departure: this.departure });
     },
+
     onChangeArrival() {
-      // this.updateActivity({ field: 'expectedArrival', value: this.arrival });
+      if (!this.activity) {
+        // Loading: no updated possible
+        return;
+      }
+      // without this guard, we get in an endless loop where even when arrival doesn't change,
+      // it triggers a loop that does not happen with updateing departure above. odd.
+      if (this.activity.arrival == this.arrival) {
+        // Arrival has not changed. No update necessary.
+        return;
+      }
+
+      console.log(
+        'Updating Activity Arrival',
+        this.activity
+          ? `for ID:  ${this.activity.id} to ${this.arrival}`
+          : ' while loading app...'
+      );
+      this.update({ arrival: this.arrival });
     }
   },
 

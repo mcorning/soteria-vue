@@ -8,8 +8,7 @@
           hint="Uses your last location"
           persistent-hint
           required
-          v-model="departedFrom"
-          @change="checkUpdate"
+          v-model="departFrom"
         ></v-text-field>
       </v-col>
 
@@ -19,8 +18,7 @@
           label="Ending Place"
           hint="Leave blank for round trip"
           persistent-hint
-          v-model="arrivedAt"
-          @change="checkUpdate"
+          v-model="arriveAt"
         ></v-text-field>
       </v-col>
 
@@ -51,7 +49,6 @@
           hint="Choose an activity to help us help you if necessary"
           persistent-hint
           v-model="description"
-          @change="checkUpdate"
         ></v-autocomplete>
       </v-col>
     </v-row>
@@ -60,38 +57,62 @@
 
 <script>
 // import { mapFields } from 'vuex-map-fields';
+import Member from '@/models/Member';
+import Activity from '@/models/Activity';
 
 export default {
-  props: {
-    activity: {
-      type: Object
-    }
-  },
   computed: {
-    // ...mapFields([
-    //   'activity.arrivedAt',
-    //   'activity.departedFrom',
-    //   'activity.description'
-    // ])
-    arrivedAt() {
-      return '';
+    member() {
+      let x = Member.query().first();
+      return x;
     },
-    departedFrom() {
-      return '';
+    activity() {
+      // not general enough...
+      let x = Activity.query().first();
+      return x;
     },
-    description() {
-      return '';
+
+    arriveAt: {
+      get() {
+        let x = this.activity ? this.activity.arriveAt : '';
+        return x;
+      },
+      set(newVal) {
+        this.update({ arriveAt: newVal });
+      }
+    },
+    departFrom: {
+      get() {
+        let x = this.activity ? this.activity.departFrom : '';
+        return x;
+      },
+      set(newVal) {
+        this.update({ departFrom: newVal });
+      }
+    },
+    description: {
+      get() {
+        let x = this.activity ? this.activity.description : '';
+        return x;
+      },
+      set(newVal) {
+        this.update({ description: newVal });
+      }
     }
   },
 
   data() {
     return {};
   },
+
   methods: {
-    checkUpdate() {
-      // console.log('activity', this.activity.departedFrom);
-      // console.log('activity', this.activity.arrivedAt);
-      // console.log('activity', this.activity.description);
+    update(payload) {
+      if (Activity) {
+        Activity.$update({
+          where: this.activity.id,
+          data: payload
+        });
+      }
     }
   }
 };

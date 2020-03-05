@@ -7,7 +7,7 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <v-row>
+            <v-row no-gutters>
               <v-col cols="12">
                 <v-row justify="center">
                   <v-col cols="6">
@@ -15,8 +15,8 @@
                       <v-img
                         :src="image"
                         margin="10"
-                        width="200"
-                        height="200"
+                        width="100"
+                        height="100"
                       ></v-img>
                     </div>
                   </v-col>
@@ -24,8 +24,8 @@
                     <div display="getImage">
                       <picture-input
                         ef="pictureInput"
-                        width="200"
-                        height="200"
+                        width="100"
+                        height="100"
                         margin="10"
                         label="Attach profile picture"
                         v-model="image"
@@ -72,10 +72,14 @@
                 </v-row>
               </v-col>
             </v-row>
-            <v-row align="end" justify="end">
+            <v-row align="end" justify="end" no-gutters>
               <v-card tile>
-                <v-btn color="blue darken-1" text @click="onClear"
-                  >Clear Database</v-btn
+                <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="onClear"
+                  :disabled="noMember"
+                  >Delete Member</v-btn
                 >
               </v-card>
             </v-row>
@@ -102,6 +106,10 @@ export default {
     member() {
       let x = Member.query().first();
       return x;
+    },
+
+    noMember() {
+      return !this.member;
     },
 
     firstName: {
@@ -199,10 +207,8 @@ export default {
 
   methods: {
     onClear() {
-      // this.clearStorage().then(state => {
-      //   console.log('Cleared State:');
-      //   console.log(state);
-      // });
+      console.log('Deleting member with ID:', this.member.id);
+      Member.$delete(this.member.id);
     }
 
     // validateForm() {

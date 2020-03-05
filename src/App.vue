@@ -109,8 +109,21 @@ export default {
         }).then(x => console.log('Added first empty member record', x));
       }
     });
+    Activity.$fetch().then(a => {
+      if (R.isEmpty(a)) {
+        Activity.$create({
+          data: {
+            departFrom: '',
+            arriveAt: '',
+            description: '',
+            departure: '',
+            arrival: '',
+            member_id: ''
+          }
+        }).then(x => console.log('Added first empty activity record', x));
+      }
+    });
     Timeline.$fetch();
-    Activity.$fetch();
   },
   created() {
     console.log('App.vue created');
