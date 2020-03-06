@@ -7,7 +7,7 @@
         </v-col>
       </v-row>
     </v-card-title>
-    <v-card-text>
+    <!-- <v-card-text>
       <v-row>
         <v-text-field
           class="pa-2"
@@ -41,37 +41,34 @@
           v-model="arriving"
         ></v-text-field>
       </v-row>
-    </v-card-text>
+    </v-card-text> -->
 
     <v-timeline align-top :dense="true">
-      <v-timeline-item
-        v-for="(item, i) in timeline.steps"
-        :key="i"
-        :color="item.color"
-        :icon="item.icon"
-        fill-dot
-      >
-        <v-card :color="item.color" dark>
-          <v-card-title v-if="item.title" class="title pt-3 pb-3">
+      <v-timeline-item v-for="(item, i) in timeline" :key="i" fill-dot>
+        <!-- <v-card :color="item.color" dark> -->
+        <v-card dark>
+          <!-- <v-card-title v-if="item.title" class="title pt-3 pb-3">
             <h3 class="title">
               {{ `${item.title}: at ${formatDate(item.updated)}` }}
             </h3>
-          </v-card-title>
-          <v-card-title v-if="item.note" class="title pt-3 pb-3">
+          </v-card-title> -->
+          <!-- <v-card-title v-if="item.note" class="title pt-3 pb-3">
             <h3 class="title">
               NOTES
             </h3>
-          </v-card-title>
-          <v-card-text v-if="item.status" class="white text--primary">
+          </v-card-title> -->
+          <v-card-text v-if="item" class="white text--primary">
+            <!-- <pre>{{ formatTimeline(item.state) }}</pre> -->
+            <pre>state {{ item.state }}</pre>
             <p class="pt-3 body-1 mb-0">
-              {{ item.status }} After {{ getDuration() }}
+              {{ item.state }} at {{ item.updated }}
             </p>
           </v-card-text>
-          <v-card-text v-if="item.note" class="white text--primary">
+          <!-- <v-card-text v-if="item.note" class="white text--primary">
             <p class="pt-3 body-1 mb-0">
               {{ item.note }}
             </p>
-          </v-card-text>
+          </v-card-text> -->
         </v-card>
       </v-timeline-item>
     </v-timeline>
@@ -79,54 +76,67 @@
 </template>
 
 <script>
+import Member from '@/models/Member';
+
 import moment from 'moment';
 // import L from '@/logger';
 
 export default {
   name: 'EventTimeline',
+
   props: {
-    activity: {
-      type: Object,
-      default: function() {
-        return {};
-      }
-    },
-    timeline: {
-      type: Array,
-      // Object or array defaults must be returned from
-      // a factory function
-      default: function() {
-        return [];
-      }
-    },
     heading: { type: String }
   },
+
   data() {
     return {
       FULL_DATE: 'hh:mm A MM/DD/YYYY'
     };
   },
+
   computed: {
+    timeline() {
+      let x = [];
+      if (
+        this.member &&
+        this.member.activities &&
+        this.member.activities.length > 0
+      ) {
+        x = this.member.activities[0].timeline;
+      }
+      return x;
+    },
+
+    member() {
+      // TODO eventually, limit this to the current member
+      let x = Member.query()
+        .with('activities.timeline')
+        .first();
+      return x;
+    },
+
     getDepartingFrom() {
-      return this.activity.departedFrom;
+      return this.memberActivities
+        ? this.memberActivities.departFrom
+        : 'loading timeline';
     },
     getArrivingAt() {
-      return this.activity.arrivedAt;
+      return this.activity ? this.activity.arriveAt : 'loading timeline';
     },
     departing() {
-      return this.formatDate(this.getDeparture);
+      return this.activity ? this.activity.getDeparture : 'loading timeline';
     },
     arriving() {
-      return this.formatDate(this.getArrival);
+      return this.activity ? this.activity.getArrival : 'loading timeline';
     },
     getActivity() {
-      return this.activity.description;
+      return this.activity ? this.activity.description : '';
     },
     getDeparture() {
-      return this.activity.departure;
+      return this.activity ? this.activity.departure : 'loading timeline';
     },
     getArrival() {
-      return this.activity.arrival;
+      return this.activity ? this.activity.arrival : 'loading timeline';
     }
   },
   methods: {
@@ -135,23 +145,31 @@ export default {
     },
     getDuration() {
       let eta = moment.duration(
-        moment(this.getArrival).diff(moment(this.getDeparture))
+        moment(new Date(this.getArrival)).diff(
+          moment(new Date(this.getDeparture))
+        )
       );
       let ata = moment.duration(
-        moment(this.getReturned).diff(moment(this.getDeparture))
+        moment(this.getReturned ? this.getReturned : new Date()).diff(
+          moment(new Date(this.getDeparture))
+        )
       );
       let late = moment
-        .duration(moment(this.getReturned).diff(moment(this.getArrival)))
+        .duration(
+          moment(this.getReturned ? this.getReturned : new Date()).diff(
+            moment(new Date(this.getArrival))
+          )
+        )
         .asMinutes();
       let et =
         late === 0
           ? `${eta.humanize()} (0 minutes late)` // what about being early?
           : `${ata.humanize()} (${late.toFixed(1)} minutes late)`;
       return et;
-    },
-    mounted() {
-      console.logo('Timeline.vue mounted');
     }
+  },
+  mounted() {
+    console.log('Timeline.vue mounted');
   }
 };
 </script>

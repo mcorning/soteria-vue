@@ -4,7 +4,7 @@
       <!-- New Activity -->
       <v-col>
         <!-- <NextActivity /> -->
-        <v-row><NextActivityForm :activity="activity" /> </v-row>
+        <v-row><NextActivityForm /> </v-row>
 
         <!-- DateTime Section -->
         <v-row>
@@ -13,19 +13,11 @@
         </v-row>
         <!-- This Activity Timeline -->
         <v-row>
-          <Timeline
-            :activity="activity"
-            :timeline="timeline"
-            heading="This time I am:"
-          />
+          <Timeline heading="This time I am:" />
         </v-row>
         <!-- Last Activity Timeline -->
         <v-row v-if="lastTimeline">
-          <Timeline
-            :activity="activity"
-            :timeline="lastTimeline"
-            heading="Last time I was:"
-          />
+          <Timeline heading="Last time I was:" />
         </v-row>
       </v-col>
     </v-row>
@@ -33,12 +25,11 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-
 import moment from 'moment';
 import Timeline from '../components/Timeline';
 import NextActivityForm from '../components/NextActivityForm';
 import ActivityTimes from '../components/ActivityTimes';
+
 // import L from '@/logger';
 
 export default {
@@ -76,9 +67,6 @@ export default {
   },
 
   computed: {
-    // mix the getters into computed with object spread operator
-    ...mapState(['activity', 'timeline', 'history', 'use24hrClock']),
-
     lastTimeline() {
       return this.history;
     }

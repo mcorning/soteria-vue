@@ -46,7 +46,6 @@
 
 <script>
 // import L from './logger';
-import * as R from 'ramda';
 import store from '@/store';
 import Activity from '@/models/Activity';
 import Member from '@/models/Member';
@@ -54,6 +53,13 @@ import Timeline from '@/models/Timeline';
 export default {
   name: 'App',
   store,
+
+  computed: {
+    member() {
+      let member = Member ? Member.query().first() : { id: '' };
+      return member;
+    }
+  },
 
   data() {
     return {
@@ -95,35 +101,9 @@ export default {
     }
   },
   async mounted() {
-    // Fetch data from indexeddb
-    Member.$fetch().then(m => {
-      if (R.isEmpty(m)) {
-        Member.$create({
-          data: {
-            firstName: '',
-            lastName: '',
-            age: '',
-            gender: '',
-            image: ''
-          }
-        }).then(x => console.log('Added first empty member record', x));
-      }
-    });
-    Activity.$fetch().then(a => {
-      if (R.isEmpty(a)) {
-        Activity.$create({
-          data: {
-            departFrom: '',
-            arriveAt: '',
-            description: '',
-            departure: '',
-            arrival: '',
-            member_id: ''
-          }
-        }).then(x => console.log('Added first empty activity record', x));
-      }
-    });
-    Timeline.$fetch();
+    await Member.$fetch();
+    await Activity.$fetch();
+    await Timeline.$fetch();
   },
   created() {
     console.log('App.vue created');

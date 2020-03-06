@@ -56,7 +56,7 @@ import { AudioPlayer } from './lib/audio.js';
 import moment from 'moment';
 
 export default {
-  name: 'Pomodoro',
+  name: 'PomodoroTimer',
   props: {
     arrivalDateTime: {
       type: Date

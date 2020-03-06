@@ -5,7 +5,7 @@
         <v-card>
           <v-card-title>When you are ready to go... </v-card-title>
           <v-card-subtitle>...hit the Depart button</v-card-subtitle>
-          <Pomodoro
+          <Timer
             :arrivalDateTime="arrival"
             pomodoroLabel="Estimated Time of Return"
             resetLabel="Arrival"
@@ -57,17 +57,68 @@
 </template>
 
 <script>
-import Pomodoro from './Pomodoro';
-import { mapState, mapActions } from 'vuex';
+import Timer from './Timer';
 // import L from '@/logger';
+import Member from '@/models/Member';
+import Activity from '@/models/Activity';
+import Timeline from '@/models/Timeline';
 
 export default {
   components: {
-    Pomodoro
+    Timer
   },
 
+  timelineKey: [
+    {
+      state: 'ACTIVE',
+      color: 'yellow darken-1',
+      icon: 'mdi-door-open'
+    },
+    {
+      state: 'SAFE',
+      color: 'orange lighten-1',
+      icon: 'mdi-gift'
+    },
+    {
+      state: 'UNKNOWN',
+      color: 'yellow darken-1',
+      icon: 'mdi-bell-alert'
+    },
+    {
+      state: 'ESCALATED',
+      color: 'red lighten-1',
+      icon: 'mdi-shield-alert'
+    }
+  ],
+
   computed: {
-    ...mapState(['activity', 'timeline', 'history', 'use24hrClock'])
+    member() {
+      let x = Member.query().first();
+      return x;
+    },
+    activity() {
+      // not general enough...
+      // should query for member's open (perhaps empty) activity
+      let x = Activity.query().first();
+      return x;
+    },
+    timeline() {
+      // not general enough...
+      // should query for member's open activity's (perhaps empty) timeline
+
+      let x = Timeline.query().first();
+      console.log(x ? 'timeline available' : 'creating timeline for activity');
+      if (!x) {
+        Timeline.$create({
+          data: {
+            state: '',
+            updated: '',
+            activity_id: this.activity ? this.activity.id : ''
+          }
+        });
+      }
+      return x;
+    }
   },
 
   data() {
@@ -93,22 +144,28 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['newTimeline', 'addStep', 'closeTimeline']),
+    update(payload) {
+      if (Timeline) {
+        Timeline.$update({
+          where: this.timeline.id,
+          data: payload
+        });
+      }
+    },
 
     openActivity() {
       // console.log(
       //   `Opening activity for Activity ID: ${this.nextActivity.activity}`
       // );
       let step = {
-        title: 'Opened',
-        status: 'ACTIVE',
-        updated: new Date()
+        state: 'ACTIVE',
+        updated: new Date(),
+        activity_id: this.activity.id
 
         // color: 'yellow darken-1',
         // icon: 'mdi-door-open'
       };
-
-      this.newTimeline(step);
+      this.update(step);
     },
 
     closeActivity() {
@@ -125,8 +182,10 @@ export default {
       };
       // L.info('Closing activity', this.nextActivity.activity);
       // L.object('with', step);
+      alert('need to add a step and close a timeline');
       this.addStep(step);
-      this.closeTimeline();
+
+      // this.closeTimeline();
     },
 
     expireActivity() {
@@ -141,6 +200,8 @@ export default {
         color: 'orange lighten-1',
         icon: 'mdi-bell-alert'
       };
+      alert('need to add a step to expire activity');
+
       this.addStep(step);
 
       // this is where we remind the member to close the activity
@@ -159,8 +220,10 @@ export default {
         color: 'blue lighten-1',
         icon: 'mdi-gift'
       };
-      this.addStep(step);
-      this.closeTimeline(step);
+      alert('need to add a step and close a timeline', step);
+
+      // this.addStep(step);
+      // this.closeTimeline(step);
     },
 
     escalateActivity() {
@@ -175,7 +238,9 @@ export default {
         color: 'red lighten-1',
         icon: 'mdi-shield-alert'
       };
-      this.addStep(step);
+      alert('need to add a step to escalate activity', step);
+
+      // this.addStep(step);
       this.showEscalationAlert = true;
       this.sheet = !this.showEscalationAlert;
       // this is where we notify safety team and/or sovrinSecours server

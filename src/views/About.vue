@@ -1,104 +1,183 @@
 <template>
-  <section>
-    <div class="container">
-      <div class="header">
-        <h2 class="title">Member</h2>
-        <button class="button" @click="add">ADD</button>
-      </div>
-      <div class="member" :key="member.id" v-for="member in members">
-        <input
-          class="input"
-          :value="member.firstName"
-          placeholder="New member's first name"
-          @input="
-            e => {
-              update('first', member, e.target.value);
-            }
-          "
-        />
-        <input
-          class="input"
-          :value="member.lastName"
-          placeholder="New member's last name"
-          @input="
-            e => {
-              update('last', member, e.target.value);
-            }
-          "
-        />
-        <button class="icon" @click="destroy(member)">Delete</button>
-      </div>
-      <div><p class="title">Members:</p></div>
-      <pre>{{ members }} </pre>
+  <div>
+    <button class="icon" @click="setDebug">
+      Debug
+    </button>
+    <div
+      class="activity"
+      :class="{ done: activity.done }"
+      :key="activity.id"
+      v-for="activity in activities"
+    >
+      <input
+        class="input"
+        :value="activity.description"
+        placeholder="Enter activity description"
+        @input="
+          e => {
+            update(activity, e.target.value);
+          }
+        "
+      />
+
+      <button class="icon" @click="updateTimeline(activity, 'ACTIVE')">
+        Depart
+      </button>
+
+      <button class="icon" @click="updateTimeline(activity, 'SAFE')">
+        Arrive
+      </button>
+
+      <button class="icon" @click="destroy(activity)">
+        Delete
+      </button>
     </div>
-  </section>
+    <TimelineVue />
+    <pre v-if="debug">{{ memberAll }} </pre>
+  </div>
 </template>
 
 <script>
+// import * as R from 'ramda';
+
+import Activity from '@/models/Activity';
 import Member from '@/models/Member';
+import Timeline from '@/models/Timeline';
+import TimelineVue from '@/components/Timeline';
 
 export default {
-  components: {},
+  components: { TimelineVue },
 
   computed: {
-    members() {
-      return Member.all();
-    },
     member() {
       let x = Member.query().first();
       return x;
+    },
+    memberAll() {
+      let x = Member.query()
+        .with('activities.timeline')
+        .first();
+      return x;
+    },
+
+    activities() {
+      if (this.member) {
+        let x = Activity.all();
+        if (x.length == 0) {
+          Activity.$create({
+            data: {
+              member_id: this.member.id
+            }
+          });
+        }
+      }
+      return Activity.all();
     }
   },
 
+  data() {
+    return {
+      debug: false
+    };
+  },
+
   methods: {
-    add() {
-      Member.$create({
-        data: { name: '' }
-      });
+    setDebug() {
+      this.debug = !this.debug;
     },
-    update(position, member, name) {
-      let data =
-        position === 'first' ? { firstName: name } : { lastName: name };
-      Member.$update({
-        where: member.id,
-        data: data
+
+    updateTimeline(activity, status) {
+      Timeline.$create({
+        data: { activity_id: activity.id, state: status, updated: new Date() }
+      });
+      // when safe, create a new record with the saved record's data
+      if (status === 'SAFE') {
+        Activity.$create({
+          data: {
+            member_id: activity.member_id,
+            description: activity.description
+          }
+        });
+      }
+    },
+
+    update(activity, description) {
+      Activity.$update({
+        where: activity.id,
+        data: { description }
       });
     },
 
-    destroy(member) {
-      Member.$delete(member.id);
+    destroy(activity) {
+      Timeline.$delete(timeline => timeline.activity_id == activity.id);
+      Activity.$delete(activity.id);
     }
-  }
+  },
+
+  async mounted() {}
 };
 </script>
 
 <style scoped>
-.container {
-  border-radius: 4px;
-  background-color: #fff;
-  overflow: hidden;
-  box-shadow: var(--shadow-depth-3);
-}
-
-.header {
+.activity {
   display: flex;
-  justify-content: space-between;
-  padding: 16px 64px;
+  align-items: center;
+  border-top: 1px solid var(--c-divider);
 }
 
-.title {
-  line-height: 32px;
-  font-size: 16px;
-  color: var(--c-gray);
+.activity:hover {
+  background-color: #fafafa;
 }
 
-.button {
-  border: 1px solid var(--c-gray-light);
-  border-radius: 2px;
-  padding: 0.7em 1em;
-  line-height: 30px;
-  font-size: 12px;
-  color: var(--c-gray);
+.activity:hover .svg {
+  opacity: 1;
+}
+
+.activity.done {
+  .input {
+    text-decoration: line-through;
+    color: var(--c-gray);
+  }
+
+  .icon .svg.check {
+    fill: #38d2d8;
+  }
+}
+
+.input {
+  flex-grow: 1;
+  border: 0;
+  margin-left: 15px;
+  padding: 6px 6px 6px 4px;
+  width: 20em;
+  background-color: transparent;
   transition: all 0.3s;
+}
+
+.icon {
+  display: block;
+  padding: 12px 24px;
+}
+
+.icon:hover .svg {
+  fill: var(--c-black);
+}
+
+.icon:hover .svg.check {
+  fill: var(--c-black);
+}
+
+.svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transform: translateY(2px);
+  transition: all 0.3s;
+  fill: var(--c-gray);
+}
+
+.svg.check {
+  opacity: 1;
+  fill: var(--c-gray-light);
 }
 </style>

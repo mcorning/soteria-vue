@@ -56,7 +56,6 @@
 </template>
 
 <script>
-// import { mapFields } from 'vuex-map-fields';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 
@@ -68,6 +67,7 @@ export default {
     },
     activity() {
       // not general enough...
+      // should query for member's open (perhaps empty) activity
       let x = Activity.query().first();
       return x;
     },

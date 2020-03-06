@@ -15,7 +15,7 @@
           v-model="dateRangeText"
           label="Date range"
           readonly
-          hint="Toggle date to [de]select one (round trip) or two (excursion) dates"
+          hint="Round trips: Toggle date.  Multiday excursions: toggle two dates"
           persistent-hint
         ></v-text-field
       ></v-col>
@@ -121,13 +121,15 @@ export default {
     // arrival time-picker label value
     arriving() {
       this.onChangeArrival();
-      return moment(this.arrival).format(this.FULL_DATE);
+      // let x = moment(this.arrival).format(this.FULL_DATE);
+      return this.arrival;
     },
 
     // departure time-picker label value
     departing() {
       this.onChangeDeparture();
-      return moment(this.departure).format(this.FULL_DATE);
+      // return moment(this.departure).format(this.FULL_DATE);
+      return this.departure;
     }
   },
 
