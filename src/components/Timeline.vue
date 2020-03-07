@@ -44,7 +44,7 @@
     </v-card-text> -->
 
     <v-timeline align-top :dense="true">
-      <v-timeline-item v-for="(item, i) in timeline" :key="i" fill-dot>
+      <v-timeline-item v-for="(item, i) in activeTimeline" :key="i" fill-dot>
         <!-- <v-card :color="item.color" dark> -->
         <v-card dark>
           <!-- <v-card-title v-if="item.title" class="title pt-3 pb-3">
@@ -76,8 +76,6 @@
 </template>
 
 <script>
-import Member from '@/models/Member';
-
 import moment from 'moment';
 // import L from '@/logger';
 
@@ -85,34 +83,19 @@ export default {
   name: 'EventTimeline',
 
   props: {
-    heading: { type: String }
+    heading: { type: String },
+    activity: { type: Object }
   },
 
   data() {
     return {
-      FULL_DATE: 'hh:mm A MM/DD/YYYY'
+      FULL_DATE: 'hh:mm A MM/DD/YYYY',
+      memberID: ''
     };
   },
-
   computed: {
-    timeline() {
-      let x = [];
-      if (
-        this.member &&
-        this.member.activities &&
-        this.member.activities.length > 0
-      ) {
-        x = this.member.activities[0].timeline;
-      }
-      return x;
-    },
-
-    member() {
-      // TODO eventually, limit this to the current member
-      let x = Member.query()
-        .with('activities.timeline')
-        .first();
-      return x;
+    activeTimeline() {
+      return this.activity ? this.activity.timeline : [];
     },
 
     getDepartingFrom() {
@@ -168,8 +151,6 @@ export default {
       return et;
     }
   },
-  mounted() {
-    console.log('Timeline.vue mounted');
-  }
+  mounted() {}
 };
 </script>

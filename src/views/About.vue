@@ -1,14 +1,10 @@
 <template>
   <div>
-    <button class="icon" @click="setDebug">
+    <v-btn class="icon" @click="setDebug">
       Debug
-    </button>
-    <div
-      class="activity"
-      :class="{ done: activity.done }"
-      :key="activity.id"
-      v-for="activity in activities"
-    >
+    </v-btn>
+    <v-spacer />
+    <div>
       <input
         class="input"
         :value="activity.description"
@@ -19,20 +15,16 @@
           }
         "
       />
-
-      <button class="icon" @click="updateTimeline(activity, 'ACTIVE')">
-        Depart
-      </button>
-
-      <button class="icon" @click="updateTimeline(activity, 'SAFE')">
-        Arrive
-      </button>
-
-      <button class="icon" @click="destroy(activity)">
-        Delete
-      </button>
+      <v-btn @click="updateTimeline(activity, 'ACTIVE')" :disabled="active">
+        Depart</v-btn
+      >
+      <v-btn @click="updateTimeline(activity, 'SAFE')" :disabled="active">
+        Arrive</v-btn
+      >
+      <v-btn @click="destroy(activity)"> Delete</v-btn>
     </div>
-    <TimelineVue />
+
+    <TimelineVue :activity="activity" />
     <pre v-if="debug">{{ memberAll }} </pre>
   </div>
 </template>
@@ -60,24 +52,19 @@ export default {
       return x;
     },
 
-    activities() {
-      if (this.member) {
-        let x = Activity.all();
-        if (x.length == 0) {
-          Activity.$create({
-            data: {
-              member_id: this.member.id
-            }
-          });
-        }
-      }
-      return Activity.all();
+    activity() {
+      let x = Member.query()
+        .with('activities.timeline')
+        .last();
+      // this needs to be an active activity, not just the first
+      return x.activities[0];
     }
   },
 
   data() {
     return {
-      debug: false
+      debug: true,
+      active: false
     };
   },
 
@@ -95,7 +82,8 @@ export default {
         Activity.$create({
           data: {
             member_id: activity.member_id,
-            description: activity.description
+            description: activity.description,
+            timeline: []
           }
         });
       }
@@ -109,75 +97,24 @@ export default {
     },
 
     destroy(activity) {
-      Timeline.$delete(timeline => timeline.activity_id == activity.id);
+      console.log('Deleting activity ID:', activity.id);
+      // Timeline.$delete(timeline => timeline.activity_id == activity.id);
       Activity.$delete(activity.id);
     }
   },
 
-  async mounted() {}
+  async mounted() {
+    if (this.member) {
+      let x = Activity.all();
+      if (x.length == 0) {
+        Activity.$create({
+          data: {
+            member_id: this.member.id,
+            timeline: []
+          }
+        });
+      }
+    }
+  }
 };
 </script>
-
-<style scoped>
-.activity {
-  display: flex;
-  align-items: center;
-  border-top: 1px solid var(--c-divider);
-}
-
-.activity:hover {
-  background-color: #fafafa;
-}
-
-.activity:hover .svg {
-  opacity: 1;
-}
-
-.activity.done {
-  .input {
-    text-decoration: line-through;
-    color: var(--c-gray);
-  }
-
-  .icon .svg.check {
-    fill: #38d2d8;
-  }
-}
-
-.input {
-  flex-grow: 1;
-  border: 0;
-  margin-left: 15px;
-  padding: 6px 6px 6px 4px;
-  width: 20em;
-  background-color: transparent;
-  transition: all 0.3s;
-}
-
-.icon {
-  display: block;
-  padding: 12px 24px;
-}
-
-.icon:hover .svg {
-  fill: var(--c-black);
-}
-
-.icon:hover .svg.check {
-  fill: var(--c-black);
-}
-
-.svg {
-  width: 14px;
-  height: 14px;
-  opacity: 0;
-  transform: translateY(2px);
-  transition: all 0.3s;
-  fill: var(--c-gray);
-}
-
-.svg.check {
-  opacity: 1;
-  fill: var(--c-gray-light);
-}
-</style>
