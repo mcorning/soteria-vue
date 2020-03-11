@@ -60,7 +60,7 @@
 import Timer from './Timer';
 // import L from '@/logger';
 import Member from '@/models/Member';
-import Activity from '@/models/Activity';
+// import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
 
 export default {

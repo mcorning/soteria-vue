@@ -4,17 +4,19 @@
       <!-- New Activity -->
       <v-col>
         <!-- <NextActivity /> -->
-        <!-- <v-row><NextActivityForm /> </v-row> -->
+        <v-row><NextActivityForm /> </v-row>
 
         <!-- DateTime Section -->
         <v-row>
           <!-- Includes the Countdown component -->
-          <!-- <ActivityTimes /> -->
+          <ActivityTimes />
         </v-row>
+
         <!-- This Activity Timeline -->
         <v-row>
-          <!-- <TimelineVue heading="This time I am:" /> -->
+          <TimelineVue heading="This time I am:" />
         </v-row>
+
         <!-- Last Activity Timeline -->
         <v-row v-if="lastTimeline">
           <!-- <TimelineVue heading="Last time I was:" /> -->
@@ -26,20 +28,20 @@
 
 <script>
 import moment from 'moment';
-// import TimelineVue from '../components/Timeline';
-// import NextActivityForm from '../components/NextActivityForm';
-// import ActivityTimes from '../components/ActivityTimes';
+import TimelineVue from '../components/Timeline';
+import NextActivityForm from '../components/NextActivityForm';
+import ActivityTimes from '../components/ActivityTimes';
 import Member from '@/models/Member';
 // import Activity from '@/models/Activity';
 // import Timeline from '@/models/Timeline';
 // import L from '@/logger';
 
 export default {
-  // components: {
-  //   TimelineVue,
-  //   NextActivityForm,
-  //   ActivityTimes
-  // },
+  components: {
+    TimelineVue,
+    NextActivityForm,
+    ActivityTimes
+  },
 
   data() {
     return {

@@ -70,10 +70,10 @@ export default {
           label: 'Test',
           url: '/test'
         },
-        // {
-        //   label: 'My Data',
-        //   url: '/'
-        // },
+        {
+          label: 'My Data',
+          url: '/'
+        },
         // {
         //   label: 'My People',
         //   url: '/people'

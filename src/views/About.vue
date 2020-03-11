@@ -1,139 +1,256 @@
 <template>
   <div>
-    <v-btn class="icon" @click="setDebug">
-      Debug
-    </v-btn>
-    <v-spacer />
-    <div>
-      <input
-        class="input"
-        :value="description"
-        placeholder="Enter activity description"
-        @input="
-          e => {
-            update(e.target.value);
-          }
-        "
-      />
-      <v-btn @click="updateTimeline('ACTIVE')" :disabled="active">
-        Depart</v-btn
-      >
-      <v-btn @click="updateTimeline('SAFE')" :disabled="active"> Arrive</v-btn>
-      <v-btn @click="destroy(activity)"> Delete</v-btn>
-    </div>
+    <v-container class="purple lighten-5">
+      <v-row>
+        <!-- New Activity -->
+        <v-col cols="12">
+          <!-- <NextActivity /> -->
+          <v-row>
+            <v-container class="purple lighten-5">
+              <h2>My next activity</h2>
+              <v-row>
+                <v-col cols="12" sm="4">
+                  <v-text-field
+                    label="Starting Place*"
+                    hint="Uses your last location"
+                    persistent-hint
+                    required
+                    v-model="departFrom"
+                  ></v-text-field>
+                </v-col>
 
-    <!-- <TimelineVue :activity="activity" /> -->
-    <v-row>
-      <v-col>
-        Current Activity
-        <pre v-if="debug">{{ member.activities[0] }} </pre>
-      </v-col>
-      <v-col>
-        All Member Data
-        <pre v-if="debug">{{ member }} </pre>
-      </v-col>
-    </v-row>
+                <v-col cols="12" sm="4">
+                  <v-text-field
+                    style="width:290px"
+                    label="Ending Place"
+                    hint="Leave blank for round trip"
+                    persistent-hint
+                    v-model="arriveAt"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12" sm="4">
+                  <v-autocomplete
+                    style="width:290px"
+                    :items="[
+                      'Backpacking',
+                      'Baseball',
+                      'Basejump',
+                      'Basketball',
+                      'Biking',
+                      'Boating',
+                      'Hiking',
+                      'Hockey',
+                      'Land sailing',
+                      'Mountain Biking',
+                      'Road trip',
+                      'Running',
+                      'Sailing',
+                      'Shopping',
+                      'Skiing',
+                      'Soccer',
+                      'Walking',
+                      'Unlisted'
+                    ]"
+                    label="Activity"
+                    hint="Choose an activity to help us help you if necessary"
+                    persistent-hint
+                    v-model="description"
+                    @change="updateActivityWith({ description: description })"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-row>
+
+          <!-- DateTime Section -->
+          <v-row>
+            <!-- Includes the Countdown component -->
+            <!-- <ActivityTimes /> -->
+          </v-row>
+
+          <!-- This Activity Timeline -->
+          <v-row>
+            <!-- <TimelineVue heading="This time I am:" /> -->
+          </v-row>
+
+          <!-- Last Activity Timeline -->
+          <!-- <v-row v-if="lastTimeline"> -->
+          <!-- <TimelineVue heading="Last time I was:" /> -->
+          <!-- </v-row> -->
+        </v-col>
+      </v-row>
+    </v-container>
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          lastActivity:
+          <pre>{{ member.lastActivity }} </pre>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col cols="12">
+          Member Activities
+          <pre>{{ member }} </pre>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
-// import * as R from 'ramda';
-
-import Activity from '@/models/Activity';
 import Member from '@/models/Member';
+import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
-// import TimelineVue from '@/components/Timeline';
 
 export default {
-  // components: { TimelineVue },
+  components: {},
 
-  computed: {},
+  computed: {
+    disableDepart() {
+      return this.state !== 'UNDEFINED';
+    },
+    disableArrive() {
+      return ['SAFE', 'UNDEFINED'].includes(this.state);
+    },
+
+    arriveAt: {
+      get() {
+        let x = this.activity ? this.activity.arriveAt : '';
+        return x;
+      },
+      set(newVal) {
+        // this.update({ arriveAt: newVal });
+        this.updateActivityWith({ arriveAt: newVal });
+      }
+    },
+
+    departFrom: {
+      get() {
+        let x = this.activity ? this.activity.departFrom : '';
+        return x;
+      },
+      set(newVal) {
+        // this.update({ departFrom: newVal });
+        this.updateActivityWith({ departFrom: newVal });
+      }
+    }
+  },
 
   data() {
     return {
-      errors: [
-        {
-          error: `Uncaught (in promise) TypeError: Cannot read property '$self' of null`,
-          fix: 'ensure arg is not null'
-        }
-      ],
-      debug: true,
-      active: false,
-      activityID: '',
-      description: 'Gimme a name',
-      member: Member.query()
-        .with('activities.timeline')
-        .last(),
-      hasStartedActivity: Member.query()
-        .has('activities.timeline')
-        .get()
+      member: '',
+      description: '',
+
+      state: ''
     };
   },
 
   methods: {
-    getInitialActivity() {
-      console.log('Providing a default activity for ', this.member.firstName);
-      Activity.$create({
-        data: {
-          member_id: this.member.id
-        }
-      }).then(x => {
-        this.activityID = x[0].id;
-        console.log('New activity id:', this.activityID);
-      });
+    //vuexorm state is not reactive out of the box, so queries belong in methods
+    refreshMember() {
+      this.member = Member.query()
+        .with('activities.timeline')
+        .first();
+      if (this.member.lastActivity) {
+        this.description = this.member.lastActivity.description;
+        this.state =
+          this.member.lastActivity.timeline.length > 0
+            ? this.member.lastActivity.timeline[
+                this.member.lastActivity.timeline.length - 1
+              ].state
+            : 'UNDEFINED';
+      }
+      // add a default activity if the only activity left is also the last activity
+      // if (this.member.lastActivity.id === this.member.activities[0].id) {
+      //   this.addActivity();
+      // }
+      console.log('refreshMember():', this.description, this.state);
     },
 
-    setDebug() {
-      this.debug = !this.debug;
-    },
-
+    // updates should requery state
     updateTimeline(status) {
+      this.addTimeline(status);
+      if (status === 'SAFE') {
+        this.addActivity();
+      }
+    },
+
+    addTimeline(status) {
       Timeline.$create({
         data: {
-          activity_id: this.member.activities[0].id,
+          activity_id: this.member.lastActivity.id,
           state: status,
           updated: new Date()
         }
       });
-      // when safe, create a new record with the saved record's data
-      if (status === 'SAFE') {
-        console.log(
-          `Member is SAFE. Creating new default activity, ${this.member.activities[0].description}, for next time`
-        );
-        Activity.$create({
-          data: {
-            member_id: this.member.id,
-            description: this.member.activities[0].description,
-            timeline: []
-          }
-        });
-      }
+      this.hasDeparted = false;
+      this.refreshMember();
     },
 
-    update(description) {
-      Activity.$update({
-        where: this.activityID,
-        data: { description }
+    addActivity() {
+      Activity.$create({
+        data: {
+          member_id: this.member.id,
+          description: this.description,
+          updated: new Date()
+        }
       });
+      this.refreshMember();
+    },
+
+    updateActivityWith(payload) {
+      Activity.$update({
+        where: this.member.lastActivity.id,
+        data: payload
+      });
+      this.refreshMember();
     },
 
     destroy() {
-      console.log('Deleting activity ID:', this.activityID);
-      Timeline.$delete(timeline => timeline.activity_id == this.activityID);
-      Activity.$delete(this.activityID);
+      console.log('|activities|', this.member.hasActivity === 1);
+      Timeline.$delete(
+        timeline => timeline.activity_id == this.member.lastActivity.id
+      );
+      Activity.$delete(this.member.lastActivity.id);
+      // reset the lastActivity
+      this.refreshMember();
+      console.log(this.member.lastActivity.id);
+      console.log(this.member.lastActivity);
+    },
+
+    hasStartedActivity() {
+      let timeline = Member.query()
+        .has('activities.timeline')
+        .get();
+      return timeline.length ? true : false;
     }
   },
 
   created() {
-    console.log(
-      'Value of member is: ' + JSON.stringify(this.member.activities)
-    );
-  },
-
-  mounted() {
-    if (!this.member.hasStartedActivity) {
-      // this.getInitialActivity();
+    // get member data
+    this.refreshMember();
+    console.log('created(): Member has', this.member.hasActivity, 'activities');
+    if (this.member.hasActivity == 0) {
+      console.log('Adding default activity for ', this.member.firstName);
+      this.addActivity();
+      alert('Be sure to give new activity a name before you depart');
     }
+    this.hasDeparted = this.member.hasDeparted;
+    this.hasActivity = this.member.hasActivity == 1 ? true : false;
+    this.lastActivity = this.member.lastActivity;
   }
 };
 </script>
+
+<style scoped>
+#styled-input {
+  height: 40px;
+  font-size: 20pt;
+}
+.styled-input label[for] {
+  height: 40px;
+  font-size: 20pt;
+}
+</style>
