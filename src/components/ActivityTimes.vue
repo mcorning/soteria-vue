@@ -195,6 +195,7 @@ export default {
 
   mounted() {
     console.log('ActivityTimes component mounted');
+    console.log('member id:', this.member.id);
   }
 };
 </script>

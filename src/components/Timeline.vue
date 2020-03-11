@@ -120,9 +120,9 @@ export default {
     },
     getArrival() {
       return this.activity ? this.activity.arrival : 'loading timeline';
-    }
-  },
-  methods: {
+    },
+    // },
+    // methods: {
     formatDate(value) {
       return value ? moment(value).format(this.FULL_DATE) : '';
     },

@@ -4,20 +4,20 @@
       <!-- New Activity -->
       <v-col>
         <!-- <NextActivity /> -->
-        <v-row><NextActivityForm /> </v-row>
+        <!-- <v-row><NextActivityForm /> </v-row> -->
 
         <!-- DateTime Section -->
         <v-row>
           <!-- Includes the Countdown component -->
-          <ActivityTimes />
+          <!-- <ActivityTimes /> -->
         </v-row>
         <!-- This Activity Timeline -->
         <v-row>
-          <Timeline heading="This time I am:" />
+          <!-- <TimelineVue heading="This time I am:" /> -->
         </v-row>
         <!-- Last Activity Timeline -->
         <v-row v-if="lastTimeline">
-          <Timeline heading="Last time I was:" />
+          <!-- <TimelineVue heading="Last time I was:" /> -->
         </v-row>
       </v-col>
     </v-row>
@@ -26,21 +26,34 @@
 
 <script>
 import moment from 'moment';
-import Timeline from '../components/Timeline';
-import NextActivityForm from '../components/NextActivityForm';
-import ActivityTimes from '../components/ActivityTimes';
-
+// import TimelineVue from '../components/Timeline';
+// import NextActivityForm from '../components/NextActivityForm';
+// import ActivityTimes from '../components/ActivityTimes';
+import Member from '@/models/Member';
+// import Activity from '@/models/Activity';
+// import Timeline from '@/models/Timeline';
 // import L from '@/logger';
 
 export default {
-  components: {
-    Timeline,
-    NextActivityForm,
-    ActivityTimes
-  },
+  // components: {
+  //   TimelineVue,
+  //   NextActivityForm,
+  //   ActivityTimes
+  // },
 
   data() {
     return {
+      member: Member.query().first(),
+      memberAll: Member.query()
+        .with('activities.timeline')
+        .first(),
+      activity: Member.query()
+        .with('activities.timeline')
+        .last(),
+      hasActivity: Member.query()
+        .has('activities.timeline')
+        .get(),
+
       sheet: false,
       showEscalationAlert: false,
 
@@ -72,12 +85,28 @@ export default {
     }
   },
 
-  created() {},
-  mounted() {
-    console.log('Active.vue mounted');
+  methods: {
+    getInitialActivity() {
+      // Activity.$create({
+      //   data: {
+      //     member_id: this.member.id,
+      //     timeline: []
+      //   }
+      // });
+    }
   },
 
-  methods: {}
+  async created() {
+    console.log('Active.vue created. ');
+  },
+
+  mounted() {
+    console.log('Active.vue mounted');
+    // if (!this.member.hasActivity) {
+    //   console.log('Member has no activity. NOT Creating a default.');
+    //   // this.getInitialActivity();
+    // }
+  }
 };
 </script>
 

@@ -6,18 +6,35 @@ import Timeline from './Timeline';
 export default class Activity extends Model {
   static entity = 'activities';
 
+  get hasDeparted() {
+    let timeline = this.$query()
+      .with('timeline')
+      .first().timeline;
+    return timeline.length > 0;
+  }
+
+  get isSafe() {
+    let timeline = this.$query()
+      .with('timeline')
+      .first().timeline;
+    let x = timeline.map(s => {
+      return s.state;
+    });
+    return x.includes('SAFE');
+  }
+
   static fields() {
     return {
       // id: this.uid(() => uuidv4()),
       id: this.uid(),
       departFrom: this.attr(''),
       arriveAt: this.attr(''),
-      description: this.string(''),
+      description: this.string('Name me'),
       departure: this.string(''),
       arrival: this.string(''),
 
       // Activity is a child of Member, so we need an member_id here
-      member_id: this.attr(''), // used in relationship below
+      member_id: this.attr(null), // used in relationship below
 
       // relationships (be sure you import any entity listed below)
       // this activity can only belong to one single member

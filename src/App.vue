@@ -20,9 +20,11 @@
         >{{ link.label }}</v-btn
       >
     </v-app-bar>
+
     <v-content>
       <router-view></router-view>
     </v-content>
+
     <v-footer color="primary lighten-1" padless>
       <v-layout justify-center wrap>
         <v-btn
@@ -54,29 +56,28 @@ export default {
   name: 'App',
   store,
 
-  computed: {
-    member() {
-      let member = Member ? Member.query().first() : { id: '' };
-      return member;
-    }
-  },
+  computed: {},
 
   data() {
     return {
-      members: [],
+      firstMember: Member.query().first(),
       links: [
         {
           label: 'Me',
           url: '/profile'
         },
         {
-          label: 'My Data',
-          url: '/'
+          label: 'Test',
+          url: '/test'
         },
-        {
-          label: 'My People',
-          url: '/people'
-        },
+        // {
+        //   label: 'My Data',
+        //   url: '/'
+        // },
+        // {
+        //   label: 'My People',
+        //   url: '/people'
+        // },
         // {
         //   label: 'Test',
         //   url: '/test'
@@ -100,13 +101,15 @@ export default {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     }
   },
-  async mounted() {
+  mounted() {},
+  async created() {
+    console.log('Fetching data from localForage');
     await Member.$fetch();
     await Activity.$fetch();
     await Timeline.$fetch();
-  },
-  created() {
-    console.log('App.vue created');
+
+    // this is not reliably available, but Member seems to be
+    console.log('App.vue created for', Member.query().first().firstName);
   }
 };
 </script>

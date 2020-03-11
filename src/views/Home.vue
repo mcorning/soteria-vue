@@ -8,6 +8,7 @@
 
 <script>
 // @ is an alias to /src
+// import Active from '@/views/About.vue';
 import Active from '@/views/Active.vue';
 // import L from '@/logger';
 

@@ -68,6 +68,15 @@ export default {
     Timer
   },
 
+  props: {
+    arrival: {
+      type: Date
+    },
+    departure: {
+      type: Date
+    }
+  },
+
   timelineKey: [
     {
       state: 'ACTIVE',
@@ -91,38 +100,19 @@ export default {
     }
   ],
 
-  computed: {
-    member() {
-      let x = Member.query().first();
-      return x;
-    },
-    activity() {
-      // not general enough...
-      // should query for member's open (perhaps empty) activity
-      let x = Activity.query().first();
-      return x;
-    },
-    timeline() {
-      // not general enough...
-      // should query for member's open activity's (perhaps empty) timeline
-
-      let x = Timeline.query().first();
-      console.log(x ? 'timeline available' : 'creating timeline for activity');
-      if (!x) {
-        Timeline.$create({
-          data: {
-            state: '',
-            updated: '',
-            activity_id: this.activity ? this.activity.id : ''
-          }
-        });
-      }
-      return x;
-    }
-  },
-
   data() {
     return {
+      member: Member.query().first(),
+      memberAll: Member.query()
+        .with('activities.timeline')
+        .first(),
+      activity: Member.query()
+        .with('activities.timeline')
+        .last(),
+      hasActivity: Member.query()
+        .has('activities.timeline')
+        .get(),
+
       sheet: false,
       showEscalationAlert: false,
       nextActivity: {
@@ -135,21 +125,29 @@ export default {
       }
     };
   },
-  props: {
-    arrival: {
-      type: Date
-    },
-    departure: {
-      type: Date
-    }
-  },
   methods: {
-    update(payload) {
-      if (Timeline) {
-        Timeline.$update({
-          where: this.timeline.id,
-          data: payload
-        });
+    getInitialActivity() {
+      // Activity.$create({
+      //   data: {
+      //     member_id: this.member.id,
+      //     timeline: []
+      //   }
+      // });
+    },
+
+    updateTimeline(payload) {
+      Timeline.$create({
+        data: { payload }
+      });
+      // when safe, create a new record with the saved record's data
+      if (status === 'SAFE') {
+        // Activity.$create({
+        //   data: {
+        //     member_id: this.activity.member_id,
+        //     description: this.activity.description,
+        //     timeline: []
+        //   }
+        // });
       }
     },
 
@@ -165,7 +163,7 @@ export default {
         // color: 'yellow darken-1',
         // icon: 'mdi-door-open'
       };
-      this.update(step);
+      this.updateTimeline(step);
     },
 
     closeActivity() {
@@ -176,16 +174,8 @@ export default {
         title: 'Closed',
         status: 'SAFE',
         updated: new Date()
-
-        // color: 'green lighten-1',
-        // icon: 'mdi-gift'
       };
-      // L.info('Closing activity', this.nextActivity.activity);
-      // L.object('with', step);
-      alert('need to add a step and close a timeline');
-      this.addStep(step);
-
-      // this.closeTimeline();
+      this.updateTimeline(step);
     },
 
     expireActivity() {
@@ -195,14 +185,9 @@ export default {
       let step = {
         title: 'Expired',
         status: 'UNKNOWN',
-        updated: new Date(),
-
-        color: 'orange lighten-1',
-        icon: 'mdi-bell-alert'
+        updated: new Date()
       };
-      alert('need to add a step to expire activity');
-
-      this.addStep(step);
+      this.updateTimeline(step);
 
       // this is where we remind the member to close the activity
       this.sheet = true;
@@ -215,15 +200,9 @@ export default {
       let step = {
         title: 'Cancelled',
         status: 'SAFE',
-        updated: new Date(),
-
-        color: 'blue lighten-1',
-        icon: 'mdi-gift'
+        updated: new Date()
       };
-      alert('need to add a step and close a timeline', step);
-
-      // this.addStep(step);
-      // this.closeTimeline(step);
+      this.updateTimeline(step);
     },
 
     escalateActivity() {
@@ -233,17 +212,13 @@ export default {
       let step = {
         title: 'Escalated ',
         status: 'ESCALATED',
-        updated: new Date(),
-
-        color: 'red lighten-1',
-        icon: 'mdi-shield-alert'
+        updated: new Date()
       };
-      alert('need to add a step to escalate activity', step);
+      this.updateTimeline(step);
 
-      // this.addStep(step);
+      // this is where we notify safety team and/or sovrinSecours server
       this.showEscalationAlert = true;
       this.sheet = !this.showEscalationAlert;
-      // this is where we notify safety team and/or sovrinSecours server
     },
 
     standDown() {
@@ -251,8 +226,16 @@ export default {
       this.showEscalationAlert = false;
     }
   },
+
+  async created() {
+    console.log('Countdown.vue created. Fetching data.');
+  },
+
   mounted() {
     console.log('Countdown.vue mounted');
+    // if (!this.member.hasActivity) {
+    //   this.getInitialActivity();
+    // }
   }
 };
 </script>

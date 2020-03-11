@@ -6,6 +6,19 @@ import Profile from './Profile';
 export default class Member extends Model {
   static entity = 'members';
 
+  get hasActivity() {
+    return this.activities.length;
+  }
+  get lastActivity() {
+    return this.activities[this.activities.length - 1];
+  }
+  get hasDeparted() {
+    if (this.lastActivity) {
+      return this.lastActivity.hasDeparted && !this.lastActivity.isSafe;
+    }
+    return false;
+  }
+
   static fields() {
     return {
       // id: this.uid(() => uuidv4()),
