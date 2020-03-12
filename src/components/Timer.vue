@@ -1,6 +1,6 @@
 <template>
   <div class="vuemodoro" :class="vuemodoroTheme">
-    <div>Arrival time: <br />{{ arrivalTime }}</div>
+    <div>Expected arrival time: <br />{{ arrivalTime }}</div>
     <div id="vuemodoro-label">{{ pomodoroLabel }}</div>
     <div id="vuemodoro-timer">
       <span id="vuemodoro-counter">{{ currentTime }}</span>

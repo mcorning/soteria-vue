@@ -66,7 +66,7 @@
           <!-- DateTime Section -->
           <v-row>
             <!-- Includes the Countdown component -->
-            <!-- <ActivityTimes /> -->
+            <ActivityTimes />
           </v-row>
 
           <!-- This Activity Timeline -->
@@ -81,31 +81,17 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-container>
-      <v-row>
-        <v-col cols="12">
-          lastActivity:
-          <pre>{{ member.lastActivity }} </pre>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="12">
-          Member Activities
-          <pre>{{ member }} </pre>
-        </v-col>
-      </v-row>
-    </v-container>
   </div>
 </template>
 
 <script>
+import ActivityTimes from '@/components/ActivityTimes';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
 
 export default {
-  components: {},
+  components: { ActivityTimes },
 
   computed: {
     disableDepart() {
@@ -169,13 +155,13 @@ export default {
       console.log('refreshMember():', this.description, this.state);
     },
 
-    // updates should requery state
-    updateTimeline(status) {
-      this.addTimeline(status);
-      if (status === 'SAFE') {
-        this.addActivity();
-      }
-    },
+    // // updates should requery state
+    // updateTimeline(status) {
+    //   this.addTimeline(status);
+    //   if (status === 'SAFE') {
+    //     this.addActivity();
+    //   }
+    // },
 
     addTimeline(status) {
       Timeline.$create({

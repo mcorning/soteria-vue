@@ -9,11 +9,11 @@
             :arrivalDateTime="arrival"
             pomodoroLabel="Estimated Time of Return"
             resetLabel="Arrival"
-            @open-activity="openActivity"
-            @close-activity="closeActivity"
-            @expire-activity="expireActivity"
-            @cancel-activity="cancelActivity"
-            @sos="escalateActivity"
+            @open-activity="updateTimeline('ACTIVE')"
+            @close-activity="updateTimeline('SAFE')"
+            @expire-activity="updateTimeline('UNKNOWN')"
+            @cancel-activity="updateTimeline('SAFE')"
+            @sos="updateTimeline('ESCALATED')"
           />
           <v-card-text
             >When you are safe again, hit the Arrive button
@@ -60,7 +60,7 @@
 import Timer from './Timer';
 // import L from '@/logger';
 import Member from '@/models/Member';
-// import Activity from '@/models/Activity';
+import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
 
 export default {
@@ -102,80 +102,87 @@ export default {
 
   data() {
     return {
-      member: Member.query().first(),
-      memberAll: Member.query()
-        .with('activities.timeline')
-        .first(),
-      activity: Member.query()
-        .with('activities.timeline')
-        .last(),
-      hasActivity: Member.query()
-        .has('activities.timeline')
-        .get(),
+      member: '',
+      // member: Member.query().first(),
+      // memberAll: Member.query()
+      //   .with('activities.timeline')
+      //   .first(),
+      // activity: Member.query()
+      //   .with('activities.timeline')
+      //   .last(),
+      // hasActivity: Member.query()
+      //   .has('activities.timeline')
+      //   .get(),
 
       sheet: false,
-      showEscalationAlert: false,
-      nextActivity: {
-        id: '',
-        activity: '',
-        departedFrom: '',
-        arrivedAt: '',
-        departure: '',
-        arrival: ''
-      }
+      showEscalationAlert: false
+      // nextActivity: {
+      //   id: '',
+      //   activity: '',
+      //   departedFrom: '',
+      //   arrivedAt: '',
+      //   departure: '',
+      //   arrival: ''
+      // }
     };
   },
   methods: {
-    getInitialActivity() {
-      // Activity.$create({
-      //   data: {
-      //     member_id: this.member.id,
-      //     timeline: []
-      //   }
-      // });
+    refreshMember() {
+      this.member = Member.query()
+        .with('activities.timeline')
+        .first();
+      if (this.member.lastActivity) {
+        this.description = this.member.lastActivity.description;
+        this.state =
+          this.member.lastActivity.timeline.length > 0
+            ? this.member.lastActivity.timeline[
+                this.member.lastActivity.timeline.length - 1
+              ].state
+            : 'UNDEFINED';
+      }
+      // add a default activity if the only activity left is also the last activity
+      // if (this.member.lastActivity.id === this.member.activities[0].id) {
+      //   this.addActivity();
+      // }
+      console.log('refreshMember():', this.description, this.state);
     },
-
-    updateTimeline(payload) {
-      Timeline.$create({
-        data: { payload }
+    addActivity() {
+      Activity.$create({
+        data: {
+          member_id: this.member.id,
+          description: this.description,
+          updated: new Date()
+        }
       });
-      // when safe, create a new record with the saved record's data
-      if (status === 'SAFE') {
-        // Activity.$create({
-        //   data: {
-        //     member_id: this.activity.member_id,
-        //     description: this.activity.description,
-        //     timeline: []
-        //   }
-        // });
+      this.refreshMember();
+    },
+    // updates should requery state
+    updateTimeline(status) {
+      this.addTimeline(status);
+      switch (status) {
+        case 'SAFE':
+          this.addActivity();
+          break;
+        case 'EXPIRED':
+          this.sheet = true;
+          break;
+        case 'ESCALATED':
+          // this is where we notify safety team and/or sovrinSecours server
+          this.showEscalationAlert = true;
+          this.sheet = !this.showEscalationAlert;
+          break;
       }
     },
 
-    openActivity() {
-      // console.log(
-      //   `Opening activity for Activity ID: ${this.nextActivity.activity}`
-      // );
-      let step = {
-        state: 'ACTIVE',
-        updated: new Date(),
-        activity_id: this.activity.id
-
-        // color: 'yellow darken-1',
-        // icon: 'mdi-door-open'
-      };
-      this.updateTimeline(step);
-    },
-
-    closeActivity() {
-      // console.log(
-      //   `Closing activity for Activity ID: ${this.nextActivity.activity}`
-      // );
-      let step = {
-        title: 'Closed',
-        status: 'SAFE',
-        updated: new Date()
-      };
-      this.updateTimeline(step);
+    addTimeline(status) {
+      Timeline.$create({
+        data: {
+          activity_id: this.member.lastActivity.id,
+          state: status,
+          updated: new Date()
+        }
+      });
+      this.refreshMember();
     },
 
     expireActivity() {
@@ -190,35 +197,6 @@ export default {
       this.updateTimeline(step);
 
       // this is where we remind the member to close the activity
-      this.sheet = true;
-    },
-
-    cancelActivity() {
-      console.log(
-        `Activity cancelled for Activity ID: ${this.nextActivity.activity}`
-      );
-      let step = {
-        title: 'Cancelled',
-        status: 'SAFE',
-        updated: new Date()
-      };
-      this.updateTimeline(step);
-    },
-
-    escalateActivity() {
-      console.log(
-        `Escalating Activity ID: ${this.nextActivity.activity} to sovrinSecours server...`
-      );
-      let step = {
-        title: 'Escalated ',
-        status: 'ESCALATED',
-        updated: new Date()
-      };
-      this.updateTimeline(step);
-
-      // this is where we notify safety team and/or sovrinSecours server
-      this.showEscalationAlert = true;
-      this.sheet = !this.showEscalationAlert;
     },
 
     standDown() {
@@ -228,14 +206,12 @@ export default {
   },
 
   async created() {
+    this.refreshMember();
     console.log('Countdown.vue created. Fetching data.');
   },
 
   mounted() {
     console.log('Countdown.vue mounted');
-    // if (!this.member.hasActivity) {
-    //   this.getInitialActivity();
-    // }
   }
 };
 </script>
