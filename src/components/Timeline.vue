@@ -44,31 +44,39 @@
     </v-card-text>
 
     <v-timeline align-top :dense="true">
-      <v-timeline-item v-for="(item, i) in activeTimeline" :key="i" fill-dot>
-        <!-- <v-card :color="item.color" dark> -->
-        <v-card dark>
-          <!-- <v-card-title v-if="item.title" class="title pt-3 pb-3">
+      <v-timeline-item
+        v-for="(item, i) in activeTimeline"
+        :key="i"
+        fill-dot
+        :icon="item.icon"
+      >
+        <!-- <v-card :color="getColor(item)" dark> -->
+        <v-card :color="item.color" dark>
+          <v-card-title v-if="item.title" class="title pt-3 pb-3">
             <h3 class="title">
-              {{ `${item.title}: at ${formatDate(item.updated)}` }}
+              {{ `${item.title}: at ${item.updated}` }}
             </h3>
-          </v-card-title> -->
-          <!-- <v-card-title v-if="item.note" class="title pt-3 pb-3">
+          </v-card-title>
+
+          <v-card-title v-if="item.note" class="title pt-3 pb-3">
             <h3 class="title">
               NOTES
             </h3>
-          </v-card-title> -->
+          </v-card-title>
           <v-card-text v-if="item" class="white text--primary">
-            <!-- <pre>{{ formatTimeline(item.state) }}</pre> -->
-            <pre>state {{ item.state }}</pre>
+            <!-- 
+
+              <pre>{{ formatTimeline(item.state) }}</pre>
+            <pre>state {{ item.state }}</pre> -->
             <p class="pt-3 body-1 mb-0">
               {{ item.state }} at {{ item.updated }}
             </p>
           </v-card-text>
-          <!-- <v-card-text v-if="item.note" class="white text--primary">
+          <v-card-text v-if="item.note" class="white text--primary">
             <p class="pt-3 body-1 mb-0">
               {{ item.note }}
             </p>
-          </v-card-text> -->
+          </v-card-text>
         </v-card>
       </v-timeline-item>
     </v-timeline>
@@ -90,12 +98,32 @@ export default {
   data() {
     return {
       FULL_DATE: 'hh:mm A MM/DD/YYYY',
-      memberID: ''
+      memberID: '',
+
+      timelineKeys: new Map([
+        ['ACTIVE', { color: 'yellow darken-1', icon: 'mdi-door-open' }],
+        ['SAFE', { color: 'green lighten-1', icon: 'mdi-gift' }],
+        ['UNKNOWN', { color: 'orange lighten-1', icon: 'mdi-bell-alert' }],
+        ['ESCALATED', { color: 'red lighten-1', icon: 'mdi-shield-alert' }]
+      ])
     };
   },
   computed: {
     activeTimeline() {
-      return this.activity ? this.activity.timeline : [];
+      console.log(this.activity);
+      let x = [];
+
+      this.activity.timeline.forEach(element => {
+        let t = this.timelineKeys.get(element.state);
+        x.push({
+          title: element.state,
+          updated: element.updated,
+          color: t.color,
+          icon: t.icon
+        });
+      });
+      console.log('annotated timeline', x);
+      return x;
     },
 
     getDepartingFrom() {

@@ -20,6 +20,8 @@ export default {
   },
 
   methods: {},
-  created() {}
+  created() {
+    console.log('Profile.vue.created()');
+  }
 };
 </script>

@@ -103,34 +103,6 @@ export default {
   },
 
   computed: {
-    member() {
-      let x = Member.query().first();
-      if (!x) {
-        console.log('No members yet. Adding default.');
-        x = Member.$create({
-          data: {
-            firstName: '',
-            lastName: '',
-            age: '',
-            gender: '',
-            image: '',
-            activities: [
-              {
-                departFrom: 'some place',
-                arriveAt: 'somewhere else',
-                description: 'Name me',
-                departure: '',
-                arrival: '',
-                member_id: ''
-              }
-            ]
-          }
-        });
-      }
-
-      return x;
-    },
-
     noMember() {
       return !this.member;
     },
@@ -207,6 +179,8 @@ export default {
   },
 
   data: () => ({
+    member: '',
+
     agreeToTerms: false,
     agreeToTermsRules: [
       value =>
@@ -237,6 +211,11 @@ export default {
     // validateForm() {
     //   this.$refs.signUpForm.validate();
     // }
+  },
+
+  async created() {
+    this.member = await Member.query().first();
+    console.log('ProfileCard.vue.created(): Ready for ', this.member.firstName);
   },
   mounted() {}
 };

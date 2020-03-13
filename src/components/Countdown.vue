@@ -77,29 +77,6 @@ export default {
     }
   },
 
-  timelineKey: [
-    {
-      state: 'ACTIVE',
-      color: 'yellow darken-1',
-      icon: 'mdi-door-open'
-    },
-    {
-      state: 'SAFE',
-      color: 'orange lighten-1',
-      icon: 'mdi-gift'
-    },
-    {
-      state: 'UNKNOWN',
-      color: 'yellow darken-1',
-      icon: 'mdi-bell-alert'
-    },
-    {
-      state: 'ESCALATED',
-      color: 'red lighten-1',
-      icon: 'mdi-shield-alert'
-    }
-  ],
-
   data() {
     return {
       member: '',
@@ -108,21 +85,6 @@ export default {
     };
   },
   methods: {
-    // refreshMember() {
-    //   this.member = Member.query()
-    //     .with('activities.timeline')
-    //     .first();
-    //   if (this.member.lastActivity) {
-    //     this.description = this.member.lastActivity.description;
-    //     this.state =
-    //       this.member.lastActivity.timeline.length > 0
-    //         ? this.member.lastActivity.timeline[
-    //             this.member.lastActivity.timeline.length - 1
-    //           ].state
-    //         : 'UNDEFINED';
-    //   }
-    //   console.log('Countdown.refreshMember():', this.description, this.state);
-    // },
     addActivity() {
       console.log('Adding activity...');
       // Activity.$create({
@@ -137,7 +99,7 @@ export default {
     // updates should requery state
     updateTimeline(status) {
       console.log('Adding timeline with...');
-
+      let event = 'update-arrival';
       this.addTimeline(status);
       switch (status) {
         case 'SAFE':
@@ -151,7 +113,11 @@ export default {
           this.showEscalationAlert = true;
           this.sheet = !this.showEscalationAlert;
           break;
+        default:
+          event = 'update-departure';
       }
+      console.log('Countdown.vue.updateTimeline: emitting event', event);
+      this.$emit(event);
     },
 
     addTimeline(status) {

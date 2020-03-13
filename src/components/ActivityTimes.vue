@@ -13,11 +13,11 @@
 
           <v-text-field
             class=" sm-12 pt-7"
-            v-model="dateRangeText"
             label="Date range"
             readonly
             hint="Round trips: Toggle date.  Multiday excursions: toggle two dates"
             persistent-hint
+            v-model="dateRangeText"
           ></v-text-field
         ></v-col>
 
@@ -34,9 +34,9 @@
           <v-text-field
             label="Departing"
             readonly
-            v-model="departing"
             hint="Change time with mouse or scroll"
             persistent-hint
+            v-model="departing"
           ></v-text-field>
         </v-col>
 
@@ -53,9 +53,9 @@
           <v-text-field
             label="Arriving"
             readonly
-            v-model="arriving"
             hint="Change time with mouse or scroll"
             persistent-hint
+            v-model="arriving"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -65,6 +65,8 @@
           :departure="departure"
           @timeline-add="addTimeline"
           @activity-add="addActivity"
+          @update-departure="updateDeparture"
+          @update-arrival="updateArrival"
         />
       </v-row>
     </v-container>
@@ -119,13 +121,11 @@ export default {
 
     // arrival time-picker label value
     arriving() {
-      this.onChangeArrival(); //update the Member in parent
       return this.arrival;
     },
 
     // departure time-picker label value
     departing() {
-      this.onChangeDeparture(); //update the Member in parent
       return this.departure;
     }
   },
@@ -159,21 +159,24 @@ export default {
       this.$emit('timeline-add', status);
     },
 
-    onChangeDeparture() {
+    updateDeparture() {
+      let departure = new Date();
       console.log(
-        'ActivityTimes.onChangeDeparture: Handling Activity Departure',
-        `for ID:  ${this.member.lastActivity.id} to ${this.departure}`
+        'ActivityTimes.updateDeparture: Recording Activity Departure',
+        `for ID:  ${this.member.lastActivity.id}
+        to ${departure}`
       );
-      this.$emit('set-time', { departure: this.departure });
+      this.$emit('record-departure');
     },
 
-    onChangeArrival() {
-      // No need to update the Activity because arrival is a function of closing the activity. right?
+    updateArrival() {
+      let arrival = new Date();
       console.log(
-        'ActivityTimes.onChangeArrival: Handling Activity Arrival',
-        `for ID:  ${this.member.lastActivity.id} from 
-        ${this.member.lastActivity.arrival} to ${this.arrival}`
+        'ActivityTimes.updateArrival: Recording Activity Departure',
+        `for ID:  ${this.member.lastActivity.id}
+        to ${arrival}`
       );
+      this.$emit('record-arrival');
     }
   },
 

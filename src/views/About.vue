@@ -70,6 +70,8 @@
               :memberProp="member"
               @set-time="setTime"
               @timeline-add="addTimeline"
+              @record-departure="recordDeparture"
+              @record-arrival="recordArrival"
             />
           </v-row>
 
@@ -195,6 +197,13 @@ export default {
     //   }
     // },
 
+    recordDeparture() {
+      this.updateActivityWith({ departure: new Date() });
+    },
+    recordArrival() {
+      this.updateActivityWith({ arrival: new Date() });
+    },
+
     addTimeline(status) {
       Timeline.$create({
         data: {
@@ -203,7 +212,6 @@ export default {
           updated: new Date()
         }
       });
-      this.hasDeparted = false;
       this.refreshMember();
     },
 
@@ -219,6 +227,11 @@ export default {
     },
 
     updateActivityWith(payload) {
+      console.log(
+        `Updating activity ${this.member.lastActivity.id} with ${JSON.stringify(
+          payload
+        )}`
+      );
       Activity.$update({
         where: this.member.lastActivity.id,
         data: payload
@@ -259,9 +272,9 @@ export default {
       this.addActivity();
       alert('Be sure to give new activity a name before you depart');
     }
-    this.hasDeparted = this.member.hasDeparted;
-    this.hasActivity = this.member.hasActivity == 1 ? true : false;
-    this.lastActivity = this.member.lastActivity;
+    console.log(
+      `About.vu.created: Member's lastActivity: ${this.member.lastActivity}`
+    );
   }
 };
 </script>
