@@ -66,7 +66,11 @@
           <!-- DateTime Section -->
           <v-row>
             <!-- Includes the Countdown component -->
-            <ActivityTimes :memberProp="member" @set-time="setTime" />
+            <ActivityTimes
+              :memberProp="member"
+              @set-time="setTime"
+              @timeline-add="addTimeline"
+            />
           </v-row>
 
           <!-- This Activity Timeline -->

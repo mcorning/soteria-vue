@@ -117,12 +117,11 @@ export default {
           age: '',
           gender: '',
           image: '',
-
           activities: [
             {
-              departFrom: 'some place',
-              arriveAt: 'somewhere else',
-              description: 'Name me',
+              departFrom: 'Starting place',
+              arriveAt: 'Some place else',
+              description: 'What are you up to?',
               departure: '',
               arrival: '',
               member_id: ''
@@ -131,11 +130,6 @@ export default {
         }
       }).then(m => {
         console.log('new member', m);
-        console.log('member.id', Member.query().first().id);
-        // console.log('updating new activity with member.id');
-        // Activity.$update({
-        //   data: { member_id: Member.query().first().id }
-        // });
       });
     }
 
@@ -150,26 +144,6 @@ export default {
         data: { member_id: Member.query().first().id }
       });
     }
-
-    // // if (Object.keys(a).length > 0) {
-    // console.log('Fetched members', a);
-    // // } else {
-    //   console.log('No activities yet. Adding default activity.');
-    //   a = Activity.$create({
-    //     data: {
-    //       departFrom: 'some place',
-    //       arriveAt: 'somewhere',
-    //       description: 'Name me',
-    //       departure: '',
-    //       arrival: '',
-    //       member_id: Member.query().first().id
-    //     }
-    //   }).then(a => {
-    //     console.log('new activity', a);
-    //     console.log('member.id', a.member_id);
-    //     console.log('activity.id', Activity.query().first().id);
-    //   });
-    // }
 
     await Timeline.$fetch();
   }

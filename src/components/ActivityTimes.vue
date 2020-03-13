@@ -29,7 +29,6 @@
             scrollable
             :ampm-in-title="true"
             v-model="departingAt"
-            @change="onChangeDeparture"
           ></v-time-picker>
 
           <v-text-field
@@ -44,23 +43,29 @@
         <!-- Arrival column -->
         <v-col cols="12" sm="4">
           <h3>Choose an Arrival Time:</h3>
+
           <v-time-picker
             scrollable
             :ampm-in-title="!use24hrClock"
-            v:value="arrivingAt"
+            v-model="arrivingAt"
           ></v-time-picker>
 
           <v-text-field
             label="Arriving"
             readonly
-            :value="arriving"
+            v-model="arriving"
             hint="Change time with mouse or scroll"
             persistent-hint
           ></v-text-field>
         </v-col>
       </v-row>
       <v-row>
-        <Countdown :arrival="arrival" :departure="departure" />
+        <Countdown
+          :arrival="arrival"
+          :departure="departure"
+          @timeline-add="addTimeline"
+          @activity-add="addActivity"
+        />
       </v-row>
     </v-container>
   </div>
@@ -127,6 +132,7 @@ export default {
 
   data() {
     return {
+      isMounted: false,
       member: this.memberProp,
 
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
@@ -145,6 +151,14 @@ export default {
   },
 
   methods: {
+    addActivity() {
+      console.log('ActivityTimes.vue.addActivity():');
+    },
+    addTimeline(status) {
+      console.log('ActivityTimes.vue.addTimeline():', status);
+      this.$emit('timeline-add', status);
+    },
+
     onChangeDeparture() {
       console.log(
         'ActivityTimes.onChangeDeparture: Handling Activity Departure',
@@ -154,18 +168,12 @@ export default {
     },
 
     onChangeArrival() {
-      // without this guard, we get in an endless loop where even when arrival doesn't change,
-      // it triggers a loop that does not happen with updateing departure above. odd.
-      if (this.member.lastActivity.arrival == this.arrival) {
-        // Arrival has not changed. No update necessary.
-        console.log('No change in arrival');
-        return;
-      }
+      // No need to update the Activity because arrival is a function of closing the activity. right?
       console.log(
-        'ActivityTimes.onChangeArrival: Handling Activity Departure',
-        `for ID:  ${this.member.lastActivity.id} to ${this.arrival}`
+        'ActivityTimes.onChangeArrival: Handling Activity Arrival',
+        `for ID:  ${this.member.lastActivity.id} from 
+        ${this.member.lastActivity.arrival} to ${this.arrival}`
       );
-      this.$emit('set-time', { arrival: this.arrival });
     }
   },
 
@@ -176,6 +184,7 @@ export default {
   mounted() {
     console.log('ActivityTimes component mounted');
     console.log('member id:', this.member.id);
+    this.isMounted = true;
   }
 };
 </script>

@@ -141,7 +141,7 @@ export default {
       this.addTimeline(status);
       switch (status) {
         case 'SAFE':
-          this.addActivity();
+          this.$emit('activity-add');
           break;
         case 'EXPIRED':
           this.sheet = true;
@@ -156,27 +156,7 @@ export default {
 
     addTimeline(status) {
       console.log('...', status);
-
-      // Timeline.$create({
-      //   data: {
-      //     activity_id: this.member.lastActivity.id,
-      //     state: status,
-      //     updated: new Date()
-      //   }
-      // });
-      // this.refreshMember();
-    },
-
-    expireActivity() {
-      console.log(`Activity expired for Activity ID: `);
-      // let step = {
-      //   title: 'Expired',
-      //   status: 'UNKNOWN',
-      //   updated: new Date()
-      // };
-      // this.updateTimeline(step);
-
-      // this is where we remind the member to close the activity
+      this.$emit('timeline-add', status);
     },
 
     standDown() {
