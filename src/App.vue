@@ -49,8 +49,8 @@
 <script>
 // import L from './logger';
 import store from '@/store';
-import Activity from '@/models/Activity';
 import Member from '@/models/Member';
+import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
 export default {
   name: 'App',
@@ -102,14 +102,76 @@ export default {
     }
   },
   mounted() {},
-  async created() {
-    console.log('Fetching data from localForage');
-    await Member.$fetch();
-    await Activity.$fetch();
-    await Timeline.$fetch();
 
-    // this is not reliably available, but Member seems to be
-    console.log('App.vue created for', Member.query().first().firstName);
+  async created() {
+    console.log('Fetching Members from localForage');
+    let m = await Member.$fetch();
+    if (Object.keys(m).length > 0) {
+      console.log('Fetched members', m);
+    } else {
+      console.log('No members yet. Adding default member.');
+      m = Member.$create({
+        data: {
+          firstName: '',
+          lastName: '',
+          age: '',
+          gender: '',
+          image: '',
+
+          activities: [
+            {
+              departFrom: 'some place',
+              arriveAt: 'somewhere else',
+              description: 'Name me',
+              departure: '',
+              arrival: '',
+              member_id: ''
+            }
+          ]
+        }
+      }).then(m => {
+        console.log('new member', m);
+        console.log('member.id', Member.query().first().id);
+        // console.log('updating new activity with member.id');
+        // Activity.$update({
+        //   data: { member_id: Member.query().first().id }
+        // });
+      });
+    }
+
+    console.log('Fetching Activities from localForage');
+    await Activity.$fetch();
+    let mid = Activity.query().first().member_id;
+    if (mid) {
+      console.log('member_id', mid);
+    } else {
+      Activity.$update({
+        where: Activity.query().first().id,
+        data: { member_id: Member.query().first().id }
+      });
+    }
+
+    // // if (Object.keys(a).length > 0) {
+    // console.log('Fetched members', a);
+    // // } else {
+    //   console.log('No activities yet. Adding default activity.');
+    //   a = Activity.$create({
+    //     data: {
+    //       departFrom: 'some place',
+    //       arriveAt: 'somewhere',
+    //       description: 'Name me',
+    //       departure: '',
+    //       arrival: '',
+    //       member_id: Member.query().first().id
+    //     }
+    //   }).then(a => {
+    //     console.log('new activity', a);
+    //     console.log('member.id', a.member_id);
+    //     console.log('activity.id', Activity.query().first().id);
+    //   });
+    // }
+
+    await Timeline.$fetch();
   }
 };
 </script>

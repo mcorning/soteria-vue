@@ -105,6 +105,29 @@ export default {
   computed: {
     member() {
       let x = Member.query().first();
+      if (!x) {
+        console.log('No members yet. Adding default.');
+        x = Member.$create({
+          data: {
+            firstName: '',
+            lastName: '',
+            age: '',
+            gender: '',
+            image: '',
+            activities: [
+              {
+                departFrom: 'some place',
+                arriveAt: 'somewhere else',
+                description: 'Name me',
+                departure: '',
+                arrival: '',
+                member_id: ''
+              }
+            ]
+          }
+        });
+      }
+
       return x;
     },
 

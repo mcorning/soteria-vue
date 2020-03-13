@@ -59,9 +59,9 @@
 <script>
 import Timer from './Timer';
 // import L from '@/logger';
-import Member from '@/models/Member';
-import Activity from '@/models/Activity';
-import Timeline from '@/models/Timeline';
+// import Member from '@/models/Member';
+// import Activity from '@/models/Activity';
+// import Timeline from '@/models/Timeline';
 
 export default {
   components: {
@@ -103,61 +103,41 @@ export default {
   data() {
     return {
       member: '',
-      // member: Member.query().first(),
-      // memberAll: Member.query()
-      //   .with('activities.timeline')
-      //   .first(),
-      // activity: Member.query()
-      //   .with('activities.timeline')
-      //   .last(),
-      // hasActivity: Member.query()
-      //   .has('activities.timeline')
-      //   .get(),
-
       sheet: false,
       showEscalationAlert: false
-      // nextActivity: {
-      //   id: '',
-      //   activity: '',
-      //   departedFrom: '',
-      //   arrivedAt: '',
-      //   departure: '',
-      //   arrival: ''
-      // }
     };
   },
   methods: {
-    refreshMember() {
-      this.member = Member.query()
-        .with('activities.timeline')
-        .first();
-      if (this.member.lastActivity) {
-        this.description = this.member.lastActivity.description;
-        this.state =
-          this.member.lastActivity.timeline.length > 0
-            ? this.member.lastActivity.timeline[
-                this.member.lastActivity.timeline.length - 1
-              ].state
-            : 'UNDEFINED';
-      }
-      // add a default activity if the only activity left is also the last activity
-      // if (this.member.lastActivity.id === this.member.activities[0].id) {
-      //   this.addActivity();
-      // }
-      console.log('refreshMember():', this.description, this.state);
-    },
+    // refreshMember() {
+    //   this.member = Member.query()
+    //     .with('activities.timeline')
+    //     .first();
+    //   if (this.member.lastActivity) {
+    //     this.description = this.member.lastActivity.description;
+    //     this.state =
+    //       this.member.lastActivity.timeline.length > 0
+    //         ? this.member.lastActivity.timeline[
+    //             this.member.lastActivity.timeline.length - 1
+    //           ].state
+    //         : 'UNDEFINED';
+    //   }
+    //   console.log('Countdown.refreshMember():', this.description, this.state);
+    // },
     addActivity() {
-      Activity.$create({
-        data: {
-          member_id: this.member.id,
-          description: this.description,
-          updated: new Date()
-        }
-      });
-      this.refreshMember();
+      console.log('Adding activity...');
+      // Activity.$create({
+      //   data: {
+      //     member_id: this.member.id,
+      //     description: this.description,
+      //     updated: new Date()
+      //   }
+      // });
+      // this.refreshMember();
     },
     // updates should requery state
     updateTimeline(status) {
+      console.log('Adding timeline with...');
+
       this.addTimeline(status);
       switch (status) {
         case 'SAFE':
@@ -175,26 +155,26 @@ export default {
     },
 
     addTimeline(status) {
-      Timeline.$create({
-        data: {
-          activity_id: this.member.lastActivity.id,
-          state: status,
-          updated: new Date()
-        }
-      });
-      this.refreshMember();
+      console.log('...', status);
+
+      // Timeline.$create({
+      //   data: {
+      //     activity_id: this.member.lastActivity.id,
+      //     state: status,
+      //     updated: new Date()
+      //   }
+      // });
+      // this.refreshMember();
     },
 
     expireActivity() {
-      console.log(
-        `Activity expired for Activity ID: ${this.nextActivity.activity}`
-      );
-      let step = {
-        title: 'Expired',
-        status: 'UNKNOWN',
-        updated: new Date()
-      };
-      this.updateTimeline(step);
+      console.log(`Activity expired for Activity ID: `);
+      // let step = {
+      //   title: 'Expired',
+      //   status: 'UNKNOWN',
+      //   updated: new Date()
+      // };
+      // this.updateTimeline(step);
 
       // this is where we remind the member to close the activity
     },
@@ -206,7 +186,7 @@ export default {
   },
 
   async created() {
-    this.refreshMember();
+    // this.refreshMember();
     console.log('Countdown.vue created. Fetching data.');
   },
 

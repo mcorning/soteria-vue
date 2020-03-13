@@ -7,7 +7,7 @@
         </v-col>
       </v-row>
     </v-card-title>
-    <!-- <v-card-text>
+    <v-card-text>
       <v-row>
         <v-text-field
           class="pa-2"
@@ -41,7 +41,7 @@
           v-model="arriving"
         ></v-text-field>
       </v-row>
-    </v-card-text> -->
+    </v-card-text>
 
     <v-timeline align-top :dense="true">
       <v-timeline-item v-for="(item, i) in activeTimeline" :key="i" fill-dot>
@@ -151,6 +151,8 @@ export default {
       return et;
     }
   },
-  mounted() {}
+  mounted() {
+    console.log('Timeline mounted');
+  }
 };
 </script>

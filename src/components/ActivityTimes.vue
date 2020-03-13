@@ -24,6 +24,7 @@
         <!-- Departure column -->
         <v-col cols="12" sm="4">
           <h3>Choose a Departure Time:</h3>
+
           <v-time-picker
             scrollable
             :ampm-in-title="true"
@@ -46,7 +47,7 @@
           <v-time-picker
             scrollable
             :ampm-in-title="!use24hrClock"
-            v-model="arrivingAt"
+            v:value="arrivingAt"
           ></v-time-picker>
 
           <v-text-field
@@ -62,21 +63,6 @@
         <Countdown :arrival="arrival" :departure="departure" />
       </v-row>
     </v-container>
-    <v-container>
-      <v-row>
-        <v-col cols="12">
-          lastActivity:
-          <pre>{{ member.lastActivity }} </pre>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col cols="12">
-          Member Activities
-          <pre>{{ member }} </pre>
-        </v-col>
-      </v-row>
-    </v-container>
   </div>
 </template>
 
@@ -84,12 +70,15 @@
 import moment from 'moment';
 // import L from '@/logger';
 import Countdown from './Countdown';
-import Member from '@/models/Member';
-import Activity from '@/models/Activity';
 
 export default {
   components: {
     Countdown
+  },
+  props: {
+    memberProp: {
+      type: Object
+    }
   },
 
   computed: {
@@ -100,7 +89,7 @@ export default {
       return this.dates.join(' - ');
     },
 
-    // Countdown prop
+    // This will be a Countdown prop
     arrival: {
       get() {
         let a = this.dates[1] || this.dates[0];
@@ -108,40 +97,37 @@ export default {
         return new Date(adt);
       },
       set(newVal) {
-        console.log('Updating Arrival prop');
-        this.update({ arrival: newVal });
+        console.log('Updating Arrival prop with ', newVal);
       }
     },
 
+    // This will be a Countdown prop
     departure: {
       get() {
         let ddt = `${this.dates[0]} ${this.departingAt}`;
         return new Date(ddt);
       },
       set(newVal) {
-        console.log('Updating Departure computed property');
-        this.update({ departure: newVal });
+        console.log('Updating Departure computed property with ', newVal);
       }
     },
 
     // arrival time-picker label value
     arriving() {
-      this.onChangeArrival();
-      // let x = moment(this.arrival).format(this.FULL_DATE);
+      this.onChangeArrival(); //update the Member in parent
       return this.arrival;
     },
 
     // departure time-picker label value
     departing() {
-      this.onChangeDeparture();
-      // return moment(this.departure).format(this.FULL_DATE);
+      this.onChangeDeparture(); //update the Member in parent
       return this.departure;
     }
   },
 
   data() {
     return {
-      member: '',
+      member: this.memberProp,
 
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
 
@@ -159,69 +145,32 @@ export default {
   },
 
   methods: {
-    //vuexorm state is not reactive out of the box, so queries belong in methods
-    refreshMember() {
-      this.member = Member.query()
-        .with('activities.timeline')
-        .first();
-      if (this.member.lastActivity) {
-        this.description = this.member.lastActivity.description;
-        this.state =
-          this.member.lastActivity.timeline.length > 0
-            ? this.member.lastActivity.timeline[
-                this.member.lastActivity.timeline.length - 1
-              ].state
-            : 'UNDEFINED';
-      }
-      // add a default activity if the only activity left is also the last activity
-      // if (this.member.lastActivity.id === this.member.activities[0].id) {
-      //   this.addActivity();
-      // }
-      console.log('refreshMember():', this.description, this.state);
-    },
-    update(payload) {
-      Activity.$update({
-        where: this.member.lastActivity.id,
-        data: payload
-      });
-      this.refreshMember();
-    },
-
     onChangeDeparture() {
       console.log(
-        'Updating Activity Departure',
-        this.member.lastActivity
-          ? `for ID:  ${this.member.lastActivity.id} to ${this.departure}`
-          : 'while loading app'
+        'ActivityTimes.onChangeDeparture: Handling Activity Departure',
+        `for ID:  ${this.member.lastActivity.id} to ${this.departure}`
       );
-
-      this.update({ departure: this.departure });
+      this.$emit('set-time', { departure: this.departure });
     },
 
     onChangeArrival() {
-      if (!this.member.lastActivity) {
-        // Loading: no updated possible
-        return;
-      }
       // without this guard, we get in an endless loop where even when arrival doesn't change,
       // it triggers a loop that does not happen with updateing departure above. odd.
       if (this.member.lastActivity.arrival == this.arrival) {
         // Arrival has not changed. No update necessary.
+        console.log('No change in arrival');
         return;
       }
-
       console.log(
-        'Updating Activity Arrival',
-        this.activity
-          ? `for ID:  ${this.member.lastActivity.id} to ${this.arrival}`
-          : ' while loading app...'
+        'ActivityTimes.onChangeArrival: Handling Activity Departure',
+        `for ID:  ${this.member.lastActivity.id} to ${this.arrival}`
       );
-      this.update({ arrival: this.arrival });
+      this.$emit('set-time', { arrival: this.arrival });
     }
   },
 
   created() {
-    this.refreshMember();
+    console.log('ActivityTimes.prop.member', this.member);
   },
 
   mounted() {

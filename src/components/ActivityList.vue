@@ -49,15 +49,11 @@
     </v-btn>
     <v-row>
       <v-col>
-        <!-- hasDeparted (|lastActivity.timeline| > 0):
-        <pre>{{ member.hasDeparted }} </pre>
-        hasActivity (|member.activities|):
-        <pre>{{ member.hasActivity === 1 }} </pre> -->
         state
         <pre>{{ state }} </pre>
       </v-col>
     </v-row>
-    <v-row>
+    <!-- <v-row>
       <v-col>
         lastActivity:
         <pre>{{ member.lastActivity }} </pre>
@@ -69,7 +65,7 @@
         Member Activities
         <pre>{{ member }} </pre>
       </v-col>
-    </v-row>
+    </v-row> -->
   </div>
 </template>
 
@@ -117,7 +113,11 @@ export default {
       if (this.member.lastActivity.id === this.member.activities[0].id) {
         this.addActivity();
       }
-      console.log('refreshMember():', this.description, this.state);
+      console.log(
+        'ActivityList.refreshMember():',
+        this.description,
+        this.state
+      );
     },
 
     // updates should requery state
@@ -188,7 +188,11 @@ export default {
   created() {
     // get member data
     this.refreshMember();
-    console.log('created(): Member has', this.member.hasActivity, 'activities');
+    console.log(
+      'ActivityList.created(): Member has',
+      this.member.hasActivity,
+      'activities'
+    );
     if (this.member.hasActivity == 0) {
       console.log('Adding default activity for ', this.member.firstName);
       this.addActivity();

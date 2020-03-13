@@ -66,12 +66,15 @@
           <!-- DateTime Section -->
           <v-row>
             <!-- Includes the Countdown component -->
-            <ActivityTimes />
+            <ActivityTimes :memberProp="member" @set-time="setTime" />
           </v-row>
 
           <!-- This Activity Timeline -->
           <v-row>
-            <!-- <TimelineVue heading="This time I am:" /> -->
+            <TimelineVue
+              heading="This time I am:"
+              :activity="member.lastActivity"
+            />
           </v-row>
 
           <!-- Last Activity Timeline -->
@@ -81,17 +84,33 @@
         </v-col>
       </v-row>
     </v-container>
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          lastActivity:
+          <pre>{{ member.lastActivity }} </pre>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col cols="12">
+          Member Activities
+          <pre>{{ member }} </pre>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
 import ActivityTimes from '@/components/ActivityTimes';
+import TimelineVue from '@/components/Timeline';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
 
 export default {
-  components: { ActivityTimes },
+  components: { ActivityTimes, TimelineVue },
 
   computed: {
     disableDepart() {
@@ -101,6 +120,7 @@ export default {
       return ['SAFE', 'UNDEFINED'].includes(this.state);
     },
 
+    // these are bound to NextActivity section above
     arriveAt: {
       get() {
         let x = this.activity ? this.activity.arriveAt : '';
@@ -128,12 +148,20 @@ export default {
     return {
       member: '',
       description: '',
-
+      arrival: '',
+      departure: '',
       state: ''
     };
   },
 
   methods: {
+    setTime(payload) {
+      console.log(
+        `Updating time for Activity ${this.member.lastActivity.id}`,
+        payload
+      );
+      this.updateActivityWith(payload);
+    },
     //vuexorm state is not reactive out of the box, so queries belong in methods
     refreshMember() {
       this.member = Member.query()
@@ -152,7 +180,7 @@ export default {
       // if (this.member.lastActivity.id === this.member.activities[0].id) {
       //   this.addActivity();
       // }
-      console.log('refreshMember():', this.description, this.state);
+      console.log('About.refreshMember():', this.description, this.state);
     },
 
     // // updates should requery state
@@ -217,7 +245,11 @@ export default {
   created() {
     // get member data
     this.refreshMember();
-    console.log('created(): Member has', this.member.hasActivity, 'activities');
+    console.log(
+      'About.created(): Member has',
+      this.member.hasActivity,
+      'activities'
+    );
     if (this.member.hasActivity == 0) {
       console.log('Adding default activity for ', this.member.firstName);
       this.addActivity();

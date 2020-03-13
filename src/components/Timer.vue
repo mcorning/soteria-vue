@@ -9,7 +9,7 @@
       <button
         id="vuemodoro-start"
         class="btn"
-        :disabled="isStartDisabled"
+        :disabled="!disableToggle"
         @click="runCountdown"
       >
         {{ startLabel }}
@@ -25,7 +25,7 @@
       <button
         id="vuemodoro-reset"
         class="btn"
-        :disabled="isResetDisabled"
+        :disabled="disableToggle"
         @click="resetCountdown"
       >
         {{ resetLabel }}
@@ -105,7 +105,8 @@ export default {
       stopped: true,
       mute: this.muted,
       alerted: false,
-      initialized: false
+      initialized: false,
+      disableToggle: true
     };
   },
 
@@ -155,6 +156,9 @@ export default {
   },
 
   methods: {
+    toggle: function() {
+      this.disableToggle = !this.disableToggle;
+    },
     run: function() {
       this.running = true;
       this.help = false;
@@ -174,6 +178,7 @@ export default {
     },
 
     runCountdown: function() {
+      this.toggle();
       if (this.stopped === true) {
         AudioPlayer.stopAlarm(this.audio);
         this.hrs = this.hours;
@@ -214,6 +219,8 @@ export default {
     },
 
     resetCountdown: function() {
+      this.toggle();
+
       this.$emit('close-activity');
       PomodoroTimer.stopCountdown(this.timerId);
       this.hrs = 0;
