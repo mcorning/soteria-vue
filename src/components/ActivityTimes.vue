@@ -185,10 +185,6 @@ export default {
     console.log('this.member', this.member);
   },
 
-  mounted() {
-    console.log('ActivityTimes component mounted');
-    console.log('member id:', this.member.id);
-    this.isMounted = true;
-  }
+  mounted() {}
 };
 </script>
