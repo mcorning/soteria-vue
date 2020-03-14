@@ -148,17 +148,17 @@ export default {
 
   methods: {
     addActivity() {
-      console.log('ActivityTimes.vue.addActivity():');
+      console.log('addActivity():');
     },
     addTimeline(status) {
-      console.log('ActivityTimes.vue.addTimeline():', status);
+      console.log('addTimeline():', status);
       this.$emit('timeline-add', status);
     },
 
     updateDeparture() {
       let departure = new Date();
       console.log(
-        'ActivityTimes.updateDeparture: Recording Activity Departure',
+        'Recording Activity Departure',
         `for ID:  ${this.member.lastActivity.id}
         to ${departure}`
       );
@@ -168,7 +168,7 @@ export default {
     updateArrival() {
       let arrival = new Date();
       console.log(
-        'ActivityTimes.updateArrival: Recording Activity Departure',
+        'Recording Activity Departure',
         `for ID:  ${this.member.lastActivity.id}
         to ${arrival}`
       );
@@ -180,7 +180,6 @@ export default {
     let m = Member.query()
       .with('activities')
       .first();
-    console.info('ActivityTimes.vue.member:', m);
     this.member = m;
     console.log('this.member', this.member);
   },

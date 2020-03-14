@@ -1,48 +1,53 @@
 <template>
-  <v-container class="purple lighten-5">
-    <!-- <v-row v-if="dataIsLoaded"> -->
-    <v-row>
-      <!-- New Activity -->
-      <v-col>
-        <!-- <NextActivity /> -->
-        <v-row>
-          <NextActivityForm
-            @departFrom-set="updateActivityWith"
-            @arriveAt-set="updateActivityWith"
-            @description-set="updateActivityWith"
-          />
-        </v-row>
+  <div v-if="loading">
+    <h2>Loading Active.vue...</h2>
+  </div>
+  <div v-else>
+    <v-container class="purple lighten-5">
+      <!-- <v-row v-if="loading"> -->
+      <v-row>
+        <!-- New Activity -->
+        <v-col>
+          <!-- <NextActivity /> -->
+          <v-row>
+            <NextActivityForm
+              @departFrom-set="updateActivityWith"
+              @arriveAt-set="updateActivityWith"
+              @description-set="updateActivityWith"
+            />
+          </v-row>
 
-        <!-- DateTime Section -->
-        <v-row>
-          <!-- Includes the Countdown component -->
-          <ActivityTimes
-            @set-time="setTime"
-            @timeline-add="addTimeline"
-            @record-departure="recordDeparture"
-            @record-arrival="recordArrival"
-          />
-        </v-row>
+          <!-- DateTime Section -->
+          <v-row>
+            <!-- Includes the Countdown component -->
+            <ActivityTimes
+              @set-time="setTime"
+              @timeline-add="addTimeline"
+              @record-departure="recordDeparture"
+              @record-arrival="recordArrival"
+            />
+          </v-row>
 
-        <!-- This Activity Timeline -->
-        <!-- <v-row>
-          <TimelineVue heading="This time I am:" />
-        </v-row> -->
+          <!-- This Activity Timeline -->
+          <v-row>
+            <TimelineVue :memberProp="member" heading="This time I am:" />
+          </v-row>
 
-        <!-- Last Activity Timeline -->
-        <!-- <v-row v-if="lastTimeline"> -->
-        <!-- <TimelineVue heading="Last time I was:" /> -->
-        <!-- </v-row> -->
-      </v-col>
-    </v-row>
-  </v-container>
+          <!-- Last Activity Timeline -->
+          <!-- <v-row v-if="lastTimeline"> -->
+          <!-- <TimelineVue heading="Last time I was:" /> -->
+          <!-- </v-row> -->
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>
 import moment from 'moment';
 import NextActivityForm from '../components/NextActivityForm';
 import ActivityTimes from '../components/ActivityTimes';
-// import TimelineVue from '../components/Timeline';
+import TimelineVue from '../components/Timeline';
 
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
@@ -51,7 +56,7 @@ import Timeline from '@/models/Timeline';
 
 export default {
   components: {
-    // TimelineVue,
+    TimelineVue,
     NextActivityForm,
     ActivityTimes
   },
@@ -60,15 +65,8 @@ export default {
 
   data() {
     return {
-      dataIsLoaded: false,
+      loading: false,
       member: {},
-      // member: Member.query().first(),
-      // memberAll: Member.query()
-      //   .with('activities.timeline')
-      //   .first(),
-      // activity: Member.query()
-      //   .with('activities.timeline')
-      //   .last(),
       hasActivity: Member.query()
         .has('activities.timeline')
         .get(),
@@ -123,7 +121,6 @@ export default {
               this.member.lastActivity.timeline.length - 1
             ].state
           : 'UNDEFINED';
-      this.dataIsLoaded = true;
 
       console.log('Active.vue.refreshMember():', this.description, this.state);
     },
@@ -189,11 +186,16 @@ export default {
       return timeline.length ? true : false;
     }
   },
-  created() {
+  async created() {
+    this.loading = true;
+    await Activity.$fetch();
+    await Member.$fetch();
     let m = Member.query()
       .with('activities')
       .first();
-    console.info('member with activities', m);
+    this.loading = false;
+
+    console.info('NextActivityForm.vue.activities:', m);
     this.member = m;
   },
 

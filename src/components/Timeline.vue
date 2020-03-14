@@ -1,106 +1,112 @@
 <template>
-  <v-card>
-    <v-card-title>
-      <v-row>
-        <v-col cols="12" class="pt-0 pb-0">
-          <h3>{{ heading }}<br />{{ getActivity }}</h3>
-        </v-col>
-      </v-row>
-    </v-card-title>
-    <v-card-text>
-      <v-row>
-        <v-text-field
-          class="pa-2"
-          width="10"
-          readonly
-          label="Departed From"
-          v-model="getDepartingFrom"
-        ></v-text-field>
+  <div v-if="loading">
+    <h2>Loading...</h2>
+  </div>
+  <div v-else>
+    <v-card>
+      <v-card-title>
+        <v-row>
+          <v-col cols="12" class="pt-0 pb-0">
+            <h3>{{ heading }}<br />{{ getActivity }}</h3>
+          </v-col>
+        </v-row>
+      </v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-text-field
+            class="pa-2"
+            width="10"
+            readonly
+            label="Departed From"
+            v-model="getDepartingFrom"
+          ></v-text-field>
 
-        <v-text-field
-          class="pa-2"
-          width="10"
-          readonly
-          label="Scheduled Departure"
-          v-model="departing"
-        ></v-text-field>
+          <v-text-field
+            class="pa-2"
+            width="10"
+            readonly
+            label="Scheduled Departure"
+            v-model="departing"
+          ></v-text-field>
 
-        <v-text-field
-          class="pa-2"
-          width="5"
-          readonly
-          label="Arrived At"
-          v-model="getArrivingAt"
-        ></v-text-field>
+          <v-text-field
+            class="pa-2"
+            width="5"
+            readonly
+            label="Arrived At"
+            v-model="getArrivingAt"
+          ></v-text-field>
 
-        <v-text-field
-          class="pa-2"
-          width="5"
-          readonly
-          label="Scheduled Arrival"
-          v-model="arriving"
-        ></v-text-field>
-      </v-row>
-    </v-card-text>
+          <v-text-field
+            class="pa-2"
+            width="5"
+            readonly
+            label="Scheduled Arrival"
+            v-model="arriving"
+          ></v-text-field>
+        </v-row>
+      </v-card-text>
 
-    <v-timeline align-top :dense="true">
-      <v-timeline-item
-        v-for="(item, i) in activeTimeline"
-        :key="i"
-        fill-dot
-        :icon="item.icon"
-        :color="item.color"
-      >
-        <!-- <v-card :color="getColor(item)" dark> -->
-        <v-card :color="item.color" dark>
-          <v-card-title v-if="item.title" class="title pt-3 pb-3">
-            <h3 class="title">
-              {{ `${item.title}: at ${item.updated}` }}
-            </h3>
-          </v-card-title>
+      <v-timeline align-top :dense="true">
+        <v-timeline-item
+          v-for="(item, i) in activeTimeline"
+          :key="i"
+          fill-dot
+          :icon="item.icon"
+          :color="item.color"
+        >
+          <!-- <v-card :color="getColor(item)" dark> -->
+          <v-card :color="item.color" dark>
+            <v-card-title v-if="item.title" class="title pt-3 pb-3">
+              <h3 class="title">
+                {{ `${item.title}: at ${item.updated}` }}
+              </h3>
+            </v-card-title>
 
-          <v-card-title v-if="item.note" class="title pt-3 pb-3">
-            <h3 class="title">
-              NOTES
-            </h3>
-          </v-card-title>
-          <v-card-text v-if="item" class="white text--primary">
-            <!-- 
+            <v-card-title v-if="item.note" class="title pt-3 pb-3">
+              <h3 class="title">
+                NOTES
+              </h3>
+            </v-card-title>
+            <v-card-text v-if="item" class="white text--primary">
+              <!-- 
 
               <pre>{{ formatTimeline(item.state) }}</pre>
             <pre>state {{ item.state }}</pre> -->
-            <p class="pt-3 body-1 mb-0">
-              {{ item.state }} at {{ item.updated }}
-            </p>
-          </v-card-text>
-          <v-card-text v-if="item.note" class="white text--primary">
-            <p class="pt-3 body-1 mb-0">
-              {{ item.note }}
-            </p>
-          </v-card-text>
-        </v-card>
-      </v-timeline-item>
-    </v-timeline>
-  </v-card>
+              <p class="pt-3 body-1 mb-0">
+                {{ item.state }} at {{ item.updated }}
+              </p>
+            </v-card-text>
+            <v-card-text v-if="item.note" class="white text--primary">
+              <p class="pt-3 body-1 mb-0">
+                {{ item.note }}
+              </p>
+            </v-card-text>
+          </v-card>
+        </v-timeline-item>
+      </v-timeline>
+    </v-card>
+  </div>
 </template>
 
 <script>
 import moment from 'moment';
-import Member from '@/models/Member';
+// import Member from '@/models/Member';
+// import Activity from '@/models/Activity';
 // import L from '@/logger';
 
 export default {
   name: 'EventTimeline',
 
   props: {
+    memberProp: { type: Object },
     heading: { type: String }
   },
 
   data() {
     return {
-      member: {},
+      loading: false,
       FULL_DATE: 'hh:mm A MM/DD/YYYY',
-      memberID: '',
 
       timelineKeys: new Map([
         ['ACTIVE', { color: 'yellow darken-1', icon: 'mdi-door-open' }],
@@ -111,8 +117,15 @@ export default {
     };
   },
   computed: {
+    member() {
+      return this.memberProp;
+    },
+
+    activity() {
+      return this.member.lastActivity;
+    },
     activeTimeline() {
-      console.log(this.activity);
+      console.log('this.activity', this.activity);
       let x = [];
       this.activity.timeline.forEach(element => {
         let t = this.timelineKeys.get(element.state);
@@ -178,12 +191,16 @@ export default {
       return et;
     }
   },
-  created() {
-    let m = Member.query()
-      .with('activities')
-      .first();
-    console.info('\tMember for timeline:', m);
-    this.member = m;
+  async created() {
+    // this.loading = true;
+    // await Activity.$fetch();
+    // await Member.$fetch();
+    // let m = Member.query()
+    //   .with('activities')
+    //   .first();
+    // console.info('\tMember for timeline:', m);
+    // this.member = m;
+    // this.loading = false;
   },
   mounted() {
     console.log('Timeline mounted');

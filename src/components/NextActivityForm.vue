@@ -12,6 +12,7 @@
             hint="Uses your last location"
             persistent-hint
             required
+            clearable
             v-model="departFrom"
           ></v-text-field>
         </v-col>
@@ -22,6 +23,7 @@
             label="Ending Place"
             hint="Leave blank for round trip"
             persistent-hint
+            clearable
             v-model="arriveAt"
           ></v-text-field>
         </v-col>
@@ -52,6 +54,7 @@
             label="Activity"
             hint="Choose an activity to help us help you if necessary"
             persistent-hint
+            clearable
             v-model="description"
           ></v-autocomplete>
         </v-col>
