@@ -60,6 +60,8 @@ export default {
 
   data() {
     return {
+      loading: false,
+
       firstMember: Member.query().first(),
       links: [
         {
@@ -104,6 +106,8 @@ export default {
   mounted() {},
 
   async created() {
+    this.loading = true;
+
     console.log('Fetching Members from localForage');
     let m = await Member.$fetch();
     if (Object.keys(m).length > 0) {
@@ -146,6 +150,7 @@ export default {
     }
 
     await Timeline.$fetch();
+    this.loading = false;
   }
 };
 </script>
