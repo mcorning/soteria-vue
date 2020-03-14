@@ -66,10 +66,10 @@ export default {
           label: 'Me',
           url: '/profile'
         },
-        {
-          label: 'Test',
-          url: '/test'
-        },
+        // {
+        //   label: 'Test',
+        //   url: '/test'
+        // },
         {
           label: 'My Data',
           url: '/'

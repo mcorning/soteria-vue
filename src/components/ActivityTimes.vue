@@ -77,15 +77,11 @@
 import moment from 'moment';
 // import L from '@/logger';
 import Countdown from './Countdown';
+import Member from '@/models/Member';
 
 export default {
   components: {
     Countdown
-  },
-  props: {
-    memberProp: {
-      type: Object
-    }
   },
 
   computed: {
@@ -133,7 +129,7 @@ export default {
   data() {
     return {
       isMounted: false,
-      member: this.memberProp,
+      member: {},
 
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
 
@@ -181,7 +177,12 @@ export default {
   },
 
   created() {
-    console.log('ActivityTimes.prop.member', this.member);
+    let m = Member.query()
+      .with('activities')
+      .first();
+    console.info('ActivityTimes.vue.member:', m);
+    this.member = m;
+    console.log('this.member', this.member);
   },
 
   mounted() {

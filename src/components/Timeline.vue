@@ -49,6 +49,7 @@
         :key="i"
         fill-dot
         :icon="item.icon"
+        :color="item.color"
       >
         <!-- <v-card :color="getColor(item)" dark> -->
         <v-card :color="item.color" dark>
@@ -85,18 +86,19 @@
 
 <script>
 import moment from 'moment';
+import Member from '@/models/Member';
 // import L from '@/logger';
 
 export default {
   name: 'EventTimeline',
 
   props: {
-    heading: { type: String },
-    activity: { type: Object }
+    heading: { type: String }
   },
 
   data() {
     return {
+      member: {},
       FULL_DATE: 'hh:mm A MM/DD/YYYY',
       memberID: '',
 
@@ -112,7 +114,6 @@ export default {
     activeTimeline() {
       console.log(this.activity);
       let x = [];
-
       this.activity.timeline.forEach(element => {
         let t = this.timelineKeys.get(element.state);
         x.push({
@@ -127,27 +128,25 @@ export default {
     },
 
     getDepartingFrom() {
-      return this.memberActivities
-        ? this.memberActivities.departFrom
-        : 'loading timeline';
+      return this.activity.departFrom;
     },
     getArrivingAt() {
-      return this.activity ? this.activity.arriveAt : 'loading timeline';
+      return this.activity.arriveAt;
     },
     departing() {
-      return this.activity ? this.activity.getDeparture : 'loading timeline';
+      return this.activity.getDeparture;
     },
     arriving() {
-      return this.activity ? this.activity.getArrival : 'loading timeline';
+      return this.activity.getArrival;
     },
     getActivity() {
-      return this.activity ? this.activity.description : '';
+      return this.activity.description;
     },
     getDeparture() {
-      return this.activity ? this.activity.departure : 'loading timeline';
+      return this.activity.departure;
     },
     getArrival() {
-      return this.activity ? this.activity.arrival : 'loading timeline';
+      return this.activity.arrival;
     },
     // },
     // methods: {
@@ -178,6 +177,13 @@ export default {
           : `${ata.humanize()} (${late.toFixed(1)} minutes late)`;
       return et;
     }
+  },
+  created() {
+    let m = Member.query()
+      .with('activities')
+      .first();
+    console.info('\tMember for timeline:', m);
+    this.member = m;
   },
   mounted() {
     console.log('Timeline mounted');

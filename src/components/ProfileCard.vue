@@ -94,6 +94,8 @@
 <script>
 import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
+import Activity from '@/models/Activity';
+import Timeline from '@/models/Timeline';
 
 // import * as R from 'ramda';
 
@@ -109,7 +111,10 @@ export default {
 
     firstName: {
       get() {
-        let x = this.member ? this.member.firstName : '';
+        if (this.member == '') {
+          this.getMember();
+        }
+        let x = this.member.firstName;
         return x;
       },
       set(newName) {
@@ -121,7 +126,7 @@ export default {
     },
     lastName: {
       get() {
-        let x = this.member ? this.member.lastName : '';
+        let x = this.member.lastName;
         return x;
       },
       set(newName) {
@@ -133,7 +138,7 @@ export default {
     },
     age: {
       get() {
-        let x = this.member ? this.member.age : '';
+        let x = this.member.age;
         return x;
       },
       set(newVal) {
@@ -145,7 +150,7 @@ export default {
     },
     gender: {
       get() {
-        let x = this.member ? this.member.gender : '';
+        let x = this.member.gender;
         return x;
       },
       set(newVal) {
@@ -157,7 +162,7 @@ export default {
     },
     image: {
       get() {
-        let x = this.member ? this.member.image : '';
+        let x = this.member.image;
         return x;
       },
       set(newVal) {
@@ -203,19 +208,48 @@ export default {
   }),
 
   methods: {
+    getMember() {
+      this.member = Member.query().first();
+    },
     onClear() {
-      console.log('Deleting member with ID:', this.member.id);
-      Member.$delete(this.member.id);
+      console.log('Deleting all entities');
+      Member.deleteAll();
+      Activity.deleteAll();
+      Timeline.deleteAll();
+      console.log('creating default Member and Activity');
+      Member.$create({
+        data: {
+          firstName: '',
+          lastName: '',
+          age: '',
+          gender: '',
+          image: '',
+          activities: [
+            {
+              departFrom: 'Starting place',
+              arriveAt: 'Some place else',
+              description: 'What are you up to?',
+              departure: '',
+              arrival: '',
+              member_id: ''
+            }
+          ]
+        }
+      }).then(m => {
+        let aid = Activity.query().first().id;
+        console.log('update member/activity', m.id, aid);
+        Activity.$update({
+          where: aid,
+          data: { member_id: m.id }
+        });
+      });
     }
-
-    // validateForm() {
-    //   this.$refs.signUpForm.validate();
-    // }
   },
 
-  async created() {
-    this.member = await Member.query().first();
-    console.log('ProfileCard.vue.created(): Ready for ', this.member.firstName);
+  created() {
+    this.member = Member.query().first();
+    let msg = this.member ? this.member.firstName : 'no member on this round';
+    console.log('ProfileCard.vue.created() for ', msg);
   },
   mounted() {}
 };

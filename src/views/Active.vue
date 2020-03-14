@@ -1,26 +1,38 @@
 <template>
   <v-container class="purple lighten-5">
+    <!-- <v-row v-if="dataIsLoaded"> -->
     <v-row>
       <!-- New Activity -->
       <v-col>
         <!-- <NextActivity /> -->
-        <v-row><NextActivityForm /> </v-row>
+        <v-row>
+          <NextActivityForm
+            @departFrom-set="updateActivityWith"
+            @arriveAt-set="updateActivityWith"
+            @description-set="updateActivityWith"
+          />
+        </v-row>
 
         <!-- DateTime Section -->
         <v-row>
           <!-- Includes the Countdown component -->
-          <ActivityTimes />
+          <ActivityTimes
+            @set-time="setTime"
+            @timeline-add="addTimeline"
+            @record-departure="recordDeparture"
+            @record-arrival="recordArrival"
+          />
         </v-row>
 
         <!-- This Activity Timeline -->
-        <v-row>
+        <!-- <v-row>
           <TimelineVue heading="This time I am:" />
-        </v-row>
+        </v-row> -->
 
         <!-- Last Activity Timeline -->
-        <v-row v-if="lastTimeline">
-          <!-- <TimelineVue heading="Last time I was:" /> -->
-        </v-row>
+        <!-- <v-row v-if="lastTimeline"> -->
+        <!-- <TimelineVue heading="Last time I was:" /> -->
+        <!-- </v-row> -->
       </v-col>
     </v-row>
   </v-container>
@@ -28,30 +40,35 @@
 
 <script>
 import moment from 'moment';
-import TimelineVue from '../components/Timeline';
 import NextActivityForm from '../components/NextActivityForm';
 import ActivityTimes from '../components/ActivityTimes';
+// import TimelineVue from '../components/Timeline';
+
 import Member from '@/models/Member';
-// import Activity from '@/models/Activity';
-// import Timeline from '@/models/Timeline';
+import Activity from '@/models/Activity';
+import Timeline from '@/models/Timeline';
 // import L from '@/logger';
 
 export default {
   components: {
-    TimelineVue,
+    // TimelineVue,
     NextActivityForm,
     ActivityTimes
   },
 
+  computed: {},
+
   data() {
     return {
-      member: Member.query().first(),
-      memberAll: Member.query()
-        .with('activities.timeline')
-        .first(),
-      activity: Member.query()
-        .with('activities.timeline')
-        .last(),
+      dataIsLoaded: false,
+      member: {},
+      // member: Member.query().first(),
+      // memberAll: Member.query()
+      //   .with('activities.timeline')
+      //   .first(),
+      // activity: Member.query()
+      //   .with('activities.timeline')
+      //   .last(),
       hasActivity: Member.query()
         .has('activities.timeline')
         .get(),
@@ -81,33 +98,153 @@ export default {
     };
   },
 
-  computed: {
-    lastTimeline() {
-      return this.history;
-    }
-  },
-
   methods: {
-    getInitialActivity() {
-      // Activity.$create({
-      //   data: {
-      //     member_id: this.member.id,
-      //     timeline: []
-      //   }
-      // });
+    setTime(payload) {
+      console.log(
+        `Updating time for Activity ${this.member.lastActivity.id}`,
+        payload
+      );
+      this.updateActivityWith(payload);
+    },
+
+    //vuexorm state is not reactive out of the box, so queries belong in methods
+    refreshMember() {
+      this.member = Member.query()
+        .with('activities.timeline')
+        .first();
+      console.assert(
+        this.member.lastActivity,
+        'This member does not have a default activity'
+      );
+      this.description = this.member.lastActivity.description;
+      this.state =
+        this.member.lastActivity.timeline.length > 0
+          ? this.member.lastActivity.timeline[
+              this.member.lastActivity.timeline.length - 1
+            ].state
+          : 'UNDEFINED';
+      this.dataIsLoaded = true;
+
+      console.log('Active.vue.refreshMember():', this.description, this.state);
+    },
+
+    recordDeparture() {
+      this.updateActivityWith({ departure: new Date() });
+    },
+    recordArrival() {
+      this.updateActivityWith({ arrival: new Date() });
+    },
+
+    addTimeline(status) {
+      Timeline.$create({
+        data: {
+          activity_id: this.member.lastActivity.id,
+          state: status,
+          updated: new Date()
+        }
+      });
+      this.refreshMember();
+    },
+
+    addActivity() {
+      Activity.$create({
+        data: {
+          member_id: this.member.id,
+          description: this.description,
+          updated: new Date()
+        }
+      });
+      this.refreshMember();
+    },
+
+    updateActivityWith(payload) {
+      console.log(
+        `Updating activity ${this.member.lastActivity.id} with ${JSON.stringify(
+          payload
+        )}`
+      );
+      Activity.$update({
+        where: this.member.lastActivity.id,
+        data: payload
+      });
+      this.refreshMember();
+    },
+
+    destroy() {
+      console.log('|activities|', this.member.hasActivity === 1);
+      Timeline.$delete(
+        timeline => timeline.activity_id == this.member.lastActivity.id
+      );
+      Activity.$delete(this.member.lastActivity.id);
+      // reset the lastActivity
+      this.refreshMember();
+      console.log(this.member.lastActivity.id);
+      console.log(this.member.lastActivity);
+    },
+
+    hasStartedActivity() {
+      let timeline = Member.query()
+        .has('activities.timeline')
+        .get();
+      return timeline.length ? true : false;
     }
   },
+  created() {
+    let m = Member.query()
+      .with('activities')
+      .first();
+    console.info('member with activities', m);
+    this.member = m;
+  },
 
-  async created() {
-    console.log('Active.vue created. ');
+  async createdAsync() {
+    console.log('Fetching Members from localForage');
+    let m = await Member.$fetch();
+    if (Object.keys(m).length > 0) {
+      console.log('Fetched members', m);
+    } else {
+      console.log('No members yet. Adding default member.');
+      m = Member.$create({
+        data: {
+          firstName: '',
+          lastName: '',
+          age: '',
+          gender: '',
+          image: '',
+          activities: [
+            {
+              departFrom: 'Starting place',
+              arriveAt: 'Some place else',
+              description: 'What are you up to?',
+              departure: '',
+              arrival: '',
+              member_id: ''
+            }
+          ]
+        }
+      }).then(m => {
+        console.log('new member', m);
+      });
+      this.refreshMember();
+    }
+
+    console.log('Fetching Activities from localForage');
+    await Activity.$fetch();
+    let mid = Activity.query().first().member_id;
+    if (mid) {
+      console.log('member_id', mid);
+    } else {
+      Activity.$update({
+        where: Activity.query().first().id,
+        data: { member_id: Member.query().first().id }
+      });
+    }
+
+    await Timeline.$fetch();
   },
 
   mounted() {
     console.log('Active.vue mounted');
-    // if (!this.member.hasActivity) {
-    //   console.log('Member has no activity. NOT Creating a default.');
-    //   // this.getInitialActivity();
-    // }
   }
 };
 </script>

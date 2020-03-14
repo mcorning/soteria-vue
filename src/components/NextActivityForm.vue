@@ -57,63 +57,50 @@
 
 <script>
 import Member from '@/models/Member';
-import Activity from '@/models/Activity';
 
 export default {
   computed: {
-    member() {
-      let x = Member.query().first();
-      return x;
-    },
-    activity() {
-      // not general enough...
-      // should query for member's open (perhaps empty) activity
-      let x = Activity.query().first();
-      return x;
-    },
-
-    arriveAt: {
-      get() {
-        let x = this.activity ? this.activity.arriveAt : '';
-        return x;
-      },
-      set(newVal) {
-        this.update({ arriveAt: newVal });
-      }
-    },
     departFrom: {
       get() {
-        let x = this.activity ? this.activity.departFrom : '';
+        let x = this.member.lastActivity.departFrom;
         return x;
       },
       set(newVal) {
-        this.update({ departFrom: newVal });
+        this.$emit('departFrom-set', { departFrom: newVal });
+      }
+    },
+    arriveAt: {
+      get() {
+        let x = this.member.lastActivity.arriveAt;
+        return x;
+      },
+      set(newVal) {
+        this.$emit('arrivedAt-set', { arriveAt: newVal });
       }
     },
     description: {
       get() {
-        let x = this.activity ? this.activity.description : '';
+        let x = this.member.lastActivity.description;
         return x;
       },
       set(newVal) {
-        this.update({ description: newVal });
+        this.$emit('description-set', { description: newVal });
       }
     }
   },
 
   data() {
-    return {};
+    return { member: {} };
   },
 
-  methods: {
-    update(payload) {
-      if (Activity) {
-        Activity.$update({
-          where: this.activity.id,
-          data: payload
-        });
-      }
-    }
+  methods: {},
+
+  created() {
+    let m = Member.query()
+      .with('activities')
+      .first();
+    console.info('NextActivityForm.vue.activities:', m);
+    this.member = m;
   }
 };
 </script>
