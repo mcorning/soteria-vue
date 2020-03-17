@@ -24,44 +24,70 @@
         <!-- Departure column -->
         <v-col cols="12" sm="4">
           <h3>Choose a Departure Time:</h3>
+          <div v-if="picker">
+            <v-time-picker
+              scrollable
+              :ampm-in-title="true"
+              v-model="departingAt"
+            ></v-time-picker>
 
-          <v-time-picker
-            scrollable
-            :ampm-in-title="true"
-            v-model="departingAt"
-          ></v-time-picker>
-
-          <v-text-field
-            label="Departing"
-            readonly
-            hint="Change time with mouse or scroll"
-            persistent-hint
-            v-model="departing"
-          ></v-text-field>
+            <v-text-field
+              label="Departing"
+              readonly
+              hint="Change time with mouse or scroll"
+              persistent-hint
+              v-model="departing"
+            ></v-text-field>
+          </div>
         </v-col>
 
         <!-- Arrival column -->
         <v-col cols="12" sm="4">
           <h3>Choose an Arrival Time:</h3>
+          <div v-if="picker">
+            <v-time-picker
+              scrollable
+              :ampm-in-title="!h24"
+              v-model="arrivingAt"
+            ></v-time-picker>
 
-          <v-time-picker
-            scrollable
-            :ampm-in-title="!use24hrClock"
-            v-model="arrivingAt"
-          ></v-time-picker>
+            <v-text-field
+              label="Arriving"
+              readonly
+              hint="Change time with mouse or scroll"
+              persistent-hint
+              v-model="arriving"
+            ></v-text-field>
+          </div>
 
+          <Timeselector
+            v-model="arrival"
+            :utc="false"
+            :h24="false"
+            displayFormat="hh:mm a"
+            returnFormat="hh:mm a"
+            :initialView="true"
+            :padTime="true"
+            :interval="{ h: 1, m: 15 }"
+            @formatedTime="formatedTime"
+            @input="changeArrival"
+          >
+            <template slot="hours">
+              <span>Hours</span>
+              <span>Minutes</span>
+            </template>
+          </Timeselector>
           <v-text-field
             label="Arriving"
             readonly
-            hint="Change time with mouse or scroll"
-            persistent-hint
-            v-model="arriving"
+            v-model="arrivalString"
           ></v-text-field>
         </v-col>
       </v-row>
-      <v-row>
+
+      <v-row v-if="arrivalTime">
         <Countdown
-          :arrival="arrival"
+          :arrival="getArrivalDateTime"
           :departure="departure"
           @timeline-add="addTimeline"
           @activity-add="addActivity"
@@ -78,14 +104,24 @@ import moment from 'moment';
 // import L from '@/logger';
 import Countdown from './Countdown';
 import Member from '@/models/Member';
+// import Timeselector from 'vue-timeselector';
+import Timeselector from './Timeselector';
 
 export default {
   components: {
-    Countdown
+    Countdown,
+    Timeselector
   },
 
   computed: {
-    use24hrClock() {
+    myArrivalTime() {
+      return this.getArrivalDateTime();
+    },
+    activeDate() {
+      return new Date(this.dates[1] || this.dates[0]);
+    },
+
+    h24() {
       return false;
     },
     dateRangeText() {
@@ -128,6 +164,12 @@ export default {
 
   data() {
     return {
+      time1: new Date(),
+      placeholder: 'Select me to change your arrival time',
+      arrivalString: '',
+      select: true,
+      picker: false,
+      arrivalTime: null,
       isMounted: false,
       member: {},
 
@@ -147,6 +189,18 @@ export default {
   },
 
   methods: {
+    change() {
+      this.time = new Date();
+    },
+    formatedTime(e) {
+      console.log('formated: ' + e);
+    },
+    getArrivalDateTime() {
+      let a = this.dates[1] || this.dates[0];
+      let adt = `${a} ${this.arrivalTime}`;
+      return new Date(adt);
+    },
+
     addActivity() {
       console.log('addActivity():');
     },
@@ -173,6 +227,11 @@ export default {
         to ${arrival}`
       );
       this.$emit('record-arrival');
+    },
+
+    changeArrival(e) {
+      console.log('Changing arrival to', e);
+      this.arrivalString = e;
     }
   },
 

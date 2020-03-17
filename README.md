@@ -1,5 +1,7 @@
 # secours-vue
 
+bitly: <http://bit.ly/2SOMXEo>
+
 ## orm-localforage
 
 ```
