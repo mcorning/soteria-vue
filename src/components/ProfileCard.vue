@@ -1,94 +1,101 @@
-<template
-  ><v-container>
-    <v-row justify="center">
-      <v-card>
-        <v-card-title>
-          My Minimal Personal Identifying <br />Information
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row no-gutters>
-              <v-col cols="12">
-                <v-row justify="center">
-                  <v-col cols="6">
-                    <div id="imgRendered" display="showImage()">
-                      <v-img
-                        :src="image"
-                        margin="10"
-                        width="100"
-                        height="100"
-                      ></v-img>
-                    </div>
-                  </v-col>
-                  <v-col cols="6">
-                    <div display="getImage">
-                      <picture-input
-                        ef="pictureInput"
-                        width="100"
-                        height="100"
-                        margin="10"
-                        label="Attach profile picture"
-                        v-model="image"
-                        prepend-icon="mdi-camera"
-                      ></picture-input></div
-                  ></v-col>
-                </v-row>
-              </v-col>
-              <v-col>
-                <v-row>
-                  <v-col cols="8">
-                    <v-text-field
-                      label="Legal first name*"
-                      required
-                      v-model="firstName"
-                    ></v-text-field>
-                  </v-col>
+<template>
+  <div>
+    <div v-if="loading">
+      <h2>Loading Profile Card</h2>
+    </div>
+    <v-container v-else>
+      <v-row justify="center">
+        <v-card>
+          <v-card-title>
+            My Minimal Personal Identifying <br />Information
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-row justify="center">
+                    <v-col cols="6">
+                      <div id="imgRendered" display="showImage()">
+                        <v-img
+                          :src="member.image"
+                          margin="10"
+                          width="200"
+                          height="200"
+                        ></v-img>
+                      </div>
+                    </v-col>
+                    <v-col cols="6">
+                      <div display="getImage">
+                        <picture-input
+                          ef="pictureInput"
+                          width="200"
+                          height="200"
+                          margin="10"
+                          label="Attach profile picture"
+                          v-model="member.image"
+                          prepend-icon="mdi-camera"
+                          @change="addImage"
+                        ></picture-input>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col>
+                  <v-row>
+                    <v-col cols="8">
+                      <v-text-field
+                        label="Legal first name*"
+                        required
+                        v-model="firstName"
+                      ></v-text-field>
+                    </v-col>
 
-                  <v-col cols="8">
-                    <v-text-field
-                      label="Legal last name*"
-                      hint="this version needs a last name"
-                      persistent-hint
-                      required
-                      dense
-                      v-model="lastName"
-                    ></v-text-field>
-                  </v-col>
+                    <v-col cols="8">
+                      <v-text-field
+                        label="Legal last name*"
+                        hint="this version needs a last name"
+                        persistent-hint
+                        required
+                        dense
+                        v-model="lastName"
+                      ></v-text-field>
+                    </v-col>
 
-                  <v-col cols="5" sm="6">
-                    <v-autocomplete
-                      v-model="gender"
-                      label="Gender"
-                      :items="['Male', 'Female', 'NA']"
-                    ></v-autocomplete>
+                    <v-col cols="5" sm="6">
+                      <v-autocomplete
+                        v-model="gender"
+                        label="Gender"
+                        :items="['Male', 'Female', 'NA']"
+                      ></v-autocomplete>
 
-                    <v-select
-                      :items="['0-17', '18-29', '30-54', '54+']"
-                      label="Age*"
-                      required
-                      v-model="age"
-                    ></v-select>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-            <v-row align="end" justify="end" no-gutters>
-              <v-card tile>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="onClear"
-                  :disabled="noMember"
-                  >Delete Member</v-btn
-                >
-              </v-card>
-            </v-row>
-          </v-container>
-          <small>*indicates required field</small>
-        </v-card-text>
-      </v-card>
-    </v-row>
-  </v-container>
+                      <v-select
+                        :items="['0-17', '18-29', '30-54', '54+']"
+                        label="Age*"
+                        required
+                        v-model="age"
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+              <v-row align="end" justify="end" no-gutters>
+                <v-card tile>
+                  <v-btn
+                    color="blue darken-1"
+                    text
+                    @click="onClear"
+                    :disabled="noMember"
+                    >Delete Member</v-btn
+                  >
+                </v-card>
+              </v-row>
+            </v-container>
+            <small>*indicates required field</small>
+          </v-card-text>
+        </v-card>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <script>
@@ -160,18 +167,19 @@ export default {
         });
       }
     },
-    image: {
-      get() {
-        let x = this.member.image;
-        return x;
-      },
-      set(newVal) {
-        Member.$update({
-          where: this.member.id,
-          data: { image: newVal }
-        });
-      }
-    },
+
+    // image: {
+    //   get() {
+    //     let x = this.member.image;
+    //     return x;
+    //   },
+    //   set(newVal) {
+    //     Member.$update({
+    //       where: this.member.id,
+    //       data: { image: newVal }
+    //     });
+    //   }
+    // },
 
     showImage() {
       console.log('show image?', this.image.length > 0);
@@ -184,7 +192,9 @@ export default {
   },
 
   data: () => ({
+    loading: false,
     member: '',
+    image: '',
 
     agreeToTerms: false,
     agreeToTermsRules: [
@@ -208,6 +218,13 @@ export default {
   }),
 
   methods: {
+    addImage(val) {
+      Member.$update({
+        where: this.member.id,
+        data: { image: val }
+      });
+    },
+
     getMember() {
       this.member = Member.query().first();
     },
@@ -245,12 +262,19 @@ export default {
       });
     }
   },
+  async created() {
+    this.loading = true;
+    await Activity.$fetch();
+    await Member.$fetch();
+    let m = Member.query()
+      .with('activities.timeline')
+      .first();
+    this.loading = false;
 
-  created() {
-    this.member = Member.query().first();
-    let msg = this.member ? this.member.firstName : 'no member on this round';
-    console.log('ProfileCard.vue.created() for ', msg);
+    console.info('Fetched member with Activities and Timeline:', m);
+    this.member = m;
   },
+
   mounted() {}
 };
 </script>
