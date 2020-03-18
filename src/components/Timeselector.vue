@@ -1,5 +1,24 @@
 <template>
-  <div class="vtimeselector">
+  <v-container class="vtimeselector">
+    <!-- <v-row>
+      <v-col cols="12"> {{ this.now }} </v-col>
+      <v-col>
+        <v-select
+          :items="[1, 2, 3, 4, 5, 6, 7, 8, 9]"
+          v-model="this.hour"
+        ></v-select
+      ></v-col>
+      <v-col>
+        <v-select
+          :items="timeCount(interval.m)"
+          v-model="this.minute"
+        ></v-select>
+      </v-col>
+      <v-col>
+        <v-select :items="['AM', 'PM']" v-model="this.isPM"></v-select>
+      </v-col>
+    </v-row> -->
+
     <input
       type="text"
       readonly="readonly"
@@ -136,10 +155,11 @@
         </li>
       </ul>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script>
+import moment from 'moment';
 /**
  * Timeselector component. Click bellow to see more informations about the component
  * @example ../README.md
@@ -298,6 +318,10 @@ export default {
   },
   data() {
     return {
+      now: moment(),
+      //   hr: this.now.hour(),
+      //   min: this.now.minute(),
+      //   isPm: moment.localeData.isPm(this.now),
       pickerState: {
         selected: {
           hour: null,
@@ -317,13 +341,31 @@ export default {
     };
   },
   computed: {
+    hour() {
+      let hr = this.now.hour();
+      return hr;
+    },
+    minute() {
+      let min = this.now.minute();
+      return min;
+    },
+    isPM() {
+      return this.hour >= 12 ? 'PM' : 'AM';
+    },
+
     picker() {
       return {
-        hour: this.value
+        _hour: this.value
           ? this.utc
             ? this.value.getUTCHours()
             : this.value.getHours()
           : 0,
+        get hour() {
+          return this._hour;
+        },
+        set hour(value) {
+          this._hour = value;
+        },
         minute: this.value
           ? this.utc
             ? this.value.getUTCMinutes()
@@ -411,30 +453,33 @@ export default {
      * @return {Date} - Time as a date Object
      */
     time() {
-      // mpc commented out and moved code to setTime() method
       // Change time format with AM-PM depending on choice
-      //   if (!this.h24 && this.picker.ampm !== null) {
-      //     const hour = parseInt(this.picker.hour, 10);
-      //     switch (this.picker.ampm) {
-      //       case 'AM':
-      //         this.picker.hour = hour >= 12 ? hour - 12 : hour;
-      //         break;
-      //       case 'PM':
-      //         this.picker.hour = hour <= 12 ? hour + 12 : hour;
-      //         break;
-      //     }
-      //   }
+      if (!this.h24 && this.picker.ampm !== null) {
+        console.log('Switching 12hr clock');
+        // mpc commented out and moved code to setTime() method
+        // mpc these 'setters' don't let me compile
+        //   const hour = parseInt(this.picker.hour, 10);
+        //   switch (this.picker.ampm) {
+        //     case 'AM':
+        //       this.picker.hour = hour >= 12 ? hour - 12 : hour;
+        //       break;
+        //     case 'PM':
+        //       this.picker.hour = hour <= 12 ? hour + 12 : hour;
+        //       break;
+        //   }
+      }
 
       // If cleared
       if (this.picker.hour === -1 && this.picker.minute === -1) return '';
-
-      // Set hours in final Date format - default
-      this.pickerState.time.setHours(
-        this.picker.hour,
-        this.picker.minute,
-        this.picker.second
-      );
+      // mpc commented out. time is changed in setTime() instead
+      //   // Set hours in final Date format - default
+      //   this.pickerState.time.setHours(
+      //     this.picker.hour,
+      //     this.picker.minute,
+      //     this.picker.second
+      //   );
       const date = this.value ? this.value : new Date();
+      console.log('this.pickerState.time', this.pickerState.time);
       return this.utc
         ? new Date(
             Date.UTC(
@@ -519,6 +564,17 @@ export default {
         .map(time => this.pad(time));
     },
 
+    flipHour(hour) {
+      let hr = Number(hour);
+      if (this.pickerState.selected.ampm === 'AM') {
+        return hr;
+      }
+      hr += this.pickerState.selected.ampm === 'PM' && hr <= 11 ? 12 : -12;
+
+      console.log('flipHour returns hr', hr);
+      return hr;
+    },
+
     /**
      * Update of the selected time on the input
      * // mpc corrected time
@@ -535,24 +591,34 @@ export default {
       // mpc moved this if clause from time() computed property so hour could change if the only thing the user did was change ampm
       // Change time format with AM-PM depending on choice
       if (!this.h24 && this.picker.ampm !== null) {
-        const hour = parseInt(this.picker.hour, 10);
+        /// mpc replace switch() code with this
+        // this.picker.hour = this.flipHour(type === 'ampm' ? el : null);
+        // const hour = parseInt(this.picker.hour, 10);
         // mpc changed this.picker.ampm to the current value of ampm, viz: el
-        switch (el) {
-          case 'AM':
-            this.picker.hour = hour >= 12 ? hour - 12 : hour;
-            break;
-          case 'PM':
-            this.picker.hour = hour <= 12 ? hour + 12 : hour;
-            break;
-        }
+        // switch (el) {
+        //   case 'AM':
+        //     this.picker.hour =
+        //       this.picker.hour + (this.picker.hour >= 12 ? -12 : 0);
+        //     break;
+        //   case 'PM':
+        //     this.picker.hour =
+        //       this.picker.hour + (this.picker.hour <= 12 ? 12 : 0);
+        //     break;
+        // }
       }
+      console.log('picker.hour', this.picker.hour);
 
       // If not disable (input as select box item)
       if (!this.disabled && !this.getState(type, 'disable', el)) {
         this.pickerState.isPristine = false;
-        this.picker[type] = e.target.textContent;
-        this.pickerState.selected[type] = el;
-
+        if (type === 'hour') {
+          let hr = this.pad(this.flipHour(el));
+          this.picker[type] = hr;
+          this.pickerState.selected[type] = hr;
+        } else {
+          this.picker[type] = e.target.textContent;
+          this.pickerState.selected[type] = el;
+        }
         /**
          * Emit selectedHour selectedMinute and selectedSecond depending on what changed
          * @event selected(Hour|Minute|Second)

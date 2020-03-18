@@ -66,7 +66,7 @@
             :h24="false"
             displayFormat="hh:mm a"
             returnFormat="hh:mm a"
-            :initialView="true"
+            :initialView="false"
             :padTime="true"
             :interval="{ h: 1, m: 15 }"
             @formatedTime="formatedTime"
