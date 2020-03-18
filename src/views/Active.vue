@@ -21,16 +21,12 @@
           <v-row>
             <!-- Includes the Countdown component -->
             <ActivityTimes
+              memberProp:member
               @set-time="setTime"
               @timeline-add="addTimeline"
               @record-departure="recordDeparture"
               @record-arrival="recordArrival"
             />
-          </v-row>
-
-          <!-- This Activity Timeline -->
-          <v-row>
-            <TimelineVue :memberProp="member" heading="This time I am:" />
           </v-row>
 
           <!-- Last Activity Timeline -->
@@ -47,7 +43,6 @@
 import moment from 'moment';
 import NextActivityForm from '../components/NextActivityForm';
 import ActivityTimes from '../components/ActivityTimes';
-import TimelineVue from '../components/Timeline';
 
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
@@ -56,7 +51,6 @@ import Timeline from '@/models/Timeline';
 
 export default {
   components: {
-    TimelineVue,
     NextActivityForm,
     ActivityTimes
   },
@@ -197,52 +191,6 @@ export default {
 
     console.info('NextActivityForm.vue.activities:', m);
     this.member = m;
-  },
-
-  async createdAsync() {
-    console.log('Fetching Members from localForage');
-    let m = await Member.$fetch();
-    if (Object.keys(m).length > 0) {
-      console.log('Fetched members', m);
-    } else {
-      console.log('No members yet. Adding default member.');
-      m = Member.$create({
-        data: {
-          firstName: '',
-          lastName: '',
-          age: '',
-          gender: '',
-          image: '',
-          activities: [
-            {
-              departFrom: 'Starting place',
-              arriveAt: 'Some place else',
-              description: 'What are you up to?',
-              departure: '',
-              arrival: '',
-              member_id: ''
-            }
-          ]
-        }
-      }).then(m => {
-        console.log('new member', m);
-      });
-      this.refreshMember();
-    }
-
-    console.log('Fetching Activities from localForage');
-    await Activity.$fetch();
-    let mid = Activity.query().first().member_id;
-    if (mid) {
-      console.log('member_id', mid);
-    } else {
-      Activity.$update({
-        where: Activity.query().first().id,
-        data: { member_id: Member.query().first().id }
-      });
-    }
-
-    await Timeline.$fetch();
   },
 
   mounted() {

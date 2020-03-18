@@ -20,6 +20,11 @@
           </v-card-text>
         </v-card>
       </v-col>
+      <v-col>
+        <!-- This Activity Timeline -->
+
+        <TimelineVue :member="member" heading="I am currently:" />
+      </v-col>
     </v-row>
 
     <v-dialog v-model="showEscalationAlert">
@@ -58,6 +63,8 @@
 
 <script>
 import Timer from './Timer';
+import TimelineVue from './Timeline';
+
 // import L from '@/logger';
 // import Member from '@/models/Member';
 // import Activity from '@/models/Activity';
@@ -65,10 +72,12 @@ import Timer from './Timer';
 
 export default {
   components: {
-    Timer
+    Timer,
+    TimelineVue
   },
 
   props: {
+    member: { type: Object },
     arrival: {
       type: Date
     },
@@ -79,7 +88,6 @@ export default {
 
   data() {
     return {
-      member: '',
       sheet: false,
       showEscalationAlert: false
     };
@@ -133,6 +141,7 @@ export default {
 
   async created() {
     // this.refreshMember();
+    console.log('memberProp', this.member);
     console.log('Countdown.vue created. Fetching data.');
   },
 

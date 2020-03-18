@@ -1,6 +1,10 @@
 <template>
   <div>
-    <v-container class="purple lighten-5">
+    <div v-if="loading">
+      <H2>Loading ActivityTimes.vue...</H2>
+    </div>
+
+    <v-container v-else class="purple lighten-5">
       <!-- DateTime Section -->
       <v-row justify="end">
         <!-- Date column -->
@@ -24,7 +28,7 @@
         <!-- Departure column -->
         <v-col cols="12" sm="4">
           <h3>Choose a Departure Time:</h3>
-          <div v-if="picker">
+          <div>
             <v-time-picker
               scrollable
               :ampm-in-title="true"
@@ -44,7 +48,7 @@
         <!-- Arrival column -->
         <v-col cols="12" sm="4">
           <h3>Choose an Arrival Time:</h3>
-          <div v-if="picker">
+          <div>
             <v-time-picker
               scrollable
               :ampm-in-title="!h24"
@@ -60,7 +64,7 @@
             ></v-text-field>
           </div>
 
-          <Timeselector
+          <!-- <Timeselector
             v-model="arrival"
             :utc="false"
             :h24="false"
@@ -81,13 +85,14 @@
             label="Arriving"
             readonly
             v-model="arrivalString"
-          ></v-text-field>
+          ></v-text-field> -->
         </v-col>
       </v-row>
 
-      <v-row v-if="arrivalTime">
+      <v-row>
         <Countdown
-          :arrival="getArrivalDateTime"
+          :member="member"
+          :arrival="arrival"
           :departure="departure"
           @timeline-add="addTimeline"
           @activity-add="addActivity"
@@ -104,13 +109,15 @@ import moment from 'moment';
 // import L from '@/logger';
 import Countdown from './Countdown';
 import Member from '@/models/Member';
+import Activity from '@/models/Activity'; // needed to fetch this in order to get a non-null member.lastActivity reference
+
 // import Timeselector from 'vue-timeselector';
-import Timeselector from './Timeselector';
+// import Timeselector from './Timeselector';
 
 export default {
   components: {
-    Countdown,
-    Timeselector
+    Countdown
+    // Timeselector
   },
 
   computed: {
@@ -164,14 +171,9 @@ export default {
 
   data() {
     return {
-      time1: new Date(),
-      placeholder: 'Select me to change your arrival time',
-      arrivalString: '',
-      select: true,
-      picker: false,
+      loading: false,
       arrivalTime: null,
       isMounted: false,
-      member: {},
 
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
 
@@ -235,12 +237,17 @@ export default {
     }
   },
 
-  created() {
+  async created() {
+    this.loading = true;
+    await Activity.$fetch();
+    await Member.$fetch();
     let m = Member.query()
-      .with('activities')
+      .with('activities.timeline')
       .first();
+    this.loading = false;
+
+    console.info('Fetched member with Activities and Timeline:', m);
     this.member = m;
-    console.log('this.member', this.member);
   },
 
   mounted() {}

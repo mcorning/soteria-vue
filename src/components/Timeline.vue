@@ -59,7 +59,7 @@
           <v-card :color="item.color" dark>
             <v-card-title v-if="item.title" class="title pt-3 pb-3">
               <h3 class="title">
-                {{ `${item.title}: at ${item.updated}` }}
+                {{ `${item.title}` }}
               </h3>
             </v-card-title>
 
@@ -74,7 +74,7 @@
               <pre>{{ formatTimeline(item.state) }}</pre>
             <pre>state {{ item.state }}</pre> -->
               <p class="pt-3 body-1 mb-0">
-                {{ item.state }} at {{ item.updated }}
+                {{ item.title }} at {{ item.updated }}
               </p>
             </v-card-text>
             <v-card-text v-if="item.note" class="white text--primary">
@@ -99,7 +99,7 @@ export default {
   name: 'EventTimeline',
 
   props: {
-    memberProp: { type: Object },
+    member: { type: Object },
     heading: { type: String }
   },
 
@@ -117,10 +117,6 @@ export default {
     };
   },
   computed: {
-    member() {
-      return this.memberProp;
-    },
-
     activity() {
       return this.member.lastActivity;
     },
@@ -196,11 +192,12 @@ export default {
     // await Activity.$fetch();
     // await Member.$fetch();
     // let m = Member.query()
-    //   .with('activities')
+    //   .with('activities.timeline')
     //   .first();
     // console.info('\tMember for timeline:', m);
     // this.member = m;
     // this.loading = false;
+    console.log('Member with timeline', this.member);
   },
   mounted() {
     console.log('Timeline mounted');
