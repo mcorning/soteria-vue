@@ -1,4 +1,5 @@
 // import uuidv4 from 'uuid/v4';
+import moment from 'moment';
 import { Model } from '@vuex-orm/core';
 import Member from './Member';
 import Timeline from './Timeline';
@@ -21,6 +22,16 @@ export default class Activity extends Model {
       return s.state;
     });
     return x.includes('SAFE');
+  }
+
+  get arrivalTime() {
+    return moment(this.arrival);
+  }
+  get departureTime() {
+    return moment(this.departure);
+  }
+  get duration() {
+    return this.arrivalTime.diff(this.departureTime);
   }
 
   static fields() {

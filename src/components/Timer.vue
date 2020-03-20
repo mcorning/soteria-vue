@@ -123,7 +123,10 @@ export default {
     arrivalTime() {
       let x = moment();
       let y = moment(this.arrivalDateTime);
+      console.log(typeof this.arrivalDateTime);
       let et = moment.duration(y.diff(x)).asHours();
+      let et2 = moment.duration(x.diff(y, 'hours'));
+      console.log(et2);
       // if (this.stopped) {
       //   return 'stopped';
       // }

@@ -269,6 +269,22 @@ export default {
     let m = Member.query()
       .with('activities.timeline')
       .first();
+    if (!m.lastActivity) {
+      console.log('Ensuring member has default activity');
+      Activity.$create({
+        data: {
+          departFrom: 'Starting place',
+          arriveAt: 'Some place else',
+          description: 'What are you up to?',
+          departure: '',
+          arrival: '',
+          member_id: m.id
+        }
+      }).then(activity => {
+        console.log('First default activity', activity);
+      });
+    }
+
     this.loading = false;
 
     console.info('Fetched member with Activities and Timeline:', m);

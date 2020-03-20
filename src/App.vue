@@ -62,7 +62,7 @@ export default {
     return {
       loading: false,
 
-      firstMember: Member.query().first(),
+      member: '',
       links: [
         {
           label: 'Me',
@@ -101,6 +101,56 @@ export default {
     toggleTheme() {
       this.$vuetify.theme.themes.dark.anchor = '#41B883';
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+    },
+
+    async getOrCreateMember() {
+      this.member = Member.query()
+        .with('activities.timeline')
+        .first();
+      if (Object.keys(this.member).length > 0) {
+        console.log('Fetched member', this.member);
+      } else {
+        console.log('No members yet. Adding default member.');
+        Member.$create({
+          data: {
+            firstName: '',
+            lastName: '',
+            age: '',
+            gender: '',
+            image: '',
+            activities: [
+              {
+                departFrom: 'Starting place',
+                arriveAt: 'Some place else',
+                description: 'What are you up to?',
+                departure: '',
+                arrival: ''
+              }
+            ]
+          }
+        }).then(m => {
+          console.log('new member', m);
+        });
+      }
+    },
+
+    async getOrCreateActivity(member_id) {
+      console.log('Ensuring member has default activity');
+      this.member = Member.query().first();
+      if (!this.member) {
+        Activity.$create({
+          data: {
+            departFrom: 'Starting place',
+            arriveAt: 'Some place else',
+            description: 'What are you up to?',
+            departure: new Date(),
+            arrival: new Date(),
+            member_id: member_id
+          }
+        }).then(activity => {
+          console.log('Created first default activity', activity);
+        });
+      }
     }
   },
   mounted() {},
@@ -109,45 +159,23 @@ export default {
     this.loading = true;
 
     console.log('Fetching Members from localForage');
-    let m = await Member.$fetch();
-    if (Object.keys(m).length > 0) {
-      console.log('Fetched members', m);
-    } else {
-      console.log('No members yet. Adding default member.');
-      m = Member.$create({
-        data: {
-          firstName: '',
-          lastName: '',
-          age: '',
-          gender: '',
-          image: '',
-          activities: [
-            {
-              departFrom: 'Starting place',
-              arriveAt: 'Some place else',
-              description: 'What are you up to?',
-              departure: '',
-              arrival: '',
-              member_id: ''
-            }
-          ]
-        }
-      }).then(m => {
-        console.log('new member', m);
-      });
-    }
-
+    await Member.$fetch();
     console.log('Fetching Activities from localForage');
     await Activity.$fetch();
-    let mid = Activity.query().first().member_id;
-    if (mid) {
-      console.log('member_id', mid);
-    } else {
-      Activity.$update({
-        where: Activity.query().first().id,
-        data: { member_id: Member.query().first().id }
-      });
-    }
+
+    await this.getOrCreateMember();
+
+    await this.getOrCreateActivity();
+
+    // let mid = Activity.query().first().member_id;
+    // if (mid) {
+    //   console.log('member_id', mid);
+    // } else {
+    //   Activity.$update({
+    //     where: Activity.query().first().id,
+    //     data: { member_id: Member.query().first().id }
+    //   });
+    // }
 
     await Timeline.$fetch();
     this.loading = false;

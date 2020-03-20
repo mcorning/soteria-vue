@@ -1,31 +1,20 @@
 <template>
   <v-container class="purple lighten-5">
-    <v-row>
-      <v-col>
-        <v-card>
-          <v-card-title>When you are ready to go... </v-card-title>
-          <v-card-subtitle>...hit the Depart button</v-card-subtitle>
-          <Timer
-            :arrivalDateTime="arrival"
-            pomodoroLabel="Estimated Time of Return"
-            resetLabel="Arrival"
-            @open-activity="updateTimeline('ACTIVE')"
-            @close-activity="updateTimeline('SAFE')"
-            @expire-activity="updateTimeline('UNKNOWN')"
-            @cancel-activity="updateTimeline('SAFE')"
-            @sos="updateTimeline('ESCALATED')"
-          />
-          <v-card-text
-            >When you are safe again, hit the Arrive button
-          </v-card-text>
-        </v-card>
-      </v-col>
-      <v-col>
-        <!-- This Activity Timeline -->
-
-        <TimelineVue :member="member" heading="I am currently:" />
-      </v-col>
-    </v-row>
+    <v-card>
+      <v-card-title>When you are ready to go... </v-card-title>
+      <v-card-subtitle>...hit the Depart button</v-card-subtitle>
+      <Timer
+        :arrivalDateTime="arrival"
+        pomodoroLabel="Estimated Time of Return"
+        resetLabel="Arrival"
+        @open-activity="this.emit('timeline-add', 'ACTIVE')"
+        @close-activity="this.emit('timeline-add', 'SAFE')"
+        @expire-activity="this.emit('timeline-add', 'UNKNOWN')"
+        @cancel-activity="this.emit('timeline-add', 'SAFE')"
+        @sos="this.emit('timeline-add', 'ESCALATED')"
+      />
+      <v-card-text>When you are safe again, hit the Arrive button </v-card-text>
+    </v-card>
 
     <v-dialog v-model="showEscalationAlert">
       <v-alert prominent type="error">
@@ -63,27 +52,15 @@
 
 <script>
 import Timer from './Timer';
-import TimelineVue from './Timeline';
-
-// import L from '@/logger';
-// import Member from '@/models/Member';
-// import Activity from '@/models/Activity';
-// import Timeline from '@/models/Timeline';
+import Activity from '@/models/Activity'; // needed to fetch this in order to get a non-null member.lastActivity reference
 
 export default {
   components: {
-    Timer,
-    TimelineVue
+    Timer
   },
 
   props: {
-    member: { type: Object },
-    arrival: {
-      type: Date
-    },
-    departure: {
-      type: Date
-    }
+    member: { type: Object }
   },
 
   data() {
@@ -93,46 +70,6 @@ export default {
     };
   },
   methods: {
-    addActivity() {
-      console.log('Adding activity...');
-      // Activity.$create({
-      //   data: {
-      //     member_id: this.member.id,
-      //     description: this.description,
-      //     updated: new Date()
-      //   }
-      // });
-      // this.refreshMember();
-    },
-    // updates should requery state
-    updateTimeline(status) {
-      console.log('Adding timeline with...');
-      let event = 'update-arrival';
-      this.addTimeline(status);
-      switch (status) {
-        case 'SAFE':
-          this.$emit('activity-add');
-          break;
-        case 'EXPIRED':
-          this.sheet = true;
-          break;
-        case 'ESCALATED':
-          // this is where we notify safety team and/or sovrinSecours server
-          this.showEscalationAlert = true;
-          this.sheet = !this.showEscalationAlert;
-          break;
-        default:
-          event = 'update-departure';
-      }
-      console.log('Countdown.vue.updateTimeline: emitting event', event);
-      this.$emit(event);
-    },
-
-    addTimeline(status) {
-      console.log('...', status);
-      this.$emit('timeline-add', status);
-    },
-
     standDown() {
       // this is where we de-notify safety team and/or sovrinSecours server
       this.showEscalationAlert = false;
@@ -140,13 +77,20 @@ export default {
   },
 
   async created() {
-    // this.refreshMember();
-    console.log('memberProp', this.member);
-    console.log('Countdown.vue created. Fetching data.');
+    console.log('Member passed from timeline', this.member);
+    let activity = Activity.query()
+      .where('member_id', this.member.id)
+      .last();
+    this.arrival = new Date(activity.arrival);
+    this.departure = new Date(activity.departure);
+    console.log(
+      'Arrival/Departure from store',
+      this.arrival,
+      '/',
+      this.departure
+    );
   },
 
-  mounted() {
-    console.log('Countdown.vue mounted');
-  }
+  mounted() {}
 };
 </script>

@@ -75,34 +75,51 @@ export default {
         return x;
       },
       set(newVal) {
-        this.$emit('departFrom-set', { departFrom: newVal });
+        this.updateActivityWith({ departFrom: newVal });
       }
     },
+
     arriveAt: {
       get() {
         let x = this.member.lastActivity.arriveAt;
         return x;
       },
       set(newVal) {
-        this.$emit('arrivedAt-set', { arriveAt: newVal });
+        this.updateActivityWith({ arriveAt: newVal });
       }
     },
+
     description: {
       get() {
         let x = this.member.lastActivity.description;
         return x;
       },
       set(newVal) {
-        this.$emit('description-set', { description: newVal });
+        this.updateActivityWith({ description: newVal });
       }
     }
   },
 
   data() {
-    return { member: {}, loading: false };
+    return { member: {}, loading: false, activity: '' };
   },
 
-  methods: {},
+  methods: {
+    updateActivityWith(payload) {
+      console.log(
+        `Updating activity ${this.member.lastActivity.id} with ${JSON.stringify(
+          payload
+        )}`
+      );
+      Activity.$update({
+        where: this.member.lastActivity.id,
+        data: payload
+      }).then(activity => {
+        this.activity = activity;
+        console.log('Updated activity', activity);
+      });
+    }
+  },
 
   async created() {
     this.loading = true;
@@ -113,7 +130,7 @@ export default {
       .first();
     this.loading = false;
 
-    console.info('NextActivityForm.vue.activities:', m);
+    console.info('ActivityData.vue.activities:', m);
     this.member = m;
   }
 };
