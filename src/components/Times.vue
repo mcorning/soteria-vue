@@ -65,6 +65,10 @@
           </div>
         </v-col>
       </v-row>
+      <v-row>
+        <!-- This Activity Timeline -->
+        <Timelines :member="member" :arrival="arrival" />
+      </v-row>
     </v-container>
   </div>
 </template>
@@ -73,8 +77,13 @@
 import moment from 'moment';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity'; // needed to fetch this in order to get a non-null member.lastActivity reference
+import Timelines from '@/components/Timeline';
 
 export default {
+  components: {
+    Timelines
+  },
+
   computed: {
     h24() {
       return false;
@@ -85,7 +94,8 @@ export default {
 
     // This will be a Countdown prop
     arrival() {
-      return new Date(this.arriving);
+      let then = new Date(this.arriving);
+      return then;
     },
 
     // This will be a Countdown prop
@@ -105,12 +115,11 @@ export default {
       return `${this.dates[0]} ${this.departureTime}`;
     }
   },
-  arrivalDefault: '',
-  departureDefault: '',
+
   data() {
     return {
-      a: '',
-      d: '',
+      arr: '',
+      dep: '',
       loading: false,
       isMounted: false,
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
@@ -118,19 +127,19 @@ export default {
       // arrival time-picker label value
       arrivalTime: {
         get() {
-          return this.a;
+          return this.arr;
         },
         set(newVal) {
-          this.a = newVal;
+          this.arr = newVal;
         }
       },
       // // departure time-picker label value
       departureTime: {
         get() {
-          return this.d;
+          return this.dep;
         },
         set(newVal) {
-          this.d = newVal;
+          this.dep = newVal;
         }
       },
 
@@ -138,16 +147,27 @@ export default {
       dates: [moment().format('YYYY-MM-DD')]
     };
   },
+
+  // dates must be ISO formatted
   watch: {
     arrival: function(val) {
+      console.assert(this.isValidDate(val), val + ' is not a valid date');
+      val = val.toISOString();
       this.updateActivityWith({ arrival: val });
     },
+
     departure: function(val) {
+      console.assert(this.isValidDate(val), val + ' is not a valid date');
+      val = val.toISOString();
       this.updateActivityWith({ departure: val });
     }
   },
 
   methods: {
+    isValidDate(d) {
+      return d instanceof Date && !isNaN(d);
+    },
+
     updateActivityWith(payload) {
       console.log(
         `Updating activity ${this.member.lastActivity.id} with ${JSON.stringify(
@@ -165,27 +185,33 @@ export default {
     this.loading = true;
     await Activity.$fetch();
     await Member.$fetch();
+  },
+
+  mounted() {
+    console.log('1) arrival', this.arrival);
     this.member = Member.query()
       .with('activities.timeline')
       .first();
+    console.log('arrivalTime', this.member.lastActivity.arrivalTime);
     let time = this.member.lastActivity
       ? this.member.lastActivity.arrivalTime.format('HH:mm')
       : moment()
           .add(30, 'minutes')
           .format('HH:mm');
-    this.arrivalTime = time;
-    console.log('arrivalDefault', this.arrivalTime);
+    this.arrivalTime = time; // setting this triggers update to arrival
+    console.log('arrivalTime', this.arrivalTime);
 
     time = this.member.lastActivity
       ? this.member.lastActivity.departureTime.format('HH:mm')
       : moment().format('HH:mm');
     this.departureTime = time;
-    console.log('arrivalDefault', this.departureDefault);
+    console.log('departureTime', this.departureTime);
 
     console.info('Fetched member Last Activity:', this.member.lastActivity);
-    this.loading = false;
-  },
+    console.log('2) arrival', this.arrival);
 
-  mounted() {}
+    this.loading = false;
+    console.log('3) arrival', this.arrival);
+  }
 };
 </script>

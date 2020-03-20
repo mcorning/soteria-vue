@@ -52,7 +52,6 @@
 
 <script>
 import Timer from './Timer';
-import Activity from '@/models/Activity'; // needed to fetch this in order to get a non-null member.lastActivity reference
 
 export default {
   components: {
@@ -60,7 +59,8 @@ export default {
   },
 
   props: {
-    member: { type: Object }
+    member: { type: Object },
+    arrival: { type: String }
   },
 
   data() {
@@ -76,21 +76,17 @@ export default {
     }
   },
 
-  async created() {
+  created() {},
+
+  mounted() {
     console.log('Member passed from timeline', this.member);
-    let activity = Activity.query()
-      .where('member_id', this.member.id)
-      .last();
-    this.arrival = new Date(activity.arrival);
-    this.departure = new Date(activity.departure);
+    this.departure = this.member.lastActivity.departure;
     console.log(
       'Arrival/Departure from store',
       this.arrival,
       '/',
       this.departure
     );
-  },
-
-  mounted() {}
+  }
 };
 </script>

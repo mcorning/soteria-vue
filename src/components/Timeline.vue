@@ -4,8 +4,11 @@
   </div>
   <v-row v-else>
     <v-col>
+      <v-btn @click="pause">Pause</v-btn>
       <Countdown
         :member="member"
+        :arrival="arrival"
+        :monitor="monitor"
         @timeline-add="addTimeline"
         @activity-add="addActivity"
         @update-departure="recordDeparture"
@@ -32,7 +35,7 @@
               width="10"
               readonly
               label="Scheduled Departure"
-              v-model="departure"
+              v-model="departing"
             ></v-text-field>
 
             <v-text-field
@@ -107,7 +110,8 @@ export default {
 
   props: {
     member: { type: Object },
-    heading: { type: String }
+    heading: { type: String },
+    arrival: { type: String }
   },
 
   data() {
@@ -159,19 +163,12 @@ export default {
     departing() {
       return this.activity.departure;
     },
-    arriving() {
-      return this.activity.arrival;
-    },
+    // replaced with prop?
+    // arriving() {
+    //   return this.activity.arrival;
+    // },
     description() {
       return this.activity.description;
-    },
-
-    // dates passes as props
-    departure() {
-      return new Date(this.activity.departure);
-    },
-    arrival() {
-      return new Date(this.activity.arrival);
     },
 
     // helpers
@@ -180,11 +177,11 @@ export default {
     },
     getDuration() {
       let eta = moment.duration(
-        moment(new Date(this.arrival)).diff(moment(new Date(this.departure)))
+        moment(new Date(this.arrival)).diff(moment(new Date(this.departing)))
       );
       let ata = moment.duration(
         moment(this.getReturned ? this.getReturned : new Date()).diff(
-          moment(new Date(this.departure))
+          moment(new Date(this.departing))
         )
       );
       let late = moment
@@ -202,11 +199,17 @@ export default {
     }
   },
   methods: {
+    pause() {
+      console.log('arrival', new Date(this.arrival));
+    },
+    monitor() {
+      alert('Timeline sees change');
+    },
     recordDeparture() {
-      this.updateActivityWith({ departure: new Date() });
+      this.updateActivityWith({ departure: new Date().toISOString() });
     },
     recordArrival() {
-      this.updateActivityWith({ arrival: new Date() });
+      this.updateActivityWith({ arrival: new Date().toISOString() });
     },
 
     addTimeline(status) {
@@ -265,10 +268,16 @@ export default {
       }).then(activity => (this.activity = activity));
     }
   },
-
-  async created() {
-    console.log('Member passed in from parent', this.member);
+  watch: {
+    arrival: function(val) {
+      alert('arrival changed by ' + val);
+    }
   },
-  mounted() {}
+
+  async created() {},
+  mounted() {
+    console.log('Mounted: Member passed in from parent', this.member);
+    console.log('Mounted: arrival', this.arrival);
+  }
 };
 </script>

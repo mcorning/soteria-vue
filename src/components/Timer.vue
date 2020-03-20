@@ -59,7 +59,7 @@ export default {
   name: 'PomodoroTimer',
   props: {
     arrivalDateTime: {
-      type: Date
+      type: String
     },
     adt: {
       type: Date
@@ -112,6 +112,7 @@ export default {
 
   mounted: function() {
     if (!this.mute) this.audio = AudioPlayer.createAudio();
+    console.log('Timer mounted');
   },
 
   beforeMount() {},
@@ -123,10 +124,7 @@ export default {
     arrivalTime() {
       let x = moment();
       let y = moment(this.arrivalDateTime);
-      console.log(typeof this.arrivalDateTime);
       let et = moment.duration(y.diff(x)).asHours();
-      let et2 = moment.duration(x.diff(y, 'hours'));
-      console.log(et2);
       // if (this.stopped) {
       //   return 'stopped';
       // }

@@ -16,10 +16,6 @@
             <Times />
           </v-row>
 
-          <v-row>
-            <!-- This Activity Timeline -->
-            <Timelines :member="member" />
-          </v-row>
           <!-- Last Activity Timeline -->
           <!-- <v-row v-if="lastTimeline"> -->
           <!-- <TimelineVue heading="Last time I was:" /> -->
@@ -34,7 +30,6 @@
 import moment from 'moment';
 import Description from '@/components/Description';
 import Times from '@/components/Times';
-import Timelines from '@/components/Timeline';
 
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
@@ -44,8 +39,7 @@ import Timeline from '@/models/Timeline';
 export default {
   components: {
     Description,
-    Times,
-    Timelines
+    Times
   },
 
   computed: {},
