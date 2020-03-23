@@ -4,14 +4,13 @@
       <v-card-title>When you are ready to go... </v-card-title>
       <v-card-subtitle>...hit the Depart button</v-card-subtitle>
       <Timer
-        :arrivalDateTime="arrival"
-        pomodoroLabel="Estimated Time of Return"
+        pomodoroLabel="Countdown to return:"
         resetLabel="Arrival"
-        @open-activity="this.emit('timeline-add', 'ACTIVE')"
-        @close-activity="this.emit('timeline-add', 'SAFE')"
-        @expire-activity="this.emit('timeline-add', 'UNKNOWN')"
-        @cancel-activity="this.emit('timeline-add', 'SAFE')"
-        @sos="this.emit('timeline-add', 'ESCALATED')"
+        @open-activity="addACTIVEtimeline"
+        @close-activity="addSAFEtimeline"
+        @expire-activity="addUNKNOWNtimeline"
+        @cancel-activity="addSAFEtimeline"
+        @sos="addESCALATEDtimeline"
       />
       <v-card-text>When you are safe again, hit the Arrive button </v-card-text>
     </v-card>
@@ -59,20 +58,32 @@ export default {
   },
 
   props: {
-    member: { type: Object },
-    arrival: { type: String }
+    member: { type: Object }
   },
 
   data() {
     return {
       sheet: false,
-      showEscalationAlert: false
+      showEscalationAlert: false,
+      arrival: this.$store.state.eta
     };
   },
   methods: {
     standDown() {
       // this is where we de-notify safety team and/or sovrinSecours server
       this.showEscalationAlert = false;
+    },
+    addACTIVEtimeline() {
+      this.$emit('timeline-add', 'ACTIVE');
+    },
+    addSAFEtimeline() {
+      this.$emit('timeline-add', 'SAFE');
+    },
+    addUNKNOWNtimeline() {
+      this.$emit('timeline-add', 'UNKNOWN');
+    },
+    addESCALATEDtimeline() {
+      this.$emit('timeline-add', 'ESCALATED');
     }
   },
 
@@ -80,13 +91,6 @@ export default {
 
   mounted() {
     console.log('Member passed from timeline', this.member);
-    this.departure = this.member.lastActivity.departure;
-    console.log(
-      'Arrival/Departure from store',
-      this.arrival,
-      '/',
-      this.departure
-    );
   }
 };
 </script>

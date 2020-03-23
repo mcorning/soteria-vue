@@ -7,11 +7,8 @@
       <v-btn @click="pause">Pause</v-btn>
       <Countdown
         :member="member"
-        :arrival="arrival"
-        :monitor="monitor"
         @timeline-add="addTimeline"
         @activity-add="addActivity"
-        @update-departure="recordDeparture"
         @update-arrival="recordArrival"
       />
     </v-col>
@@ -28,14 +25,6 @@
               readonly
               label="Departed From"
               v-model="departingFrom"
-            ></v-text-field>
-
-            <v-text-field
-              class="pa-2"
-              width="10"
-              readonly
-              label="Scheduled Departure"
-              v-model="departing"
             ></v-text-field>
 
             <v-text-field
@@ -202,14 +191,11 @@ export default {
     pause() {
       console.log('arrival', new Date(this.arrival));
     },
-    monitor() {
-      alert('Timeline sees change');
-    },
-    recordDeparture() {
-      this.updateActivityWith({ departure: new Date().toISOString() });
-    },
+
     recordArrival() {
-      this.updateActivityWith({ arrival: new Date().toISOString() });
+      this.updateActivityWith({
+        eta: new Date().toISOString()
+      });
     },
 
     addTimeline(status) {
@@ -221,6 +207,7 @@ export default {
         }
       }).then(timeline => (this.timeline = timeline));
     },
+
     updateTimeline(status) {
       console.log('Adding timeline with...');
       let event = 'update-arrival';
@@ -246,12 +233,13 @@ export default {
       console.log('Countdown.vue.updateTimeline: emitting event', event);
       this.$emit(event);
     },
+
     addActivity() {
       Activity.$create({
         data: {
           member_id: this.member.id,
           description: this.description,
-          updated: new Date()
+          eta: ''
         }
       }).then(activity => (this.activity = activity));
     },

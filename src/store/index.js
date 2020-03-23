@@ -15,6 +15,10 @@ VuexORM.use(VuexORMLocalForage, {
 });
 
 const store = new Vuex.Store({
+  state: {
+    eta: new Date()
+  },
+
   plugins: [VuexORM.install(database)]
   // plugins: [sync, VuexORM.install(database)]
 });

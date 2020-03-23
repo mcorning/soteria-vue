@@ -111,8 +111,8 @@ export default {
           departFrom: 'Starting place',
           arriveAt: 'Some place else',
           description: 'What are you up to?',
-          departure: '',
-          arrival: '',
+          eta: '',
+
           member_id: m.id
         }
       }).then(activity => {

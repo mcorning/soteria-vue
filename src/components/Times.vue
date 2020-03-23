@@ -13,7 +13,7 @@
           <h3>Choose activity's date range</h3>
 
           <!-- DatePicker -->
-          <v-date-picker full-width v-model="dates" range></v-date-picker>
+          <v-date-picker full-width v-model="datePart"></v-date-picker>
 
           <v-text-field
             class=" sm-12 pt-7"
@@ -25,26 +25,6 @@
           ></v-text-field
         ></v-col>
 
-        <!-- Departure column -->
-        <v-col cols="12" sm="4">
-          <h3>Choose a Departure Time:</h3>
-          <div>
-            <v-time-picker
-              scrollable
-              :ampm-in-title="true"
-              v-model="departureTime"
-            ></v-time-picker>
-
-            <v-text-field
-              label="Departing"
-              readonly
-              hint="Change time with mouse or scroll"
-              persistent-hint
-              v-model="departing"
-            ></v-text-field>
-          </div>
-        </v-col>
-
         <!-- Arrival column -->
         <v-col cols="12" sm="4">
           <h3>Choose an Arrival Time:</h3>
@@ -52,22 +32,22 @@
             <v-time-picker
               scrollable
               :ampm-in-title="!h24"
-              v-model="arrivalTime"
+              v-model="timePart"
             ></v-time-picker>
 
             <v-text-field
-              label="Arriving"
+              label="Estimated Time of Arrival"
               readonly
               hint="Change time with mouse or scroll"
               persistent-hint
-              v-model="arriving"
+              v-model="eta"
             ></v-text-field>
           </div>
         </v-col>
       </v-row>
       <v-row>
         <!-- This Activity Timeline -->
-        <Timelines :member="member" :arrival="arrival" />
+        <Timelines :member="member" />
       </v-row>
     </v-container>
   </div>
@@ -76,7 +56,11 @@
 <script>
 import moment from 'moment';
 import Member from '@/models/Member';
-import Activity from '@/models/Activity'; // needed to fetch this in order to get a non-null member.lastActivity reference
+
+// needed to fetch to get a non-null member.lastActivity.eta reference
+import Activity from '@/models/Activity';
+
+// components
 import Timelines from '@/components/Timeline';
 
 export default {
@@ -85,90 +69,64 @@ export default {
   },
 
   computed: {
+    eta() {
+      let x = moment(new Date(`${this.datePart}T${this.timePart}`)).format(
+        this.FULL_DATE
+      );
+      console.log('ETA', x);
+      return x;
+    },
+
     h24() {
       return false;
     },
     dateRangeText() {
-      return this.dates.join(' - ');
-    },
-
-    // This will be a Countdown prop
-    arrival() {
-      let then = new Date(this.arriving);
-      return then;
-    },
-
-    // This will be a Countdown prop
-    departure() {
-      return new Date(this.departing);
-    },
-
-    // arrival time-picker label text value
-    arriving() {
-      let a = this.dates[1] || this.dates[0];
-      let adt = `${a} ${this.arrivalTime}`;
-      return adt;
-    },
-
-    // departure time-picker label text value
-    departing() {
-      return `${this.dates[0]} ${this.departureTime}`;
+      // this version limits to single day activity
+      // return this.dates.join(' - ');
+      return moment(this.datePart).format(this.SHORT_DATE);
     }
   },
 
   data() {
     return {
-      arr: '',
+      range: false,
       dep: '',
       loading: false,
       isMounted: false,
+      SHORT_DATE: 'ddd, MMM Do YYYY',
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
-
-      // arrival time-picker label value
-      arrivalTime: {
-        get() {
-          return this.arr;
-        },
-        set(newVal) {
-          this.arr = newVal;
-        }
-      },
-      // // departure time-picker label value
-      departureTime: {
-        get() {
-          return this.dep;
-        },
-        set(newVal) {
-          this.dep = newVal;
-        }
-      },
-
-      // date-picker value(s)
+      datePart: '',
+      timePart: '',
       dates: [moment().format('YYYY-MM-DD')]
     };
   },
 
+  filters: {
+    eta: function(value) {
+      return moment(this.datePart, ' ', value).format();
+    }
+  },
+
   // dates must be ISO formatted
   watch: {
-    arrival: function(val) {
-      console.assert(this.isValidDate(val), val + ' is not a valid date');
-      val = val.toISOString();
-      this.updateActivityWith({ arrival: val });
+    datePart: function(val) {
+      this.updateState(new Date(`${val}T${this.timePart}`));
     },
-
-    departure: function(val) {
-      console.assert(this.isValidDate(val), val + ' is not a valid date');
-      val = val.toISOString();
-      this.updateActivityWith({ departure: val });
+    timePart: function(val) {
+      this.updateState(new Date(`${this.datePart}T${val}`));
     }
   },
 
   methods: {
+    updateState(val) {
+      console.assert(this.isValidDate(val), val + ' is not a valid date');
+      this.$store.state.eta = val.toISOString();
+    },
     isValidDate(d) {
       return d instanceof Date && !isNaN(d);
     },
 
-    updateActivityWith(payload) {
+    async updateActivityWith(payload) {
       console.log(
         `Updating activity ${this.member.lastActivity.id} with ${JSON.stringify(
           payload
@@ -187,31 +145,33 @@ export default {
     await Member.$fetch();
   },
 
-  mounted() {
-    console.log('1) arrival', this.arrival);
+  async mounted() {
+    // check and see if lastActivity is still active.
+    // if not, use the timeline duration for default
+    // arrival time (assuming new activity starts now)
+
     this.member = Member.query()
       .with('activities.timeline')
       .first();
-    console.log('arrivalTime', this.member.lastActivity.arrivalTime);
-    let time = this.member.lastActivity
-      ? this.member.lastActivity.arrivalTime.format('HH:mm')
-      : moment()
+    if (!this.member.lastActivity.eta) {
+      await this.updateActivityWith({
+        eta: moment()
           .add(30, 'minutes')
-          .format('HH:mm');
-    this.arrivalTime = time; // setting this triggers update to arrival
-    console.log('arrivalTime', this.arrivalTime);
+          .toISOString()
+      });
+    }
+    let eta = moment(this.member.lastActivity.eta);
+    console.log('Member default eta', eta);
 
-    time = this.member.lastActivity
-      ? this.member.lastActivity.departureTime.format('HH:mm')
-      : moment().format('HH:mm');
-    this.departureTime = time;
-    console.log('departureTime', this.departureTime);
+    this.datePart = eta.format('YYYY-MM-DD');
+    console.log('eta datePart', this.datePart);
+
+    this.timePart = eta.format('hh:mm');
+    console.log('eta timePart', this.timePart);
 
     console.info('Fetched member Last Activity:', this.member.lastActivity);
-    console.log('2) arrival', this.arrival);
 
     this.loading = false;
-    console.log('3) arrival', this.arrival);
   }
 };
 </script>

@@ -103,6 +103,7 @@ import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
+import Eta from '@/models/Eta';
 
 // import * as R from 'ramda';
 
@@ -246,8 +247,7 @@ export default {
               departFrom: 'Starting place',
               arriveAt: 'Some place else',
               description: 'What are you up to?',
-              departure: '',
-              arrival: '',
+              eta: '',
               member_id: ''
             }
           ]
@@ -260,31 +260,38 @@ export default {
           data: { member_id: m.id }
         });
       });
+    },
+
+    async checkActivity(m) {
+      if (!m.lastActivity) {
+        console.log('Ensuring member has default activity');
+        Activity.$create({
+          data: {
+            departFrom: 'Starting place',
+            arriveAt: 'Some place else',
+            description: 'What are you up to?',
+            eta: '',
+
+            member_id: m.id
+          }
+        })
+          .then(activity => {
+            console.log('First default activity', activity);
+          })
+          .catch(e => console.log('Cannot create Activity in ProfileCard', e));
+      }
     }
   },
   async created() {
     this.loading = true;
+    await Eta.$fetch();
     await Activity.$fetch();
     await Member.$fetch();
     let m = Member.query()
       .with('activities.timeline')
       .first();
-    if (!m.lastActivity) {
-      console.log('Ensuring member has default activity');
-      Activity.$create({
-        data: {
-          departFrom: 'Starting place',
-          arriveAt: 'Some place else',
-          description: 'What are you up to?',
-          departure: '',
-          arrival: '',
-          member_id: m.id
-        }
-      }).then(activity => {
-        console.log('First default activity', activity);
-      });
-    }
 
+    await this.checkActivity(m);
     this.loading = false;
 
     console.info('Fetched member with Activities and Timeline:', m);

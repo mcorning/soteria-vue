@@ -1,6 +1,8 @@
 <template>
   <div class="vuemodoro" :class="vuemodoroTheme">
     <div>Expected arrival time: <br />{{ arrivalTime }}</div>
+    <div>Time from now: <br />{{ eta }}</div>
+
     <div id="vuemodoro-label">{{ pomodoroLabel }}</div>
     <div id="vuemodoro-timer">
       <span id="vuemodoro-counter">{{ currentTime }}</span>
@@ -33,7 +35,7 @@
       <button
         id="vuemodoro-cancel"
         class="btn"
-        :disabled="false"
+        :disabled="disableToggle"
         @click="cancelCountdown"
       >
         Cancel
@@ -58,12 +60,6 @@ import moment from 'moment';
 export default {
   name: 'PomodoroTimer',
   props: {
-    arrivalDateTime: {
-      type: String
-    },
-    adt: {
-      type: Date
-    },
     pomodoroLabel: {
       type: String,
       default: 'Pomodoro timer'
@@ -74,7 +70,7 @@ export default {
     },
     helpLabel: {
       type: String,
-      default: 'Help'
+      default: 'Emergency'
     },
     resetLabel: {
       type: String,
@@ -106,7 +102,8 @@ export default {
       mute: this.muted,
       alerted: false,
       initialized: false,
-      disableToggle: true
+      disableToggle: true,
+      FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a'
     };
   },
 
@@ -115,21 +112,25 @@ export default {
     console.log('Timer mounted');
   },
 
-  beforeMount() {},
-
   computed: {
-    endTime() {
-      return this.arrivalDateTime;
+    eta() {
+      let x = moment();
+      let y = moment(this.endTime);
+      return moment.duration(y.diff(x)).humanize();
     },
+
+    endTime() {
+      return moment(this.$store.state.eta);
+    },
+
     arrivalTime() {
       let x = moment();
-      let y = moment(this.arrivalDateTime);
+      let y = moment(this.endTime);
       let et = moment.duration(y.diff(x)).asHours();
-      // if (this.stopped) {
-      //   return 'stopped';
-      // }
-      this.updateComponentTime(et);
-      return this.arrivalDateTime ? this.arrivalDateTime : 'no value';
+      if (et > 0) {
+        this.updateComponentTime(et);
+      }
+      return this.endTime ? this.endTime.format(this.FULL_DATE) : 'no value';
     },
 
     currentTime: function() {
@@ -186,6 +187,7 @@ export default {
         this.mins = this.minutes;
         this.secs = this.seconds;
       }
+      console.log('Emitting open-activity event');
       this.$emit('open-activity');
 
       this.initialized = true;
@@ -204,6 +206,7 @@ export default {
 
       if (this.initialized && !this.alerted && this.secs < 0) {
         this.alerted = true;
+        console.log('Emitting expire-activity event');
         this.$emit('expire-activity');
       }
 
@@ -221,7 +224,7 @@ export default {
 
     resetCountdown: function() {
       this.toggle();
-
+      console.log('Emitting close-activity event');
       this.$emit('close-activity');
       PomodoroTimer.stopCountdown(this.timerId);
       this.hrs = 0;
@@ -232,6 +235,8 @@ export default {
     },
 
     cancelCountdown: function() {
+      this.toggle();
+      console.log('Emitting cancel-activity event');
       this.$emit('cancel-activity');
       PomodoroTimer.stopCountdown(this.timerId);
       this.hrs = 0;

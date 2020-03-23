@@ -41,8 +41,10 @@ export default class Activity extends Model {
       departFrom: this.attr(''),
       arriveAt: this.attr(''),
       description: this.string('Name me'),
-      departure: this.string(''),
-      arrival: this.string(''),
+      // departure: this.string(''),
+      // arrival: this.string(''),
+      eta: this.string(''),
+      // eta: this.hasOne(Eta, 'activity_id'),
 
       // Activity is a child of Member, so we need an member_id here
       member_id: this.attr(null), // used in relationship below

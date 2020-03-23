@@ -52,6 +52,7 @@ import store from '@/store';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
+
 export default {
   name: 'App',
   store,
@@ -123,8 +124,7 @@ export default {
                 departFrom: 'Starting place',
                 arriveAt: 'Some place else',
                 description: 'What are you up to?',
-                departure: '',
-                arrival: ''
+                eta: ''
               }
             ]
           }
@@ -143,8 +143,8 @@ export default {
             departFrom: 'Starting place',
             arriveAt: 'Some place else',
             description: 'What are you up to?',
-            departure: new Date(),
-            arrival: new Date(),
+            eta: '',
+
             member_id: member_id
           }
         }).then(activity => {
