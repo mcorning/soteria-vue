@@ -127,9 +127,18 @@ export default {
       return this.member.lastActivity;
     },
     activeTimeline() {
+      console.log('member id', this.member.id);
+      console.log('activity id', this.member.lastActivity.id);
+      let tls = Timeline.all();
+      console.log('all timelines', tls);
+      let tl = Timeline.query()
+        .where('activity_id', this.member.lastActivity.id)
+        .get();
+      console.log('activity timelines', tl);
       console.log('this.activity', this.activity);
       let x = [];
-      this.activity.timeline.forEach(element => {
+      // this.activity.timeline.forEach(element => {
+      tl.forEach(element => {
         let t = this.timelineKeys.get(element.state);
         x.push({
           title: element.state,

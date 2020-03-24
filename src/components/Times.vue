@@ -6,7 +6,7 @@
 
     <v-container v-else class="purple lighten-5">
       <!-- DateTime Section -->
-      <v-row justify="end">
+      <v-row>
         <!-- Date column -->
         <!-- <v-col style="width: 400px; flex: 0 1 auto;" class="md-12"> -->
         <v-col cols="12" sm="4">
