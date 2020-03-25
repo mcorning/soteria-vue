@@ -11,6 +11,7 @@
         @expire-activity="addUNKNOWNtimeline"
         @cancel-activity="addSAFEtimeline"
         @sos="addESCALATEDtimeline"
+        @error-no-starting-place="promptForStartingPlace"
       />
       <v-card-text>When you are safe again, hit the Arrive button </v-card-text>
     </v-card>
@@ -34,7 +35,27 @@
       </v-alert>
     </v-dialog>
 
+    <v-dialog v-model="showValidationMessage" persistent max-width="290">
+      <v-card>
+        <v-card-title class="headline">Need important input</v-card-title>
+        <v-card-text
+          >You forgot to enter a Starting Place. We can't start an activity
+          without one.</v-card-text
+        >
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            class="mt-6"
+            text
+            color="orange"
+            @click="showValidationMessage = !showValidationMessage"
+            >OK</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <!-- Alternative UX for expiration -->
+
     <v-bottom-sheet v-model="sheet">
       <v-sheet class="text-center" height="200px">
         <v-btn class="mt-6" text color="red" @click="sheet = !sheet"
@@ -51,6 +72,7 @@
 
 <script>
 import Timer from './Timer';
+import moment from 'moment';
 
 export default {
   components: {
@@ -61,10 +83,18 @@ export default {
     member: { type: Object }
   },
 
+  computed: {
+    now() {
+      return moment().format(this.TIME);
+    }
+  },
   data() {
     return {
+      TIME: 'hh:mm a',
+
       sheet: false,
       showEscalationAlert: false,
+      showValidationMessage: false,
       arrival: this.$store.state.eta
     };
   },
@@ -84,13 +114,18 @@ export default {
     },
     addESCALATEDtimeline() {
       this.$emit('timeline-add', 'ESCALATED');
+    },
+    promptForStartingPlace() {
+      this.showValidationMessage = true;
     }
   },
 
   created() {},
 
   mounted() {
-    console.log('Member passed from timeline', this.member);
+    console.log(this.now, '\nEntering Countdonw.vue mounted...');
+    console.log('\tMember passed from timeline', this.member);
+    console.log(this.now, '...Leaving Countdonw.vue mounted\n');
   }
 };
 </script>

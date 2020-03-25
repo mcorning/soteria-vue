@@ -103,7 +103,6 @@ import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
-import Eta from '@/models/Eta';
 
 // import * as R from 'ramda';
 
@@ -244,9 +243,9 @@ export default {
           image: '',
           activities: [
             {
-              departFrom: 'Starting place',
-              arriveAt: 'Some place else',
-              description: 'What are you up to?',
+              departFrom: '',
+              arriveAt: '',
+              description: '',
               eta: '',
               member_id: ''
             }
@@ -267,9 +266,9 @@ export default {
         console.log('Ensuring member has default activity');
         Activity.$create({
           data: {
-            departFrom: 'Starting place',
-            arriveAt: 'Some place else',
-            description: 'What are you up to?',
+            departFrom: '',
+            arriveAt: '',
+            description: '',
             eta: '',
 
             member_id: m.id
@@ -284,7 +283,6 @@ export default {
   },
   async created() {
     this.loading = true;
-    await Eta.$fetch();
     await Activity.$fetch();
     await Member.$fetch();
     let m = Member.query()

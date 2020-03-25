@@ -42,7 +42,11 @@ export default {
     Times
   },
 
-  computed: {},
+  computed: {
+    now() {
+      return moment().format(this.TIME);
+    }
+  },
 
   data() {
     return {
@@ -54,7 +58,7 @@ export default {
 
       sheet: false,
       showEscalationAlert: false,
-
+      TIME: 'hh:mm a',
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
       ampm: 'ampm',
       dates: [moment().format('YYYY-MM-DD')],
@@ -79,7 +83,7 @@ export default {
 
   methods: {
     destroy() {
-      console.log('|activities|', this.member.hasActivity === 1);
+      console.log('\t|activities|', this.member.hasActivity === 1);
       Timeline.$delete(
         timeline => timeline.activity_id == this.member.lastActivity.id
       );
@@ -98,6 +102,8 @@ export default {
     }
   },
   async created() {
+    console.log(this.now, 'Entering Active.vue created()...');
+
     this.loading = true;
     await Activity.$fetch();
     await Member.$fetch();
@@ -105,25 +111,27 @@ export default {
       .with('activities.timeline')
       .first();
     if (!m.lastActivity) {
-      console.log('Ensuring member has default activity');
+      console.log('\tDouble checking default activity');
       Activity.$create({
         data: {
-          departFrom: 'Starting place',
-          arriveAt: 'Some place else',
-          description: 'What are you up to?',
+          departFrom: '',
+          arriveAt: '',
+          description: '',
           eta: '',
 
           member_id: m.id
         }
       }).then(activity => {
-        console.log('First default activity', activity);
+        console.log("\tMember's first default activity", activity);
       });
     }
 
     this.loading = false;
 
-    console.info('Current member with activities and timeline:', m);
+    console.info('\tCurrent member with activities and timeline:', m);
     this.member = m;
+    console.log(this.now, '...Leaving Active.vue created()\n');
+    console.log('.');
   },
 
   mounted() {}

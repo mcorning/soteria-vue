@@ -180,6 +180,10 @@ export default {
     },
 
     runCountdown: function() {
+      if (this.$store.state.departFrom === '') {
+        this.$emit('error-no-starting-place');
+        return;
+      }
       this.toggle();
       if (this.stopped === true) {
         AudioPlayer.stopAlarm(this.audio);

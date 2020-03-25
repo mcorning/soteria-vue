@@ -52,15 +52,22 @@ import store from '@/store';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
+import moment from 'moment';
 
 export default {
   name: 'App',
   store,
 
-  computed: {},
+  computed: {
+    now() {
+      return moment().format(this.TIME);
+    }
+  },
 
   data() {
     return {
+      TIME: 'hh:mm a',
+
       loading: false,
 
       member: '',
@@ -108,10 +115,10 @@ export default {
       this.member = Member.query()
         .with('activities.timeline')
         .first();
-      if (Object.keys(this.member).length > 0) {
-        console.log('Fetched member', this.member);
+      if (this.member && Object.keys(this.member).length > 0) {
+        console.log('\tFetched member', this.member);
       } else {
-        console.log('No members yet. Adding default member.');
+        console.log('\tNo members yet. Adding default member.');
         Member.$create({
           data: {
             firstName: '',
@@ -121,34 +128,34 @@ export default {
             image: '',
             activities: [
               {
-                departFrom: 'Starting place',
-                arriveAt: 'Some place else',
-                description: 'What are you up to?',
+                departFrom: '',
+                arriveAt: '',
+                description: '',
                 eta: ''
               }
             ]
           }
         }).then(m => {
-          console.log('new member', m);
+          console.log('\tnew member', m);
         });
       }
     },
 
     async getOrCreateActivity(member_id) {
-      console.log('Ensuring member has default activity');
+      console.log('\tEnsuring member has default activity');
       this.member = Member.query().first();
       if (!this.member) {
         Activity.$create({
           data: {
-            departFrom: 'Starting place',
-            arriveAt: 'Some place else',
-            description: 'What are you up to?',
+            departFrom: '',
+            arriveAt: '',
+            description: '',
             eta: '',
 
             member_id: member_id
           }
         }).then(activity => {
-          console.log('Created first default activity', activity);
+          console.log('\tCreated first default activity', activity);
         });
       }
     }
@@ -156,11 +163,12 @@ export default {
   mounted() {},
 
   async created() {
+    console.log(this.now, 'Entering App.vue created()...');
     this.loading = true;
 
-    console.log('Fetching Members from localForage');
+    console.log('\tFetching Members from localForage');
     await Member.$fetch();
-    console.log('Fetching Activities from localForage');
+    console.log('\tFetching Activities from localForage');
     await Activity.$fetch();
 
     await this.getOrCreateMember();
@@ -179,6 +187,7 @@ export default {
 
     await Timeline.$fetch();
     this.loading = false;
+    console.log(this.now, '...Leaving App.vue created()\n');
   }
 };
 </script>
