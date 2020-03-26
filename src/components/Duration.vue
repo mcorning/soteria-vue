@@ -32,6 +32,7 @@
         </v-col>
       </v-row>
       <v-row align="center" justify="center">
+        <!-- Sliders -->
         <v-col cols="6">
           <v-slider
             v-model="minutes"
@@ -54,6 +55,7 @@
           >
           </v-slider>
         </v-col>
+        <!-- should this be its own row? -->
         <v-col> Duration: {{ durationHumanized }} </v-col>
         <v-col>
           {{ late ? 'Late' : 'Active' }}: {{ spent / 1000 }} seconds
@@ -172,6 +174,7 @@ export default {
 
       minutes: 1,
       hours: 0,
+      days: 0,
       toggle_exclusive: undefined,
       spent: 0,
       intervals: [],
@@ -217,7 +220,10 @@ export default {
     },
 
     duration() {
-      return this.minutes * 60 * 1000;
+      let milliSecondsInMinutes = this.minutes * 60000;
+      let milliSecondsInHours = this.hours * 3600000;
+      let milliSecondsInDays = this.days * 86400000;
+      return milliSecondsInMinutes + milliSecondsInHours + milliSecondsInDays;
     }
   },
   methods: {
