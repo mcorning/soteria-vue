@@ -7,13 +7,18 @@
       <v-row>
         <v-col>
           <v-row>
-            <Description />
+            <Description
+              @entered-origin="handleOrigin"
+              @entered-destination="handleDestination"
+              @entered-description="handleDescription"
+            />
             <!-- <NextActivity /> -->
           </v-row>
 
           <v-row>
             <!-- DateTime Section -->
-            <Times />
+            <!-- <Times /> -->
+            <Duration @started-activity="activityStarted" />
           </v-row>
 
           <!-- Last Activity Timeline -->
@@ -29,7 +34,8 @@
 <script>
 import moment from 'moment';
 import Description from '@/components/Description';
-import Times from '@/components/Times';
+// import Times from '@/components/Times';
+import Duration from '@/components/Duration';
 
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
@@ -39,7 +45,8 @@ import Timeline from '@/models/Timeline';
 export default {
   components: {
     Description,
-    Times
+    Duration
+    // Times
   },
 
   computed: {
@@ -50,6 +57,13 @@ export default {
 
   data() {
     return {
+      payload: {
+        origin: '',
+        destination: '',
+        description: '',
+        eta: ''
+      },
+
       loading: false,
       member: {},
       hasActivity: Member.query()
@@ -82,6 +96,38 @@ export default {
   },
 
   methods: {
+    activityStarted(duration) {
+      this.payload.eta = moment()
+        .add(duration, 'minutes')
+        .toISOString();
+      console.log('\tExpect member returns by', this.payload.eta);
+      this.updateActivity();
+    },
+    handleOrigin(val) {
+      this.payload.origin = val;
+    },
+    handleDestination(val) {
+      this.payload.Destination = val;
+    },
+    handleDescription(val) {
+      this.payload.description = val;
+    },
+
+    updateActivity() {
+      console.log(
+        `'\tUpdating activity ${
+          this.member.lastActivity.id
+        } with ${JSON.stringify(this.payload)}`
+      );
+      Activity.$update({
+        where: this.member.lastActivity.id,
+        data: this.payload
+      }).then(activity => {
+        this.lastActivity = activity;
+        console.log('\tNew actvity:', activity);
+      });
+    },
+
     destroy() {
       console.log('\t|activities|', this.member.hasActivity === 1);
       Timeline.$delete(

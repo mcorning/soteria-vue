@@ -4,8 +4,33 @@
       <h2>Loading...</h2>
     </div>
     <div v-else>
-      <h2>My next activity</h2>
       <v-row>
+        <v-col> <h2>My next activity</h2> </v-col>
+        <v-col cols="3">
+          <div class="text-center">
+            <v-btn color="primary" fab x-small dark @click="snackbar = true">
+              <v-icon>mdi-help</v-icon>
+            </v-btn>
+            <v-snackbar
+              v-model="snackbar"
+              top
+              color="secondary"
+              :timeout="timeoutPref"
+              :multi-line="multiLine"
+            >
+              {{ descriptionHelpText }}
+              <v-btn
+                text
+                dark
+                elevation="4"
+                color="white"
+                @click="snackbar = false"
+              >
+                Close
+              </v-btn>
+            </v-snackbar>
+          </div>
+        </v-col>
         <v-col cols="12" sm="4">
           <v-text-field
             label="Starting Place*"
@@ -13,7 +38,9 @@
             persistent-hint
             required
             clearable
-            v-model="departFrom"
+            v-model="origin"
+            @blur="originEntered"
+            :rules="[rules.required]"
           ></v-text-field>
         </v-col>
 
@@ -24,7 +51,8 @@
             hint="Leave blank for round trip"
             persistent-hint
             clearable
-            v-model="arriveAt"
+            v-model="destination"
+            @blur="destinationEntered"
           ></v-text-field>
         </v-col>
 
@@ -56,6 +84,7 @@
             persistent-hint
             clearable
             v-model="description"
+            @blur="descriptionEntered"
           ></v-autocomplete>
         </v-col>
       </v-row>
@@ -73,58 +102,67 @@ export default {
   computed: {
     now() {
       return moment().format(this.TIME);
-    },
-    departFrom: {
-      get() {
-        let x = this.member.lastActivity.departFrom;
-        return x;
-      },
-      set(newVal) {
-        this.$store.state.departFrom = newVal;
-        this.updateActivityWith({ departFrom: newVal });
-      }
-    },
-
-    arriveAt: {
-      get() {
-        let x = this.member.lastActivity.arriveAt;
-        return x;
-      },
-      set(newVal) {
-        this.updateActivityWith({ arriveAt: newVal });
-      }
-    },
-
-    description: {
-      get() {
-        let x = this.member.lastActivity.description;
-        return x;
-      },
-      set(newVal) {
-        this.updateActivityWith({ description: newVal });
-      }
     }
   },
 
   data() {
-    return { member: {}, loading: false, activity: '' };
+    return {
+      origin: '',
+      destination: '',
+      description: '',
+      loading: false,
+      member: {},
+      activity: '',
+      TIME: 'hh:mm',
+
+      snackbar: false,
+      multiLine: true,
+      descriptionHelpText: `You need to provide two kinds of data to manage an activity: Description and Duration. For your Description, 
+        we require a Starting Place. A blank Ending Place indicates a round trip. Providing an activity can save your life in an emergency.`,
+      timeoutPref: 10000,
+
+      rules: {
+        required: value => !!value || 'Required.',
+        counter: value => value.length <= 20 || 'Max 20 characters',
+        email: value => {
+          const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+          return pattern.test(value) || 'Invalid e-mail.';
+        }
+      }
+    };
   },
 
   methods: {
-    updateActivityWith(payload) {
-      console.log(
-        `\tUpdating activity ${
-          this.member.lastActivity.id
-        } with ${JSON.stringify(payload)}`
-      );
-      Activity.$update({
-        where: this.member.lastActivity.id,
-        data: payload
-      }).then(activity => {
-        this.activity = activity;
-        console.log('\tUpdated activity', activity);
-      });
+    originEntered(e) {
+      if (e.target.value) {
+        this.$emit('entered-origin', e.target.value);
+      }
+    },
+    destinationEntered(e) {
+      if (e.target.value) {
+        this.$emit('entered-destination', e.target.value);
+      }
+    },
+    descriptionEntered(e) {
+      if (e.target.value) {
+        this.$emit('description-origin', e.target.value);
+      }
     }
+
+    // updateActivityWith(payload) {
+    //   console.log(
+    //     `\tUpdating activity ${
+    //       this.member.lastActivity.id
+    //     } with ${JSON.stringify(payload)}`
+    //   );
+    //   Activity.$update({
+    //     where: this.member.lastActivity.id,
+    //     data: payload
+    //   }).then(activity => {
+    //     this.activity = activity;
+    //     console.log('\tUpdated activity', activity);
+    //   });
+    // }
   },
 
   async created() {
@@ -140,8 +178,8 @@ export default {
 
     console.info('\tActivityData.vue.activities:', m);
     this.member = m;
-    this.$store.state.departFrom = this.departFrom;
-    console.info('\tstore departFrom:', this.$store.state.departFrom);
+    this.$store.state.origin = this.origin;
+    console.info('\tstore origin:', this.$store.state.origin);
 
     console.log(this.now, '...Leaving Description.vue created\n');
     console.log('.');

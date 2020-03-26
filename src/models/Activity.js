@@ -38,8 +38,8 @@ export default class Activity extends Model {
     return {
       // id: this.uid(() => uuidv4()),
       id: this.uid(),
-      departFrom: this.attr(''),
-      arriveAt: this.attr(''),
+      origin: this.attr(''),
+      destination: this.attr(''),
       description: this.string('Name me'),
       // departure: this.string(''),
       // arrival: this.string(''),
