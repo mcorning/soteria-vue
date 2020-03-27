@@ -5,7 +5,7 @@
     </div>
     <div v-else>
       <v-row>
-        <v-col> <h2>My next activity</h2> </v-col>
+        <v-col> <h2>My activity</h2> </v-col>
         <v-col cols="3">
           <div class="text-center">
             <v-btn color="primary" fab x-small dark @click="snackbar = true">
@@ -18,7 +18,8 @@
               :timeout="timeoutPref"
               :multi-line="multiLine"
             >
-              {{ descriptionHelpText }}
+              `Let us start with a description of your activity. We require a
+              Starting Place. The other two fields are optional.`,
               <v-btn
                 text
                 dark
@@ -117,8 +118,7 @@ export default {
 
       snackbar: false,
       multiLine: true,
-      descriptionHelpText: `You need to provide two kinds of data to manage an activity: Description and Duration. For your Description, 
-        we require a Starting Place. A blank Ending Place indicates a round trip. Providing an activity can save your life in an emergency.`,
+      descriptionHelpText: '',
       timeoutPref: 10000,
 
       rules: {

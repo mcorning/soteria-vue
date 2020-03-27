@@ -81,9 +81,9 @@ export default {
         //   url: '/test'
         // },
         {
-          label: 'My Data',
+          label: 'Activity',
           url: '/'
-        },
+        }
         // {
         //   label: 'My People',
         //   url: '/people'
@@ -97,10 +97,10 @@ export default {
         //   url: '/login'
         // },
 
-        {
-          label: 'About',
-          url: '/about'
-        }
+        // {
+        //   label: 'About',
+        //   url: '/about'
+        // }
       ]
     };
   },

@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-container fluid>
+      <!-- Snackbar here -->
       <v-row align="center" justify="center">
         <v-col cols="9">
           How long will you be active?
@@ -12,12 +13,14 @@
             </v-btn>
             <v-snackbar
               v-model="snackbar"
-              top
+              bottom
               color="secondary"
               :timeout="timeoutPref"
               :multi-line="multiLine"
             >
-              {{ durationHelpText }}
+              'Use the slider(s) to set the minutes and hours you expect to be
+              busy. You will see the Expected Time of Arrival respond
+              accordingly.',
               <v-btn
                 text
                 dark
@@ -31,8 +34,9 @@
           </div>
         </v-col>
       </v-row>
+
+      <!-- Sliders -->
       <v-row align="center" justify="center">
-        <!-- Sliders -->
         <v-col cols="6">
           <v-slider
             v-model="minutes"
@@ -55,37 +59,48 @@
           >
           </v-slider>
         </v-col>
-        <!-- should this be its own row? -->
-        <v-col> Duration: {{ durationHumanized }} </v-col>
-        <v-col>
-          {{ late ? 'Late' : 'Active' }}: {{ spent / 1000 }} seconds
+      </v-row>
+
+      <!-- Feedback -->
+      <v-row align="center" justify="center" class="font-weight-light caption">
+        <v-col cols="9">
+          <v-text-field
+            v-model="eta"
+            hide-details
+            class="font-weight-light caption"
+            label="Expected Time of Arrival"
+          ></v-text-field>
         </v-col>
+        <v-col> Duration: {{ durationHumanized }} </v-col>
+      </v-row>
+
+      <!-- Feedback -->
+      <v-row align="center" justify="center" class="font-weight-light caption">
+        <v-col v-if="late"> Late: {{ spentHumanized }} </v-col>
+        <v-col v-else> Active: {{ spentHumanized }} </v-col>
+      </v-row>
+
+      <!-- Feedback -->
+      <v-row align="center" justify="center">
         <v-col cols="12">
           <v-row align="center" justify="center">
             <v-btn-toggle v-model="toggle_exclusive" mandatory rounded>
               <v-btn
                 color="yellow"
-                class="pl-3"
                 darken-1
                 :running="true"
                 :disabled="running"
                 @click="depart"
               >
-                <span class="pr-3">Depart</span>
+                <span>Depart</span>
                 <v-icon>mdi-door-open</v-icon>
               </v-btn>
-              <v-btn
-                color="green"
-                lighten-1
-                class="pl-3"
-                :running="arrive"
-                @click="arrive"
-              >
-                <span class="pr-3">Arrive</span>
+              <v-btn color="green" lighten-1 :running="arrive" @click="arrive">
+                <span>Arrive</span>
                 <v-icon>mdi-door-closed</v-icon>
               </v-btn>
-              <v-btn color="red" lighten-1 class="pl-3" @click="emergency">
-                <span class="pr-2">SOS</span>
+              <v-btn color="red" lighten-1 @click="emergency">
+                <span>Help Me</span>
                 <v-icon>mdi-shield-alert</v-icon>
               </v-btn>
             </v-btn-toggle>
@@ -137,11 +152,78 @@
             </v-alert>
           </v-row>
           <v-row class="pt-5" align="center" justify="center">
-            <v-btn class="pr-3">
-              <span class="pr-3" @click="cancel"> Cancel</span>
-              <v-icon>mdi-bell-alert</v-icon>
-            </v-btn></v-row
-          >
+            <v-col cols="3">
+              <div class="text-center">
+                <v-btn
+                  color="primary"
+                  fab
+                  x-small
+                  dark
+                  @click="snackbar2 = true"
+                >
+                  <v-icon>mdi-help</v-icon>
+                </v-btn>
+                <v-snackbar
+                  v-model="snackbar2"
+                  bottom
+                  color="secondary"
+                  :timeout="timeoutPref"
+                  :multi-line="multiLine"
+                >
+                  Start your activity with Depart button. A timer will begin. To
+                  stop the timer and end your actvity, hit the Arrive buttton.
+                  <v-btn
+                    text
+                    dark
+                    elevation="4"
+                    color="white"
+                    @click="snackbar2 = false"
+                  >
+                    Close
+                  </v-btn>
+                </v-snackbar>
+              </div>
+            </v-col>
+            <v-col>
+              <v-btn class="pr-3">
+                <span class="pr-3" @click="cancel"> Cancel</span>
+                <v-icon>mdi-bell-alert</v-icon>
+              </v-btn></v-col
+            >
+            <v-col cols="3">
+              <div class="text-center">
+                <v-btn
+                  color="primary"
+                  fab
+                  x-small
+                  dark
+                  @click="snackbar3 = true"
+                >
+                  <v-icon>mdi-help</v-icon>
+                </v-btn>
+                <v-snackbar
+                  v-model="snackbar3"
+                  bottom
+                  color="secondary"
+                  :timeout="timeoutPref"
+                  :multi-line="multiLine"
+                >
+                  If you have an emergency, escalate your activity yourself; hit
+                  the SOS button right away. Don't wait for the activity to
+                  expire.
+                  <v-btn
+                    text
+                    dark
+                    elevation="4"
+                    color="white"
+                    @click="snackbar3 = false"
+                  >
+                    Close
+                  </v-btn>
+                </v-snackbar>
+              </div>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
@@ -167,18 +249,22 @@ export default {
       wait: 1,
 
       snackbar: false,
+      snackbar2: false,
+      snackbar3: false,
       multiLine: true,
-      durationHelpText:
-        'Use the slider(s) to set the minutes and hours you expect to be busy. Hit the Depart button when you leave. Hit the Arrive button when you return.',
+      durationHelpText: '',
       timeoutPref: 10000,
 
       minutes: 1,
       hours: 0,
       days: 0,
+      startTime: '',
+      endTime: '',
       toggle_exclusive: undefined,
       spent: 0,
       intervals: [],
-      timeouts: []
+      timeouts: [],
+      FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a'
     };
   },
   watch: {
@@ -197,6 +283,7 @@ export default {
           console.log(moment().format('hh:mm'), 'activity expired');
           my.active = false;
           my.late = true;
+          my.spent = 0;
           my.expired();
         }, this.duration)
       );
@@ -207,16 +294,29 @@ export default {
     }
   },
   computed: {
+    eta() {
+      return moment()
+        .add(this.hours, 'hours')
+        .add(this.minutes, 'minutes')
+        .format(this.FULL_DATE);
+    },
     timeUsed() {
       return (100 - 100 * (this.spent / this.duration)).toFixed(0);
     },
+
     now() {
       let m = moment().format('hh:mm');
       return m;
     },
 
     durationHumanized() {
-      return this.duration / 60000 + ' minutes';
+      let x = moment.duration(this.duration).humanize();
+      return x;
+    },
+
+    spentHumanized() {
+      // late resets spent to 0
+      return moment.duration(this.spent).humanize();
     },
 
     duration() {
@@ -245,6 +345,8 @@ export default {
 
     depart() {
       this.$emit('started-activity', this.duration);
+      this.startTime = moment();
+      this.endTime = this.startTime.add(this.duration);
       this.spent = 0;
       this.runner = 'running';
       console.log(this.runner);
