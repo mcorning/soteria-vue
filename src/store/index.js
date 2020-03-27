@@ -17,7 +17,8 @@ VuexORM.use(VuexORMLocalForage, {
 const store = new Vuex.Store({
   state: {
     eta: moment(),
-    departFrom: ''
+    departFrom: '',
+    firstTime: true
   },
 
   plugins: [VuexORM.install(database)]

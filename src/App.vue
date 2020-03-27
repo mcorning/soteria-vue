@@ -1,5 +1,34 @@
 <template>
   <v-app>
+    <v-dialog v-model="dialog" max-width="300">
+      <v-card>
+        <v-card-title class="headline">Quick Start</v-card-title>
+
+        <v-card-text>
+          Welcome to Secours. If this is your first time using the Secours
+          Safety Page, permit me to show you around.
+        </v-card-text>
+        <v-card-text>
+          On this Activity page you start and stop activities. If you do not or
+          cannot stop your activity, it will expire, and Secours will start
+          taking emergency actions on your behalf.
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-checkbox
+            v-model="checkFirstTime"
+            label="Do not show again"
+          ></v-checkbox>
+          <v-spacer></v-spacer>
+
+          <v-btn color="green darken-1" text @click="dialog = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-app-bar app color="primary" dark dense>
       <a href="http://secours.io">
         <v-img
@@ -66,6 +95,10 @@ export default {
 
   data() {
     return {
+      dialog: true,
+      firstTime: false,
+      checkFirstTime: !this.firstTime,
+
       TIME: 'hh:mm a',
 
       loading: false,
@@ -160,7 +193,10 @@ export default {
       }
     }
   },
-  mounted() {},
+  mounted() {
+    this.firstTime = this.$store.state.firstTime;
+    this.dialog = this.firstTime;
+  },
 
   async created() {
     console.log(this.now, 'Entering App.vue created()...');
@@ -188,6 +224,9 @@ export default {
     await Timeline.$fetch();
     this.loading = false;
     console.log(this.now, '...Leaving App.vue created()\n');
+  },
+  beforeDestroy() {
+    this.$store.state.firstTime = !this.checkFirstTime;
   }
 };
 </script>
