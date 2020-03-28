@@ -2,6 +2,7 @@
 import { Model } from '@vuex-orm/core';
 import Activity from './Activity';
 import Profile from './Profile';
+import Preference from './Preference';
 
 export default class Member extends Model {
   static entity = 'members';
@@ -31,6 +32,7 @@ export default class Member extends Model {
 
       // relationships (be sure you import any entity listed below)
       profile: this.hasOne(Profile, 'member_id'),
+      preferences: this.hasOne(Preference, 'member_id'),
 
       activities: this.hasMany(Activity, 'member_id')
     };

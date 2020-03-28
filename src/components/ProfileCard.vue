@@ -7,23 +7,13 @@
       <v-row justify="center">
         <v-card>
           <v-card-title>
-            My Minimal Personal Identifying <br />Information
+            My Personal Identifying Information
           </v-card-title>
           <v-card-text>
             <v-container>
               <v-row no-gutters>
                 <v-col cols="12">
                   <v-row justify="center">
-                    <v-col cols="6">
-                      <div id="imgRendered" display="showImage()">
-                        <v-img
-                          :src="member.image"
-                          margin="10"
-                          width="200"
-                          height="200"
-                        ></v-img>
-                      </div>
-                    </v-col>
                     <v-col cols="6">
                       <div display="getImage">
                         <picture-input
@@ -36,6 +26,16 @@
                           prepend-icon="mdi-camera"
                           @change="addImage"
                         ></picture-input>
+                      </div>
+                    </v-col>
+                    <v-col cols="6">
+                      <div id="imgRendered" display="showImage()">
+                        <v-img
+                          :src="member.image"
+                          margin="10"
+                          width="200"
+                          height="200"
+                        ></v-img>
                       </div>
                     </v-col>
                   </v-row>

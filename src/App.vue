@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-dialog v-model="dialog" max-width="300">
+    <v-dialog :value="false" max-width="300">
       <v-card>
         <v-card-title class="headline">Quick Start</v-card-title>
 
@@ -76,12 +76,14 @@
 </template>
 
 <script>
-// import L from './logger';
+import moment from 'moment';
+
 import store from '@/store';
+
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
-import moment from 'moment';
+import Preference from '@/models/Preference';
 
 export default {
   name: 'App',
@@ -95,7 +97,6 @@ export default {
 
   data() {
     return {
-      dialog: true,
       firstTime: false,
       checkFirstTime: !this.firstTime,
 
@@ -118,6 +119,10 @@ export default {
           url: '/'
         }
         // {
+        //   label: 'About',
+        //   url: '/about'
+        // }
+        // {
         //   label: 'My People',
         //   url: '/people'
         // },
@@ -128,11 +133,6 @@ export default {
         // {
         //   label: 'Login',
         //   url: '/login'
-        // },
-
-        // {
-        //   label: 'About',
-        //   url: '/about'
         // }
       ]
     };
@@ -206,20 +206,12 @@ export default {
     await Member.$fetch();
     console.log('\tFetching Activities from localForage');
     await Activity.$fetch();
+    console.log('\tFetching Preferences from localForage');
+    await Preference.$fetch();
 
     await this.getOrCreateMember();
 
     await this.getOrCreateActivity();
-
-    // let mid = Activity.query().first().member_id;
-    // if (mid) {
-    //   console.log('member_id', mid);
-    // } else {
-    //   Activity.$update({
-    //     where: Activity.query().first().id,
-    //     data: { member_id: Member.query().first().id }
-    //   });
-    // }
 
     await Timeline.$fetch();
     this.loading = false;

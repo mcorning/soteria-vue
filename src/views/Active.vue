@@ -3,6 +3,28 @@
     <h2>Loading Active.vue...</h2>
   </div>
   <div v-else>
+    <QuickStart
+      v-if="dialog"
+      :showQuickStart="showQuickStart"
+      @quick-start-pref-change="updateQuickStartPref"
+    >
+      <p slot="subheading">
+        Your ACTIVITY page.
+      </p>
+      <p slot="context">
+        Use this app to store personal data on your personal device (such as
+        your phone) and to share your data while protecting your privacy.
+      </p>
+      <p slot="goal">
+        The most common personal data stored with your web page is activity
+        data. This data can save your life.
+      </p>
+      <p slot="detail">
+        On this Activity page you start and stop activities. If you do not or
+        cannot stop your activity, it will expire, and Secours will start taking
+        emergency actions on your behalf.
+      </p>
+    </QuickStart>
     <v-container class="purple lighten-5">
       <v-row>
         <v-col>
@@ -36,17 +58,18 @@ import moment from 'moment';
 import Description from '@/components/Description';
 // import Times from '@/components/Times';
 import Duration from '@/components/Duration';
+import QuickStart from '@/components/dialogs/QuickStart.Home.vue';
 
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
-// import L from '@/logger';
+import Preference from '@/models/Preference';
 
 export default {
   components: {
     Description,
-    Duration
-    // Times
+    Duration,
+    QuickStart
   },
 
   computed: {
@@ -61,7 +84,12 @@ export default {
         origin: '',
         destination: '',
         description: '',
-        eta: ''
+        eta: '',
+
+        dialog: true,
+        showQuickStart: true,
+        prefs: null,
+        member: null
       },
 
       loading: false,
@@ -76,7 +104,6 @@ export default {
       FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a',
       ampm: 'ampm',
       dates: [moment().format('YYYY-MM-DD')],
-      memberID: 1,
 
       thisTimeline: {
         id: '',
@@ -145,12 +172,80 @@ export default {
         .has('activities.timeline')
         .get();
       return timeline.length ? true : false;
+    },
+    async setup() {
+      await Member.$fetch();
+      this.member = Member.query().first();
+
+      console.log('\t', this.now, 'Fetching Preferences:');
+      let p = await Preference.$fetch();
+      if (Object.keys(p).length > 0) {
+        console.log('\tFetched preferences', p);
+        console.log(
+          '\tQuerying for',
+          this.member.id,
+          'showQuickStart preference'
+        );
+        this.prefs = Preference.query()
+          .where('member_id', this.member.id)
+          .last();
+        this.dialog = this.prefs.showQuickStarts;
+        console.log('\tdialog set to', this.dialog);
+      } else {
+        console.log('\t', this.now, 'Creating Preference for', this.member.id);
+        // to get new data to localForage, you must use the $create() method (not create())
+        // and you must wrap the updated fields with the  data:{} object
+        const prefs = await Preference.$create({
+          data: {
+            // databaseName: '',
+            // showQuickStarts: '',
+            // showHelpIcons: '',
+
+            member_id: this.member.id
+          }
+        });
+
+        // is prefs an object?
+        console.log('prefs', prefs);
+        this.prefs = prefs.showQuickStarts ? prefs : prefs[0];
+
+        console.log(
+          this.now,
+          this.member.id,
+          'set quick starts to',
+          this.prefs.showQuickStarts
+        );
+      }
+    },
+    async updateQuickStartPref(showQuickStart) {
+      // to get new data to localForage, you must use the $create() method (not create())
+      // and you must wrap the updated fields with the  data:{} object
+      const prefs = await Preference.$update({
+        where: this.prefs.id,
+        data: {
+          // databaseName: '',
+          showQuickStarts: showQuickStart
+          // showHelpIcons: '',
+        }
+      });
+
+      // is prefs an object or an array?
+      this.prefs = prefs.showQuickStarts ? prefs : prefs[0];
+
+      console.log(
+        this.now,
+        this.member.id,
+        'set quick starts to',
+        this.prefs.showQuickStarts
+      );
     }
   },
   async created() {
     console.log(this.now, 'Entering Active.vue created()...');
 
     this.loading = true;
+    await this.setup();
+
     await Activity.$fetch();
     await Member.$fetch();
     let m = Member.query()
