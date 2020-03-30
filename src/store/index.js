@@ -10,7 +10,7 @@ Vue.use(Vuex);
 VuexORM.use(VuexORMLocalForage, {
   database,
   localforage: {
-    name: 'MichaelDatabase' // Name is required
+    name: 'MyDatabase' // Name is required
   }
 });
 

@@ -1,35 +1,46 @@
 <template>
   <v-container justify="center">
     <div class="home">
-
-      <Active />
+      <div v-if="member">
+        <Active />
+      </div>
+      <div v-else><Profile />></div>
     </div>
   </v-container>
 </template>
 
 <script>
 // @ is an alias to /src
-import Active from '@/views/Active.vue';
+import Member from '@/models/Member';
 
+import Active from '@/views/Active.vue';
+import Profile from '@/views/Profile.vue';
 
 export default {
   name: 'home',
   components: {
-    Active
+    Active,
+    Profile
   },
   data: () => ({
     loading: false,
     error: null,
-    member: null,
-
+    member: null
   }),
 
   methods: {
+    async setup() {
+      let m = await Member.$fetch();
 
+      if (m && Object.keys(m).length > 0) {
+        this.member = m[0];
+      }
+    }
   },
 
-   created() {
+  async created() {
     console.log(this.now, 'Entering Home.vue created');
+    await this.setup();
     console.log(this.now, 'Leaving Home created()');
   },
   mounted() {}

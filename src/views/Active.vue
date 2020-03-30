@@ -8,22 +8,22 @@
       :showQuickStart="showQuickStart"
       @quick-start-pref-change="updateQuickStartPref"
     >
-      <p slot="subheading">
+      <div slot="subheading">
         Your ACTIVITY page.
-      </p>
-      <p slot="context">
+      </div>
+      <div slot="context">
         Use this app to store personal data on your personal device (such as
         your phone) and to share your data while protecting your privacy.
-      </p>
-      <p slot="goal">
+      </div>
+      <div slot="goal">
         The most common personal data stored with your web page is activity
         data. This data can save your life.
-      </p>
-      <p slot="detail">
+      </div>
+      <div slot="detail">
         On this Activity page you start and stop activities. If you do not or
         cannot stop your activity, it will expire, and Secours will start taking
         emergency actions on your behalf.
-      </p>
+      </div>
     </QuickStart>
     <v-container class="purple lighten-5">
       <v-row>

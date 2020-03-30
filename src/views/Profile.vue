@@ -6,20 +6,20 @@
         :showQuickStart="showQuickStart"
         @quick-start-pref-change="updateQuickStartPref"
       >
-        <p slot="subheading">
+        <div slot="subheading">
           Your ME page.
-        </p>
-        <p slot="context">
+        </div>
+        <div slot="context">
           This where you start to make the Secours web site your very own.
-        </p>
-        <p slot="goal">
+        </div>
+        <div slot="goal">
           This page holds your personal identifying information
-        </p>
-        <p slot="detail">
+        </div>
+        <div slot="detail">
           One way Secours protects your privacy is by minimizing personal
           information. These five fields are sufficient to help first responders
           identify you in an emergency.
-        </p>
+        </div>
       </QuickStart>
       <ProfileCard />
     </div>
@@ -42,7 +42,8 @@ export default {
     dialog: true,
     showQuickStart: true,
     prefs: null,
-    member: null
+    member: null,
+    TIME: 'hh:mm'
   }),
 
   components: {
@@ -58,7 +59,32 @@ export default {
     async setup() {
       await Member.$fetch();
       this.member = Member.query().first();
-
+      if (!this.member) {
+        this.member = await Member.$create({
+          data: {
+            firstName: '',
+            lastName: '',
+            age: '',
+            gender: '',
+            image: '',
+            updated: new Date().toISOString(),
+            preferences: {
+              databaseName: '',
+              showQuickStarts: true,
+              showHelpIcons: true
+            },
+            activities: [
+              {
+                departFrom: '',
+                arriveAt: '',
+                description: '',
+                eta: '',
+                member_id: ''
+              }
+            ]
+          }
+        });
+      }
       console.log('\t', this.now, 'Fetching Preferences:');
       let p = await Preference.$fetch();
       if (Object.keys(p).length > 0) {

@@ -29,6 +29,7 @@ export default class Member extends Model {
       age: this.string(''),
       gender: this.attr(''),
       image: this.attr(''),
+      updated: this.attr(null),
 
       // relationships (be sure you import any entity listed below)
       profile: this.hasOne(Profile, 'member_id'),

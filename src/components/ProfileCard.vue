@@ -7,61 +7,55 @@
       <v-row justify="center">
         <v-card>
           <v-card-title>
-            My Personal Identifying Information
+            My Identifying Information
           </v-card-title>
           <v-card-text>
             <v-container>
-              <v-row no-gutters>
-                <v-col cols="12">
-                  <v-row justify="center">
-                    <v-col cols="6">
-                      <div display="getImage">
-                        <picture-input
-                          ef="pictureInput"
-                          width="200"
-                          height="200"
-                          margin="10"
-                          label="Attach profile picture"
-                          v-model="member.image"
-                          prepend-icon="mdi-camera"
-                          @change="addImage"
-                        ></picture-input>
-                      </div>
-                    </v-col>
-                    <v-col cols="6">
-                      <div id="imgRendered" display="showImage()">
-                        <v-img
-                          :src="member.image"
-                          margin="10"
-                          width="200"
-                          height="200"
-                        ></v-img>
-                      </div>
+              <v-row no-gutters justify="center">
+                <v-col cols="6">
+                  <v-row justify="space-between">
+                    <v-col v-if="changePhoto" cols="6">
+                      <picture-input
+                        :prefill="image"
+                        :prefillOptions="{ mediaType: 'image/png' }"
+                        ref="pictureInput"
+                        radius="50"
+                        @change="addImage"
+                        @remove="onRemoved"
+                        width="70"
+                        height="70"
+                        :removable="true"
+                        buttonClass="primary lighten-2 pl-2 pr-2 text-center white--text xs12"
+                        removeButtonClass="secondary pl-2 pr-2 text-center white--text xs12"
+                        accept="image/jpeg, image/png, image/gif"
+                      >
+                      </picture-input>
                     </v-col>
                   </v-row>
                 </v-col>
                 <v-col>
-                  <v-row>
-                    <v-col cols="8">
+                  <v-row justify="center">
+                    <v-col cols="12">
                       <v-text-field
                         label="Legal first name*"
                         required
+                        :rules="[rules.required]"
                         v-model="firstName"
                       ></v-text-field>
                     </v-col>
 
-                    <v-col cols="8">
+                    <v-col cols="12">
                       <v-text-field
                         label="Legal last name*"
-                        hint="this version needs a last name"
                         persistent-hint
                         required
+                        :rules="[rules.required]"
                         dense
                         v-model="lastName"
                       ></v-text-field>
                     </v-col>
 
-                    <v-col cols="5" sm="6">
+                    <v-col>
                       <v-autocomplete
                         v-model="gender"
                         label="Gender"
@@ -103,8 +97,6 @@ import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
-
-// import * as R from 'ramda';
 
 export default {
   components: {
@@ -195,7 +187,8 @@ export default {
     loading: false,
     member: '',
     image: '',
-
+    showPictureInput: false,
+    changePhoto: true,
     agreeToTerms: false,
     agreeToTermsRules: [
       value =>
@@ -214,7 +207,14 @@ export default {
         value.indexOf('.') <= value.length - 3 ||
         'Email should contain a valid domain extension.'
     ],
-    formValidity: false
+    rules: {
+      required: value => !!value || 'Required.',
+      counter: value => value.length <= 20 || 'Max 20 characters',
+      email: value => {
+        const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return pattern.test(value) || 'Invalid e-mail.';
+      }
+    }
   }),
 
   methods: {
@@ -222,9 +222,24 @@ export default {
       Member.$update({
         where: this.member.id,
         data: { image: val }
-      });
+      }).then(m => (this.member.image = m.image));
+      this.changePhoto = true;
     },
-
+    onChanged(val) {
+      console.log('New picture loaded');
+      if (this.$refs.pictureInput.image) {
+        this.image = this.$refs.pictureInput.file;
+        Member.$update({
+          where: this.member.id,
+          data: { image: val }
+        });
+      } else {
+        console.log('Old browser. No support for Filereader API');
+      }
+    },
+    onRemoved() {
+      this.image = '';
+    },
     getMember() {
       this.member = Member.query().first();
     },
@@ -241,6 +256,12 @@ export default {
           age: '',
           gender: '',
           image: '',
+          updated: new Date().toISOString(),
+          preferences: {
+            databaseName: '',
+            showQuickStarts: true,
+            showHelpIcons: true
+          },
           activities: [
             {
               departFrom: '',
@@ -288,12 +309,13 @@ export default {
     let m = Member.query()
       .with('activities.timeline')
       .first();
-
+    this.image = m.image;
     await this.checkActivity(m);
     this.loading = false;
 
     console.info('Fetched member with Activities and Timeline:', m);
     this.member = m;
+    // this.showPictureInput=this.member.image
   },
 
   mounted() {}
