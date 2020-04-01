@@ -133,15 +133,15 @@ export default {
         {
           label: 'About',
           url: '/about'
-        },
+        }
         // {
         //   label: 'My People',
         //   url: '/people'
         // },
-        {
-          label: 'Test',
-          url: '/test'
-        }
+        // {
+        //   label: 'Test',
+        //   url: '/test'
+        // }
         // {
         //   label: 'Login',
         //   url: '/login'

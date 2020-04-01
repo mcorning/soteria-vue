@@ -4,7 +4,7 @@
       <!-- Snackbar here -->
       <v-row align="center" justify="center">
         <v-col cols="9">
-          How long will you be active?
+          How long will you be gone for?
         </v-col>
         <v-col cols="3">
           <div class="text-center">
@@ -18,9 +18,8 @@
               :timeout="timeoutPref"
               :multi-line="multiLine"
             >
-              'Use the slider(s) to set the minutes and hours you expect to be
-              busy. You will see the Expected Time of Arrival respond
-              accordingly.',
+              Use the slider(s) to set the minutes and hours you expect to be
+              gone for.
               <v-btn
                 text
                 dark
@@ -33,6 +32,19 @@
             </v-snackbar>
           </div>
         </v-col>
+      </v-row>
+
+      <!-- Feedback -->
+      <v-row align="center" justify="center" class="font-weight-light caption">
+        <v-col cols="9">
+          <v-text-field
+            v-model="eta"
+            hide-details
+            class="font-weight-light caption"
+            label="Expected Time of Arrival"
+          ></v-text-field>
+        </v-col>
+        <v-col> Duration: {{ durationHumanized }} </v-col>
       </v-row>
 
       <!-- Sliders -->
@@ -59,19 +71,6 @@
           >
           </v-slider>
         </v-col>
-      </v-row>
-
-      <!-- Feedback -->
-      <v-row align="center" justify="center" class="font-weight-light caption">
-        <v-col cols="9">
-          <v-text-field
-            v-model="eta"
-            hide-details
-            class="font-weight-light caption"
-            label="Expected Time of Arrival"
-          ></v-text-field>
-        </v-col>
-        <v-col> Duration: {{ durationHumanized }} </v-col>
       </v-row>
 
       <!-- Feedback -->
@@ -106,10 +105,8 @@
             </v-btn-toggle>
           </v-row>
 
-          <!-- <v-row align="center" justify="center">
-            Active? {{ active }} Late? {{ late }}
-          </v-row> -->
-          <v-row class="pt-5" align="center" justify="center">
+          <v-spacer></v-spacer>
+          <v-row align="center" justify="center">
             <v-progress-circular
               v-if="active"
               :rotate="-90"
@@ -119,6 +116,7 @@
               color="primary"
               >{{ timeUsed }}%
             </v-progress-circular>
+
             <v-alert
               :value="late"
               color="pink"
@@ -151,7 +149,7 @@
               </v-row>
             </v-alert>
           </v-row>
-          <v-row class="pt-5" align="center" justify="center">
+          <v-row align="center" justify="center">
             <v-col cols="3">
               <div class="text-center">
                 <v-btn
@@ -208,9 +206,8 @@
                   :timeout="timeoutPref"
                   :multi-line="multiLine"
                 >
-                  If you have an emergency, escalate your activity yourself; hit
-                  the SOS button right away. Don't wait for the activity to
-                  expire.
+                  Help Me button will connect you to our Secours Emergency
+                  Operations Centre and someone you trust.
                   <v-btn
                     text
                     dark

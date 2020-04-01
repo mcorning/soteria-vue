@@ -3,11 +3,11 @@
     <v-dialog :value="dialog" max-width="300">
       <v-card>
         <v-card-title class="headline">Secours Quick Start</v-card-title>
+        <v-card-subtitle>
+          <slot name="subheading"></slot>
+        </v-card-subtitle>
 
         <v-card-text class="p-2 ">
-          <slot name="context"></slot>
-        </v-card-text>
-        <v-card-text>
           <slot name="goal"></slot>
         </v-card-text>
         <v-card-text>

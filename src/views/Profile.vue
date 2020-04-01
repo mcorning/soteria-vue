@@ -11,18 +11,15 @@
           @quick-start-pref-change="updateQuickStartPref"
         >
           <div slot="subheading">
-            Your ME page.
-          </div>
-          <div slot="context">
-            This where you start to make the Secours web site your very own.
+            Welcome to your ME page.
           </div>
           <div slot="goal">
-            This page holds your personal identifying information
+            The purpose of this page is for you to tell us a bit more about
+            yourself.
           </div>
           <div slot="detail">
-            One way Secours protects your privacy is by minimizing personal
-            information. These five fields are sufficient to help first
-            responders identify you in an emergency.
+            Enter all of the requested data, if you don't have a picture that's
+            okay.
           </div>
         </QuickStart>
         <ProfileCard />

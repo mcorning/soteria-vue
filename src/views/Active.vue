@@ -9,20 +9,38 @@
       @quick-start-pref-change="updateQuickStartPref"
     >
       <div slot="subheading">
-        Your ACTIVITY page.
-      </div>
-      <div slot="context">
-        Use this app to store personal data on your personal device (such as
-        your phone) and to share your data while protecting your privacy.
+        Welcome to your ACTIVITY page.
       </div>
       <div slot="goal">
-        The most common personal data stored with your web page is activity
-        data. This data can save your life.
+        Use the following steps to complete the page:
       </div>
       <div slot="detail">
-        On this Activity page you start and stop activities. If you do not or
-        cannot stop your activity, it will expire, and Secours will start taking
-        emergency actions on your behalf.
+        <ol>
+          <li>
+            Enter your "Starting Place", this could be you leaving your house
+          </li>
+          <li>
+            Enter your "Ending Place: where you intend to go. It could be the
+            grocery store
+          </li>
+          <li>Enter your "Activity" like shopping</li>
+          <li>
+            Enter how long you think it will take for you to get to the "Ending
+            Place". This could be minutes or hours or both
+          </li>
+          <li>
+            Destination buttons, when you leave your "Starting Place" click on
+            the depart button, when you arrive at the "Ending Place" click on
+            the arrive button, should you need help or are lost click on the
+            Help Me button. Click on the Help Me button it will connect you to
+            our Emergency Operations Centre and someone you trust.
+          </li>
+          <li>
+            If you go over your estimated time the alarm will sound to prompt
+            you. If you don't want that alarm you can click on the cancel button
+            at the bottom of the page.
+          </li>
+        </ol>
       </div>
     </QuickStart>
     <v-container class="purple lighten-5">
