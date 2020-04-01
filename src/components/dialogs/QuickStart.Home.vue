@@ -43,10 +43,14 @@ export default {
       showMeQuickStarts: this.showQuickStart
     };
   },
+  watch: {
+    showMeQuickStarts() {
+      this.$emit('quick-start-pref-change', this.showMeQuickStarts);
+    }
+  },
   methods: {
     close() {
       this.dialog = false;
-      this.$emit('quick-start-pref-change', this.showMeQuickStarts);
     }
   }
 };

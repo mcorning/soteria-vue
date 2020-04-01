@@ -18,19 +18,31 @@
                       <picture-input
                         :prefill="image"
                         :prefillOptions="{ mediaType: 'image/png' }"
+                        @change="addImage"
+                        accept="image/jpeg, image/png, image/gif"
+                      >
+                      </picture-input>
+                      <!-- all this raises subtle runtime errors
+                        <picture-input
+                        :prefill="image"
+                        :prefillOptions="{ mediaType: 'image/png' }"
                         ref="pictureInput"
-                        radius="50"
                         @change="addImage"
                         @remove="onRemoved"
-                        width="70"
-                        height="70"
                         :removable="true"
                         buttonClass="primary lighten-2 pl-2 pr-2 text-center white--text xs12"
                         removeButtonClass="secondary pl-2 pr-2 text-center white--text xs12"
                         accept="image/jpeg, image/png, image/gif"
                       >
-                      </picture-input>
+                      </picture-input> -->
                     </v-col>
+                  </v-row>
+                  <v-row
+                    ><v-checkbox
+                      class="caption"
+                      v-model="showQuickStarts"
+                      label="Show QuickStarts?"
+                    ></v-checkbox>
                   </v-row>
                 </v-col>
                 <v-col>
@@ -97,6 +109,7 @@ import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
+import Preference from '@/models/Preference';
 
 export default {
   components: {
@@ -104,10 +117,44 @@ export default {
   },
 
   computed: {
+    isReady() {
+      return Member.all().length > 0;
+    },
+    members() {
+      let m = Member.query()
+        .with('preferences')
+        .get();
+      console.log('returning member', m);
+      return m;
+    },
+    member() {
+      console.log('member', this.members[0]);
+      return this.members[0];
+    },
+    image() {
+      let image = this.isReady ? this.member.image : '';
+      return image;
+    },
+    perfID() {
+      if (!this.member.preferences) {
+        this.fixPrefs();
+      }
+      return this.member.preferences.id;
+    },
     noMember() {
       return !this.member;
     },
 
+    showQuickStarts: {
+      get() {
+        return this.member.preferences
+          ? this.member.preferences.showQuickStarts
+          : false;
+      },
+      set(newVal) {
+        Preference.changeQuickStart(this.perfID, newVal);
+      }
+    },
     firstName: {
       get() {
         if (this.member == '') {
@@ -185,8 +232,6 @@ export default {
 
   data: () => ({
     loading: false,
-    member: '',
-    image: '',
     showPictureInput: false,
     changePhoto: true,
     agreeToTerms: false,
@@ -218,6 +263,9 @@ export default {
   }),
 
   methods: {
+    fixPrefs() {
+      Preference.fixQuickStart(this.member.id);
+    },
     addImage(val) {
       Member.$update({
         where: this.member.id,
@@ -225,18 +273,7 @@ export default {
       }).then(m => (this.member.image = m.image));
       this.changePhoto = true;
     },
-    onChanged(val) {
-      console.log('New picture loaded');
-      if (this.$refs.pictureInput.image) {
-        this.image = this.$refs.pictureInput.file;
-        Member.$update({
-          where: this.member.id,
-          data: { image: val }
-        });
-      } else {
-        console.log('Old browser. No support for Filereader API');
-      }
-    },
+
     onRemoved() {
       this.image = '';
     },
@@ -302,22 +339,14 @@ export default {
       }
     }
   },
+
   async created() {
     this.loading = true;
     await Activity.$fetch();
-    await Member.$fetch();
-    let m = Member.query()
-      .with('activities.timeline')
-      .first();
-    this.image = m.image;
-    await this.checkActivity(m);
+    let m = await Member.$fetch();
+    await Preference.$fetch();
+    console.log('created() Fetched member', m);
     this.loading = false;
-
-    console.info('Fetched member with Activities and Timeline:', m);
-    this.member = m;
-    // this.showPictureInput=this.member.image
-  },
-
-  mounted() {}
+  }
 };
 </script>

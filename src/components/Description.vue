@@ -5,7 +5,7 @@
     </div>
     <div v-else>
       <v-row>
-        <v-col> <h2>My activity</h2> </v-col>
+        <v-col> <h2>My Activity</h2> </v-col>
         <v-col cols="3">
           <div class="text-center">
             <v-btn color="primary" fab x-small dark @click="snackbar = true">
@@ -32,62 +32,63 @@
             </v-snackbar>
           </div>
         </v-col>
-        <v-col cols="12" sm="4">
-          <v-text-field
-            label="Starting Place*"
-            hint="Uses your last location"
-            persistent-hint
-            required
-            clearable
-            v-model="origin"
-            @blur="originEntered"
-            :rules="[rules.required]"
-          ></v-text-field>
-        </v-col>
+        <v-row>
+          <v-col cols="4" sm="4">
+            <v-text-field
+              label="Starting Place*"
+              hint="Uses your last location"
+              persistent-hint
+              required
+              clearable
+              v-model="origin"
+              @blur="originEntered"
+              :rules="[rules.required]"
+            ></v-text-field>
+          </v-col>
 
-        <v-col cols="12" sm="4">
-          <v-text-field
-            style="width:290px"
-            label="Ending Place"
-            hint="Leave blank for round trip"
-            persistent-hint
-            clearable
-            v-model="destination"
-            @blur="destinationEntered"
-          ></v-text-field>
-        </v-col>
+          <v-col cols="4" sm="4">
+            <v-text-field
+              style="width:290px"
+              label="Ending Place"
+              hint="Leave blank for round trip"
+              persistent-hint
+              clearable
+              v-model="destination"
+              @blur="destinationEntered"
+            ></v-text-field>
+          </v-col>
 
-        <v-col cols="12" sm="4">
-          <v-autocomplete
-            style="width:290px"
-            :items="[
-              'Backpacking',
-              'Baseball',
-              'Basejump',
-              'Basketball',
-              'Biking',
-              'Boating',
-              'Hiking',
-              'Hockey',
-              'Land sailing',
-              'Mountain Biking',
-              'Road trip',
-              'Running',
-              'Sailing',
-              'Shopping',
-              'Skiing',
-              'Soccer',
-              'Walking',
-              'Unlisted'
-            ]"
-            label="Activity"
-            hint="Choose an activity to help us help you if necessary"
-            persistent-hint
-            clearable
-            v-model="description"
-            @blur="descriptionEntered"
-          ></v-autocomplete>
-        </v-col>
+          <v-col cols="4" sm="4">
+            <v-autocomplete
+              style="width:290px"
+              :items="[
+                'Backpacking',
+                'Baseball',
+                'Basejump',
+                'Basketball',
+                'Biking',
+                'Boating',
+                'Hiking',
+                'Hockey',
+                'Land sailing',
+                'Mountain Biking',
+                'Road trip',
+                'Running',
+                'Sailing',
+                'Shopping',
+                'Skiing',
+                'Soccer',
+                'Walking',
+                'Unlisted'
+              ]"
+              label="Activity"
+              hint="Choose an activity to help us help you if necessary"
+              persistent-hint
+              v-model="description"
+              @blur="descriptionEntered"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
       </v-row>
     </div>
   </v-container>

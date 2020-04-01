@@ -4,7 +4,7 @@
   </div>
   <div v-else>
     <QuickStart
-      v-if="dialog"
+      v-if="showQuickStart"
       :showQuickStart="showQuickStart"
       @quick-start-pref-change="updateQuickStartPref"
     >
@@ -29,24 +29,18 @@
       <v-row>
         <v-col>
           <v-row>
+            <!-- <NextActivity /> -->
             <Description
               @entered-origin="handleOrigin"
               @entered-destination="handleDestination"
               @entered-description="handleDescription"
             />
-            <!-- <NextActivity /> -->
           </v-row>
 
           <v-row>
             <!-- DateTime Section -->
-            <!-- <Times /> -->
             <Duration @started-activity="activityStarted" />
           </v-row>
-
-          <!-- Last Activity Timeline -->
-          <!-- <v-row v-if="lastTimeline"> -->
-          <!-- <TimelineVue heading="Last time I was:" /> -->
-          <!-- </v-row> -->
         </v-col>
       </v-row>
     </v-container>
@@ -56,7 +50,6 @@
 <script>
 import moment from 'moment';
 import Description from '@/components/Description';
-// import Times from '@/components/Times';
 import Duration from '@/components/Duration';
 import QuickStart from '@/components/dialogs/QuickStart.Home.vue';
 
@@ -73,6 +66,31 @@ export default {
   },
 
   computed: {
+    members() {
+      let m = Member.query()
+        .with('preferences')
+        .get();
+      console.log('returning member', m);
+      return m;
+    },
+    member() {
+      return this.members[0];
+    },
+    showQuickStart() {
+      return this.member.preferences.showQuickStarts;
+    },
+    perfID() {
+      if (!this.member.preferences) {
+        this.fixPrefs();
+      }
+      return this.member.preferences.id;
+    },
+    showQuickStartX() {
+      return this.member.preferences
+        ? this.member.preferences.showQuickStarts
+        : true;
+    },
+
     now() {
       return moment().format(this.TIME);
     }
@@ -87,13 +105,11 @@ export default {
         eta: '',
 
         dialog: true,
-        showQuickStart: true,
         prefs: null,
         member: null
       },
 
       loading: false,
-      member: {},
       hasActivity: Member.query()
         .has('activities.timeline')
         .get(),
@@ -123,6 +139,9 @@ export default {
   },
 
   methods: {
+    fixPrefs() {
+      Preference.fixQuickStart(this.member.id);
+    },
     activityStarted(duration) {
       this.payload.eta = moment()
         .add(duration, 'minutes')
@@ -173,50 +192,50 @@ export default {
         .get();
       return timeline.length ? true : false;
     },
-    async setup() {
-      await Member.$fetch();
-      this.member = Member.query().first();
+    // async setup() {
+    //   await Member.$fetch();
+    //   this.member = Member.query().first();
 
-      console.log('\t', this.now, 'Fetching Preferences:');
-      let p = await Preference.$fetch();
-      if (Object.keys(p).length > 0) {
-        console.log('\tFetched preferences', p);
-        console.log(
-          '\tQuerying for',
-          this.member.id,
-          'showQuickStart preference'
-        );
-        this.prefs = Preference.query()
-          .where('member_id', this.member.id)
-          .last();
-        this.dialog = this.prefs.showQuickStarts;
-        console.log('\tdialog set to', this.dialog);
-      } else {
-        console.log('\t', this.now, 'Creating Preference for', this.member.id);
-        // to get new data to localForage, you must use the $create() method (not create())
-        // and you must wrap the updated fields with the  data:{} object
-        const prefs = await Preference.$create({
-          data: {
-            // databaseName: '',
-            // showQuickStarts: '',
-            // showHelpIcons: '',
+    //   console.log('\t', this.now, 'Fetching Preferences:');
+    //   let p = await Preference.$fetch();
+    //   if (Object.keys(p).length > 0) {
+    //     console.log('\tFetched preferences', p);
+    //     console.log(
+    //       '\tQuerying for',
+    //       this.member.id,
+    //       'showQuickStart preference'
+    //     );
+    //     this.prefs = Preference.query()
+    //       .where('member_id', this.member.id)
+    //       .last();
+    //     this.dialog = this.prefs.showQuickStarts;
+    //     console.log('\tdialog set to', this.dialog);
+    //   } else {
+    //     console.log('\t', this.now, 'Creating Preference for', this.member.id);
+    //     // to get new data to localForage, you must use the $create() method (not create())
+    //     // and you must wrap the updated fields with the  data:{} object
+    //     const prefs = await Preference.$create({
+    //       data: {
+    //         // databaseName: '',
+    //         // showQuickStarts: '',
+    //         // showHelpIcons: '',
 
-            member_id: this.member.id
-          }
-        });
+    //         member_id: this.member.id
+    //       }
+    //     });
 
-        // is prefs an object?
-        console.log('prefs', prefs);
-        this.prefs = prefs.showQuickStarts ? prefs : prefs[0];
+    //     // is prefs an object?
+    //     console.log('prefs', prefs);
+    //     this.prefs = prefs.showQuickStarts ? prefs : prefs[0];
 
-        console.log(
-          this.now,
-          this.member.id,
-          'set quick starts to',
-          this.prefs.showQuickStarts
-        );
-      }
-    },
+    //     console.log(
+    //       this.now,
+    //       this.member.id,
+    //       'set quick starts to',
+    //       this.prefs.showQuickStarts
+    //     );
+    //   }
+    // },
     async updateQuickStartPref(showQuickStart) {
       // to get new data to localForage, you must use the $create() method (not create())
       // and you must wrap the updated fields with the  data:{} object
@@ -241,38 +260,41 @@ export default {
     }
   },
   async created() {
+    this.loading = true;
     console.log(this.now, 'Entering Active.vue created()...');
 
-    this.loading = true;
-    await this.setup();
+    // await this.setup();
 
     await Activity.$fetch();
     await Member.$fetch();
-    let m = Member.query()
-      .with('activities.timeline')
-      .first();
-    if (!m.lastActivity) {
-      console.log('\tDouble checking default activity');
-      Activity.$create({
-        data: {
-          departFrom: '',
-          arriveAt: '',
-          description: '',
-          eta: '',
+    await Preference.$fetch();
+    console.log('Preference', this.perfID);
 
-          member_id: m.id
-        }
-      }).then(activity => {
-        console.log("\tMember's first default activity", activity);
-      });
-    }
+    // let m = Member.query()
+    //   .with('activities.timeline')
+    //   .first();
+    // if (!m.lastActivity) {
+    //   console.log('\tDouble checking default activity');
+    //   Activity.$create({
+    //     data: {
+    //       departFrom: '',
+    //       arriveAt: '',
+    //       description: '',
+    //       eta: '',
+
+    //       member_id: m.id
+    //     }
+    //   }).then(activity => {
+    //     console.log("\tMember's first default activity", activity);
+    //   });
+    // }
 
     this.loading = false;
 
-    console.info('\tCurrent member with activities and timeline:', m);
-    this.member = m;
+    // console.info('\tCurrent member with activities and timeline:', m);
+    // this.member = m;
     console.log(this.now, '...Leaving Active.vue created()\n');
-    console.log('.');
+    console.log('');
   },
 
   mounted() {}

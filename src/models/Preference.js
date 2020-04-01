@@ -19,4 +19,18 @@ export default class Preference extends Model {
       member: this.belongsTo(Member, 'member_id')
     };
   }
+
+  static async changeQuickStart(perfID, val) {
+    let p = await this.$update({
+      data: { id: perfID, showQuickStarts: val, member_id: '$uid1' }
+    });
+    return p;
+  }
+
+  static async fixQuickStart(memberID) {
+    this.$update({
+      where: record => !record.member_id,
+      data: { member_id: memberID }
+    });
+  }
 }

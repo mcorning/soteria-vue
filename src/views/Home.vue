@@ -4,12 +4,14 @@
       <div v-if="member">
         <Active />
       </div>
-      <div v-else><Profile />></div>
+      <div v-else><Profile /></div>
     </div>
   </v-container>
 </template>
 
 <script>
+import moment from 'moment';
+
 // @ is an alias to /src
 import Member from '@/models/Member';
 
@@ -21,6 +23,11 @@ export default {
   components: {
     Active,
     Profile
+  },
+  computed: {
+    now() {
+      return moment().format(this.TIME);
+    }
   },
   data: () => ({
     loading: false,

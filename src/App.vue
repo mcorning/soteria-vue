@@ -107,7 +107,6 @@ export default {
 
   data() {
     return {
-      dialog: true,
       showQuickStart: true,
       prefs: null,
 
@@ -129,20 +128,20 @@ export default {
         // },
         {
           label: 'Activity',
-          url: '/'
-        }
-        // {
-        //   label: 'About',
-        //   url: '/about'
-        // }
+          url: '/Activity'
+        },
+        {
+          label: 'About',
+          url: '/about'
+        },
         // {
         //   label: 'My People',
         //   url: '/people'
         // },
-        // {
-        //   label: 'Test',
-        //   url: '/test'
-        // }
+        {
+          label: 'Test',
+          url: '/test'
+        }
         // {
         //   label: 'Login',
         //   url: '/login'
@@ -287,11 +286,12 @@ export default {
     // await Activity.$fetch();
 
     // console.log('\tFetching Preferences from localForage');
-    // await this.getPrefs();
+    // await Preference.$fetch();
+    // // await this.getPrefs();
 
-    // await this.getOrCreateMember();
+    // // await this.getOrCreateMember();
 
-    // await this.getOrCreateActivity();
+    // // await this.getOrCreateActivity();
 
     // await Timeline.$fetch();
     this.loading = false;
