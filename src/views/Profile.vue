@@ -34,6 +34,7 @@ import moment from 'moment';
 // @ is an alias to /src
 import ProfileCard from '@/components/ProfileCard.vue';
 import QuickStart from '@/components/dialogs/QuickStart.Home.vue';
+import DataRepository from '@/store/repository.js';
 
 import Member from '@/models/Member';
 import Preference from '@/models/Preference';
@@ -165,7 +166,9 @@ export default {
     this.loading = true;
     console.log(this.now, 'Entering Profile.vue created()');
     console.log('Fetching Member and Preference models');
-    await Member.$fetch();
+
+    await DataRepository.getMember();
+
     await Preference.$fetch();
     console.log(this.now, 'Leaving Profile created()');
     this.loading = false;
