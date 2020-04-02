@@ -4,10 +4,10 @@
       <h2>Loading...</h2>
     </div>
     <div v-else>
-      <v-container class="purple lighten-5" fluid>
+      <v-container class="purple lighten-5 pt-0 pb-0">
         <v-row>
-          <v-col> <h2>My Activity</h2> </v-col>
-          <v-col cols="2">
+          <v-col class="pb-0"> <h2>My Activity</h2> </v-col>
+          <v-col cols="2" class="pb-0">
             <div class="text-center">
               <v-btn
                 v-model="showHelpIcons"

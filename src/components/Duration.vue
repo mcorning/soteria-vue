@@ -1,17 +1,15 @@
 <template>
   <div>
     <v-container>
-      <!-- Snackbar here -->
-      <v-row align="center" justify="center">
-        <v-col
-          ><h4>
+      <v-row align="center" justify="center" class="pb-0">
+        <v-col class="pb-0"
+          ><h4 class="pb-0">
             How long will you be gone for?
           </h4></v-col
         >
-        <!-- <v-col>
-          How long will you be gone for?
-        </v-col> -->
-        <v-col cols="1">
+
+        <!-- Snackbar here -->
+        <v-col cols="1" class="pb-0">
           <div class="text-center">
             <v-btn color="primary" fab x-small dark @click="snackbar = true">
               <v-icon>mdi-help</v-icon>
@@ -40,16 +38,30 @@
       </v-row>
 
       <!-- Feedback -->
-      <v-row align="center" justify="center" class="font-weight-light caption">
+      <v-row
+        align="center"
+        justify="center"
+        class="font-weight-light caption pt-0 pb-4"
+      >
         <v-col cols="8">
           <v-text-field
             v-model="eta"
             hide-details
+            readonly
             class="font-weight-light caption"
             label="Expected Time of Arrival"
           ></v-text-field>
         </v-col>
-        <v-col> Duration: <br />{{ durationHumanized }} </v-col>
+        <v-col>
+          <v-text-field
+            :value="durationHumanized"
+            hide-details
+            readonly
+            class="font-weight-light caption"
+            label="Duration"
+          ></v-text-field>
+          <!-- Duration: <br />{{ durationHumanized }}  -->
+        </v-col>
       </v-row>
 
       <!-- Sliders -->
@@ -57,6 +69,7 @@
         <v-col>
           <v-slider
             v-model="minutes"
+            value="1"
             label="Minutes:"
             thumb-label="always"
             :thumb-size="18"
@@ -271,7 +284,7 @@ export default {
   },
   data() {
     return {
-      ticksLabels: ['00', ' 15', '30', '45', '60'],
+      ticksLabels: ['01', ' 15', '30', '45', '60'],
       active: false,
       late: false,
       escalated: false,
