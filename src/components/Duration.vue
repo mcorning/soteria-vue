@@ -1,12 +1,17 @@
 <template>
   <div>
-    <v-container fluid>
+    <v-container>
       <!-- Snackbar here -->
       <v-row align="center" justify="center">
-        <v-col cols="9">
+        <v-col
+          ><h4>
+            How long will you be gone for?
+          </h4></v-col
+        >
+        <!-- <v-col>
           How long will you be gone for?
-        </v-col>
-        <v-col cols="3">
+        </v-col> -->
+        <v-col cols="1">
           <div class="text-center">
             <v-btn color="primary" fab x-small dark @click="snackbar = true">
               <v-icon>mdi-help</v-icon>
@@ -36,7 +41,7 @@
 
       <!-- Feedback -->
       <v-row align="center" justify="center" class="font-weight-light caption">
-        <v-col cols="9">
+        <v-col cols="8">
           <v-text-field
             v-model="eta"
             hide-details
@@ -44,29 +49,37 @@
             label="Expected Time of Arrival"
           ></v-text-field>
         </v-col>
-        <v-col> Duration: {{ durationHumanized }} </v-col>
+        <v-col> Duration: <br />{{ durationHumanized }} </v-col>
       </v-row>
 
       <!-- Sliders -->
       <v-row align="center" justify="center">
-        <v-col cols="6">
+        <v-col>
           <v-slider
             v-model="minutes"
             label="Minutes:"
             thumb-label="always"
             :thumb-size="18"
             min="0"
-            :max="60"
+            max="60"
+            step="15"
+            ticks="always"
+            tick-size="4"
+            :tick-labels="ticksLabels"
           >
-          </v-slider>
-        </v-col>
-        <v-col cols="6">
+          </v-slider> </v-col
+      ></v-row>
+      <v-row>
+        <v-col>
           <v-slider
+            hide-details
             v-model="hours"
             label="Hours:"
             thumb-label="always"
             :thumb-size="18"
             min="0"
+            step="1"
+            ticks="always"
             :max="23"
           >
           </v-slider>
@@ -149,7 +162,9 @@
               </v-row>
             </v-alert>
           </v-row>
-          <v-row align="center" justify="center">
+          <v-spacer></v-spacer>
+          <!-- help Cancel help -->
+          <v-row align="center" justify="center" no-gutters="">
             <v-col cols="3">
               <div class="text-center">
                 <v-btn
@@ -183,21 +198,12 @@
               </div>
             </v-col>
             <v-col>
-              <v-btn class="pr-3">
-                <span class="pr-3" @click="cancel"> Cancel</span>
+              <v-btn class="pl-10">
+                <span class="pr-2" @click="cancel"> Cancel</span>
                 <v-icon>mdi-bell-alert</v-icon>
               </v-btn></v-col
             >
-            <v-col>
-              <v-checkbox
-                v-model="mute"
-                id="vuemodoro-muted"
-                label="Mute alarm"
-                class="checkbox"
-                @change="$v.checkbox.$touch()"
-                @blur="$v.checkbox.$touch()"
-              ></v-checkbox
-            ></v-col>
+
             <v-col cols="3">
               <div class="text-center">
                 <v-btn
@@ -231,6 +237,23 @@
               </div>
             </v-col>
           </v-row>
+          <v-row align="center" justify="center" no-gutters>
+            <v-col cols="4"></v-col>
+            <v-col cols="6">
+              <v-checkbox
+                v-model="mute"
+                dense
+                id="muted"
+                :label="alarmOrClock"
+                on-icon="mdi-clock"
+                off-icon="mdi-alarm"
+                class="checkbox"
+                :hint="alarmOrClockHint"
+                persistent-hint
+              ></v-checkbox
+            ></v-col>
+            <v-col cols="2"></v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
@@ -248,6 +271,7 @@ export default {
   },
   data() {
     return {
+      ticksLabels: ['00', ' 15', '30', '45', '60'],
       active: false,
       late: false,
       escalated: false,
@@ -304,6 +328,12 @@ export default {
     }
   },
   computed: {
+    alarmOrClockHint() {
+      return this.mute ? 'Click to hear alarm' : 'Click to mute alarm';
+    },
+    alarmOrClock() {
+      return this.mute ? 'Clock' : 'Alarm';
+    },
     eta() {
       return moment()
         .add(this.hours, 'hours')

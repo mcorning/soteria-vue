@@ -1,104 +1,106 @@
 <template>
-  <v-container class="purple lighten-5">
+  <div>
     <div v-if="loading">
       <h2>Loading...</h2>
     </div>
     <div v-else>
-      <v-row>
-        <v-col> <h2>My Activity</h2> </v-col>
-        <v-col cols="3">
-          <div class="text-center">
-            <v-btn
-              v-model="showHelpIcons"
-              color="primary"
-              fab
-              x-small
-              dark
-              @click="snackbar = true"
-            >
-              <v-icon>mdi-help</v-icon>
-            </v-btn>
-            <v-snackbar
-              v-model="snackbar"
-              top
-              color="secondary"
-              :timeout="timeoutPref"
-              :multi-line="multiLine"
-            >
-              Let us start with a description of your activity. We require a
-              Starting Place. The other two fields are optional.,
+      <v-container class="purple lighten-5" fluid>
+        <v-row>
+          <v-col> <h2>My Activity</h2> </v-col>
+          <v-col cols="2">
+            <div class="text-center">
               <v-btn
-                text
+                v-model="showHelpIcons"
+                color="primary"
+                fab
+                x-small
                 dark
-                elevation="4"
-                color="white"
-                @click="snackbar = false"
+                @click="snackbar = true"
               >
-                Close
+                <v-icon>mdi-help</v-icon>
               </v-btn>
-            </v-snackbar>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="4" sm="4">
-          <v-text-field
-            label="Starting Place*"
-            hint="Uses your last location"
-            persistent-hint
-            required
-            clearable
-            v-model="origin"
-            @blur="originEntered"
-            :rules="[rules.required]"
-          ></v-text-field>
-        </v-col>
+              <v-snackbar
+                v-model="snackbar"
+                top
+                color="secondary"
+                :timeout="timeoutPref"
+                :multi-line="multiLine"
+              >
+                Let us start with a description of your activity. We require a
+                Starting Place. The other two fields are optional.,
+                <v-btn
+                  text
+                  dark
+                  elevation="4"
+                  color="white"
+                  @click="snackbar = false"
+                >
+                  Close
+                </v-btn>
+              </v-snackbar>
+            </div>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="4" sm="4">
+            <v-text-field
+              label="Origin*"
+              hint="Uses your last location"
+              persistent-hint
+              required
+              clearable
+              v-model="origin"
+              @blur="originEntered"
+              :rules="[rules.required]"
+            ></v-text-field>
+          </v-col>
 
-        <v-col cols="4" sm="4">
-          <v-text-field
-            style="width:290px"
-            label="Ending Place"
-            hint="Leave blank for round trip"
-            persistent-hint
-            clearable
-            v-model="destination"
-            @blur="destinationEntered"
-          ></v-text-field>
-        </v-col>
+          <v-col cols="4" sm="4">
+            <v-text-field
+              style="width:290px"
+              label="Destination"
+              hint="Leave blank for round trip"
+              persistent-hint
+              clearable
+              v-model="destination"
+              @blur="destinationEntered"
+            ></v-text-field>
+          </v-col>
 
-        <v-col cols="4" sm="4">
-          <v-autocomplete
-            style="width:290px"
-            :items="[
-              'Backpacking',
-              'Baseball',
-              'Basejump',
-              'Basketball',
-              'Biking',
-              'Boating',
-              'Hiking',
-              'Hockey',
-              'Land sailing',
-              'Mountain Biking',
-              'Road trip',
-              'Running',
-              'Sailing',
-              'Shopping',
-              'Skiing',
-              'Soccer',
-              'Walking',
-              'Unlisted'
-            ]"
-            label="Activity"
-            hint="Choose an activity to help us help you if necessary"
-            persistent-hint
-            v-model="description"
-            @blur="descriptionEntered"
-          ></v-autocomplete>
-        </v-col>
-      </v-row>
+          <v-col cols="4" sm="4">
+            <v-autocomplete
+              style="width:290px"
+              :items="[
+                'Backpacking',
+                'Baseball',
+                'Basejump',
+                'Basketball',
+                'Biking',
+                'Boating',
+                'Hiking',
+                'Hockey',
+                'Land sailing',
+                'Mountain Biking',
+                'Road trip',
+                'Running',
+                'Sailing',
+                'Shopping',
+                'Skiing',
+                'Soccer',
+                'Walking',
+                'Unlisted'
+              ]"
+              label="Activity"
+              hint="Choose an activity to help us help you if necessary"
+              persistent-hint
+              v-model="description"
+              @blur="descriptionEntered"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <script>
