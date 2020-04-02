@@ -188,6 +188,16 @@
                 <v-icon>mdi-bell-alert</v-icon>
               </v-btn></v-col
             >
+            <v-col>
+              <v-checkbox
+                v-model="mute"
+                id="vuemodoro-muted"
+                label="Mute alarm"
+                class="checkbox"
+                @change="$v.checkbox.$touch()"
+                @blur="$v.checkbox.$touch()"
+              ></v-checkbox
+            ></v-col>
             <v-col cols="3">
               <div class="text-center">
                 <v-btn
@@ -230,6 +240,7 @@
 <script>
 import moment from 'moment';
 // import DurationHelp from '@/components/snackbars/DurationHelp.vue';
+import { AudioPlayer } from './lib/audio.js';
 
 export default {
   components: {
@@ -251,6 +262,8 @@ export default {
       multiLine: true,
       durationHelpText: '',
       timeoutPref: 10000,
+      audio: null,
+      mute: false,
 
       minutes: 1,
       hours: 0,
@@ -328,6 +341,8 @@ export default {
       console.log('Is member late?', this.late);
       this.stopCountdowns();
       this.spent = 0;
+      AudioPlayer.playAlarm(this.mute, this.audio);
+
       this.startCountdown();
     },
 
@@ -380,6 +395,8 @@ export default {
     },
 
     stopCountdowns() {
+      AudioPlayer.stopAlarm(this.audio);
+
       this.intervals.forEach(interval => {
         console.log('interval ID:', interval);
         clearInterval(interval);
@@ -396,6 +413,8 @@ export default {
 
   mounted() {
     this.loading = false;
+    if (!this.mute) this.audio = AudioPlayer.createAudio();
+    console.log('Timer mounted');
   },
 
   beforeDestroy() {
@@ -404,3 +423,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.checkbox {
+  color: white;
+}
+</style>
