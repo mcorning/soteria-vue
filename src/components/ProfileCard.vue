@@ -44,6 +44,13 @@
                       label="Show QuickStarts?"
                     ></v-checkbox>
                   </v-row>
+                  <v-row
+                    ><v-checkbox
+                      class="caption"
+                      v-model="showHelpIcons"
+                      label="Show Help Icons?"
+                    ></v-checkbox>
+                  </v-row>
                 </v-col>
                 <v-col>
                   <v-row justify="center">
@@ -153,6 +160,16 @@ export default {
       },
       set(newVal) {
         Preference.changeQuickStart(this.perfID, newVal);
+      }
+    },
+    showHelpIcons: {
+      get() {
+        return this.member.preferences
+          ? this.member.preferences.showHelpIcons
+          : false;
+      },
+      set(newVal) {
+        Preference.changeHelpIcons(this.perfID, newVal);
       }
     },
     firstName: {

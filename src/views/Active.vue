@@ -103,12 +103,20 @@ export default {
       }
       return this.member.preferences.id;
     },
-    showQuickStartX() {
-      return this.member.preferences
-        ? this.member.preferences.showQuickStarts
-        : true;
+    lastActivity() {
+      return this.member.lastActivity;
     },
-
+    payload() {
+      return {
+        origin: this.origin,
+        destination: this.destination ? this.destination : this.origin,
+        description: this.description,
+        eta: moment()
+          .add(this.duration, 'minutes')
+          .toISOString(),
+        member_id: this.member.id
+      };
+    },
     now() {
       return moment().format(this.TIME);
     }
@@ -116,22 +124,10 @@ export default {
 
   data() {
     return {
-      payload: {
-        origin: '',
-        destination: '',
-        description: '',
-        eta: '',
-
-        dialog: true,
-        prefs: null,
-        member: null
-      },
-
       loading: false,
-      hasActivity: Member.query()
-        .has('activities.timeline')
-        .get(),
-
+      origin: '',
+      destination: '',
+      description: '',
       sheet: false,
       showEscalationAlert: false,
       TIME: 'hh:mm a',
@@ -160,35 +156,30 @@ export default {
     fixPrefs() {
       Preference.fixQuickStart(this.member.id);
     },
-    activityStarted(duration) {
-      this.payload.eta = moment()
-        .add(duration, 'minutes')
-        .toISOString();
+    activityStarted() {
       console.log('\tExpect member returns by', this.payload.eta);
       this.updateActivity();
     },
     handleOrigin(val) {
-      this.payload.origin = val;
+      this.origin = val;
     },
     handleDestination(val) {
-      this.payload.Destination = val;
+      this.destination = val;
     },
     handleDescription(val) {
-      this.payload.description = val;
+      console.log(val);
+      this.description = val;
     },
 
     updateActivity() {
-      console.log(
-        `'\tUpdating activity ${
-          this.member.lastActivity.id
-        } with ${JSON.stringify(this.payload)}`
-      );
+      console.log('payload:', JSON.stringify(this.payload));
+      let id = this.lastActivity ? this.lastActivity.id : '';
       Activity.$update({
-        where: this.member.lastActivity.id,
+        where: id,
         data: this.payload
       }).then(activity => {
-        this.lastActivity = activity;
         console.log('\tNew actvity:', activity);
+        console.log('new lastActivity', this.lastActivity);
       });
     },
 
@@ -210,109 +201,34 @@ export default {
         .get();
       return timeline.length ? true : false;
     },
-    // async setup() {
-    //   await Member.$fetch();
-    //   this.member = Member.query().first();
 
-    //   console.log('\t', this.now, 'Fetching Preferences:');
-    //   let p = await Preference.$fetch();
-    //   if (Object.keys(p).length > 0) {
-    //     console.log('\tFetched preferences', p);
-    //     console.log(
-    //       '\tQuerying for',
-    //       this.member.id,
-    //       'showQuickStart preference'
-    //     );
-    //     this.prefs = Preference.query()
-    //       .where('member_id', this.member.id)
-    //       .last();
-    //     this.dialog = this.prefs.showQuickStarts;
-    //     console.log('\tdialog set to', this.dialog);
-    //   } else {
-    //     console.log('\t', this.now, 'Creating Preference for', this.member.id);
-    //     // to get new data to localForage, you must use the $create() method (not create())
-    //     // and you must wrap the updated fields with the  data:{} object
-    //     const prefs = await Preference.$create({
-    //       data: {
-    //         // databaseName: '',
-    //         // showQuickStarts: '',
-    //         // showHelpIcons: '',
-
-    //         member_id: this.member.id
-    //       }
-    //     });
-
-    //     // is prefs an object?
-    //     console.log('prefs', prefs);
-    //     this.prefs = prefs.showQuickStarts ? prefs : prefs[0];
-
-    //     console.log(
-    //       this.now,
-    //       this.member.id,
-    //       'set quick starts to',
-    //       this.prefs.showQuickStarts
-    //     );
-    //   }
-    // },
     async updateQuickStartPref(showQuickStart) {
       // to get new data to localForage, you must use the $create() method (not create())
       // and you must wrap the updated fields with the  data:{} object
-      const prefs = await Preference.$update({
-        where: this.prefs.id,
+      const perfs = await Preference.$update({
+        where: this.perfID,
         data: {
           // databaseName: '',
           showQuickStarts: showQuickStart
           // showHelpIcons: '',
         }
       });
-
-      // is prefs an object or an array?
-      this.prefs = prefs.showQuickStarts ? prefs : prefs[0];
-
-      console.log(
-        this.now,
-        this.member.id,
-        'set quick starts to',
-        this.prefs.showQuickStarts
-      );
+      console.log('updated perfs:', perfs);
     }
   },
   async created() {
     this.loading = true;
     console.log(this.now, 'Entering Active.vue created()...');
 
-    // await this.setup();
-
     await Activity.$fetch();
     await Member.$fetch();
+    console.log('Member', this.member.id);
     await Preference.$fetch();
     console.log('Preference', this.perfID);
 
-    // let m = Member.query()
-    //   .with('activities.timeline')
-    //   .first();
-    // if (!m.lastActivity) {
-    //   console.log('\tDouble checking default activity');
-    //   Activity.$create({
-    //     data: {
-    //       departFrom: '',
-    //       arriveAt: '',
-    //       description: '',
-    //       eta: '',
-
-    //       member_id: m.id
-    //     }
-    //   }).then(activity => {
-    //     console.log("\tMember's first default activity", activity);
-    //   });
-    // }
-
-    this.loading = false;
-
-    // console.info('\tCurrent member with activities and timeline:', m);
-    // this.member = m;
     console.log(this.now, '...Leaving Active.vue created()\n');
     console.log('');
+    this.loading = false;
   },
 
   mounted() {}

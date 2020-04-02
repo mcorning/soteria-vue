@@ -22,7 +22,13 @@ export default class Preference extends Model {
 
   static async changeQuickStart(perfID, val) {
     let p = await this.$update({
-      data: { id: perfID, showQuickStarts: val, member_id: '$uid1' }
+      data: { id: perfID, showQuickStarts: val }
+    });
+    return p;
+  }
+  static async changeHelpIcons(perfID, val) {
+    let p = await this.$update({
+      data: { id: perfID, showHelpIcons: val }
     });
     return p;
   }

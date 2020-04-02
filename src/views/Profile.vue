@@ -51,30 +51,23 @@ export default {
     QuickStart
   },
   computed: {
-    isReady() {
-      return Member.all().length > 0;
-    },
     members() {
-      console.log(this.isReady ? ' member ready' : 'no member ');
-
       let m = Member.query()
         .with('preferences')
         .get();
-      console.log('returning member', m);
+      console.log('Profile member', m);
       return m;
-    },
-    showQuickStart() {
-      console.log(this.isReady ? ' member ready' : 'no member ');
-
-      return this.member && this.member.preferences
-        ? this.member.preferences.showQuickStarts
-        : false;
     },
     member() {
       return this.members[0];
     },
     now() {
       return moment().format(this.TIME);
+    },
+    showQuickStart() {
+      return this.member && this.member.preferences
+        ? this.member.preferences.showQuickStarts
+        : false;
     }
   },
   methods: {
