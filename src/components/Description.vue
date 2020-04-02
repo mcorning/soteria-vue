@@ -4,7 +4,6 @@
       <h2>Loading...</h2>
     </div>
     <div v-else>
-      {{ lastActivity }}
       <v-row>
         <v-col> <h2>My Activity</h2> </v-col>
         <v-col cols="3">
@@ -106,13 +105,14 @@
 import moment from 'moment';
 
 import Member from '@/models/Member';
-// import Activity from '@/models/Activity'; // needed to fetch this in order to get a non-null member.lastActivity reference
+import Activity from '@/models/Activity'; // needed to fetch this in order to get a non-null member.lastActivity reference
 
 export default {
   computed: {
     members() {
       let m = Member.query()
         .with('preferences')
+        .with('activities')
         .get();
       console.log('Profile member', m);
       return m;
@@ -194,7 +194,11 @@ export default {
     this.loading = true;
     console.log(this.now, '\nEntering Description.vue created...');
 
-    // await Activity.$fetch();
+    await Activity.$fetch();
+    this.origin = this.lastActivity.origin;
+    this.destination = this.lastActivity.destination;
+    this.description = this.lastActivity.description;
+    console.log(this.now, this.origin);
     // await Member.$fetch();
     // let m = Member.query()
     //   .with('activities')

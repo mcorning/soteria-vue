@@ -87,13 +87,16 @@ export default {
     members() {
       let m = Member.query()
         .with('preferences')
+        .with('activities')
         .get();
       console.log('returning member', m);
       return m;
     },
+
     member() {
       return this.members[0];
     },
+
     showQuickStart() {
       return this.member.preferences.showQuickStarts;
     },
@@ -105,6 +108,9 @@ export default {
     },
     lastActivity() {
       return this.member.lastActivity;
+    },
+    lastTimeline() {
+      return this.lastActivity ? this.lastActivity.timeline : [];
     },
     payload() {
       return {
@@ -220,11 +226,16 @@ export default {
     this.loading = true;
     console.log(this.now, 'Entering Active.vue created()...');
 
-    await Activity.$fetch();
     await Member.$fetch();
     console.log('Member', this.member.id);
     await Preference.$fetch();
     console.log('Preference', this.perfID);
+
+    await Activity.$fetch();
+    console.log('lastActivity', this.lastActivity);
+
+    await Timeline.$fetch();
+    console.log('last timeline', this.lastTimeline);
 
     console.log(this.now, '...Leaving Active.vue created()\n');
     console.log('');
