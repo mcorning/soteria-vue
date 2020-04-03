@@ -194,20 +194,24 @@ export default {
 
   async created() {
     this.loading = true;
-    console.log(this.now, '\nEntering Description.vue created...');
+    console.log(this.now, '\nEntering Description.vue created()...');
 
     await Activity.$fetch();
-    this.origin = this.lastActivity.origin;
-    this.destination = this.lastActivity.destination;
-    this.description = this.lastActivity.description;
-    console.log(this.now, this.origin);
-    // await Member.$fetch();
-    // let m = Member.query()
-    //   .with('activities')
-    //   .first();
 
-    console.log(this.now, '...Leaving Description.vue created\n');
+    console.log(this.now, '...Leaving Description.vue created()\n');
+  },
+
+  mounted() {
+    console.log(this.now, '\nEntering Description.vue mounted...');
     this.loading = false;
+    if (this.lastActivity) {
+      this.origin = this.lastActivity.origin;
+      this.destination = this.lastActivity.destination;
+      this.description = this.lastActivity.description;
+      console.log(this.now, this.origin);
+    }
+
+    console.log(this.now, '...Leaving Description.vue mounted()\n');
   }
 };
 </script>

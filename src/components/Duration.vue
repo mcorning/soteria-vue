@@ -60,7 +60,6 @@
             class="font-weight-light caption"
             label="Duration"
           ></v-text-field>
-          <!-- Duration: <br />{{ durationHumanized }}  -->
         </v-col>
       </v-row>
 
@@ -69,12 +68,11 @@
         <v-col>
           <v-slider
             v-model="minutes"
-            value="1"
             label="Minutes:"
             thumb-label="always"
             :thumb-size="18"
-            min="0"
-            max="60"
+            min="1"
+            max="59"
             step="15"
             ticks="always"
             tick-size="4"
@@ -251,8 +249,8 @@
             </v-col>
           </v-row>
           <v-row align="center" justify="center" no-gutters>
-            <v-col cols="4"></v-col>
-            <v-col cols="6">
+            <v-col cols="3"></v-col>
+            <v-col cols="9">
               <v-checkbox
                 v-model="mute"
                 dense
@@ -265,7 +263,6 @@
                 persistent-hint
               ></v-checkbox
             ></v-col>
-            <v-col cols="2"></v-col>
           </v-row>
         </v-col>
       </v-row>
@@ -275,77 +272,17 @@
 
 <script>
 import moment from 'moment';
-// import DurationHelp from '@/components/snackbars/DurationHelp.vue';
 import { AudioPlayer } from './lib/audio.js';
 
 export default {
-  components: {
-    // DurationHelp
-  },
-  data() {
-    return {
-      ticksLabels: ['01', ' 15', '30', '45', '60'],
-      active: false,
-      late: false,
-      escalated: false,
-      loading: true,
-      runner: undefined,
-      running: false,
-      wait: 1,
+  components: {},
 
-      snackbar: false,
-      snackbar2: false,
-      snackbar3: false,
-      multiLine: true,
-      durationHelpText: '',
-      timeoutPref: 10000,
-      audio: null,
-      mute: false,
-
-      minutes: 1,
-      hours: 0,
-      days: 0,
-      startTime: '',
-      endTime: '',
-      toggle_exclusive: undefined,
-      spent: 0,
-      intervals: [],
-      timeouts: [],
-      FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a'
-    };
-  },
-  watch: {
-    runner() {
-      if (this.runner == null) {
-        return;
-      }
-      console.log('loading', this.loading);
-      const l = this.runner;
-      this[l] = !this[l];
-      console.log(this.now, 'runner:', l, 'status', this[l]);
-      this.active = true;
-      let my = this;
-      this.timeouts.push(
-        setTimeout(function() {
-          console.log(moment().format('hh:mm'), 'activity expired');
-          my.active = false;
-          my.late = true;
-          my.spent = 0;
-          my.expired();
-        }, this.duration)
-      );
-
-      this.startCountdown();
-
-      this.runner = null;
-    }
-  },
   computed: {
     alarmOrClockHint() {
       return this.mute ? 'Click to hear alarm' : 'Click to mute alarm';
     },
     alarmOrClock() {
-      return this.mute ? 'Clock' : 'Alarm';
+      return this.mute ? 'Watch Countdown' : 'Hear Late Alarm';
     },
     eta() {
       return moment()
@@ -379,22 +316,61 @@ export default {
       return milliSecondsInMinutes + milliSecondsInHours + milliSecondsInDays;
     }
   },
+
+  data() {
+    return {
+      ticksLabels: ['01', ' 15', '30', '45', '60'],
+      active: false,
+      late: false,
+      escalated: false,
+      loading: true,
+      runner: undefined,
+      running: false,
+      wait: 1,
+
+      snackbar: false,
+      snackbar2: false,
+      snackbar3: false,
+      multiLine: true,
+      durationHelpText: '',
+      timeoutPref: 10000,
+      audio: null,
+      mute: false,
+
+      minutes: 1,
+      hours: 0,
+      days: 0,
+      startTime: '',
+      endTime: '',
+      toggle_exclusive: undefined,
+      spent: 0,
+      intervals: [],
+      timeouts: [],
+      FULL_DATE: 'ddd, MMM Do YYYY, hh:mm a'
+    };
+  },
+
   methods: {
     expired() {
       console.log('Is member late?', this.late);
       this.stopCountdowns();
-      this.spent = 0;
       AudioPlayer.playAlarm(this.mute, this.audio);
 
+      this.spent = 0;
       this.startCountdown();
+      this.$emit('expired-activity');
     },
 
     standDown() {
       // this is where we de-notify safety team and/or sovrinSecours server
-      this.escalated = false;
+      console.log(this.now, '\tStanding down...');
+      this.arrive('rescued');
     },
 
     emergency() {
+      this.$emit('escalated-activity');
+      this.spent = 0;
+      this.startCountdown();
       this.escalated = true;
     },
 
@@ -404,7 +380,7 @@ export default {
       this.endTime = this.startTime.add(this.duration);
       this.spent = 0;
       this.runner = 'running';
-      console.log(this.runner);
+      console.log(this.now, '\tRunner:', this.runner);
     },
 
     cancel() {
@@ -413,10 +389,10 @@ export default {
       this.escalated = false;
       this.stopCountdowns();
 
-      console.log('Disregarding activity');
+      console.log(this.now, '\tDisregarding activity');
     },
 
-    arrive() {
+    arrive(source) {
       this.spent = 0;
       this.running = false;
       this.active = false;
@@ -424,7 +400,8 @@ export default {
       this.escalated = false;
 
       this.stopCountdowns();
-      console.log('Stopping');
+      console.log(this.now, '\tStopping countdown');
+      this.$emit('stopped-activity', source);
     },
 
     startCountdown() {
@@ -441,23 +418,50 @@ export default {
       AudioPlayer.stopAlarm(this.audio);
 
       this.intervals.forEach(interval => {
-        console.log('interval ID:', interval);
+        console.log(this.now, '\tinterval ID:', interval);
         clearInterval(interval);
       });
       this.intervals = [];
 
       this.timeouts.forEach(timeout => {
-        console.log('timeout ID:', timeout);
+        console.log(this.now, '\ttimeout ID:', timeout);
         clearInterval(timeout);
       });
       this.timeouts = [];
     }
   },
 
+  watch: {
+    runner() {
+      if (this.runner == null) {
+        return;
+      }
+      console.log(this.now, '\tloading', this.loading);
+      const l = this.runner;
+      this[l] = !this[l];
+      console.log(this.now, 'runner:', l, 'status', this[l]);
+      this.active = true;
+      let my = this;
+      this.timeouts.push(
+        setTimeout(function() {
+          console.log(moment().format('hh:mm'), 'activity expired');
+          my.active = false;
+          my.late = true;
+          my.spent = 0;
+          my.expired();
+        }, this.duration)
+      );
+
+      this.startCountdown();
+
+      this.runner = null;
+    }
+  },
+
   mounted() {
     this.loading = false;
     if (!this.mute) this.audio = AudioPlayer.createAudio();
-    console.log('Timer mounted');
+    console.log(this.now, 'Duration mounted');
   },
 
   beforeDestroy() {

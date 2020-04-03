@@ -98,7 +98,7 @@
                     text
                     @click="onClear"
                     :disabled="noMember"
-                    >Delete Member</v-btn
+                    >Delete Me</v-btn
                   >
                 </v-card>
               </v-row>
@@ -334,26 +334,6 @@ export default {
           data: { member_id: m.id }
         });
       });
-    },
-
-    async checkActivity(m) {
-      if (!m.lastActivity) {
-        console.log('Ensuring member has default activity');
-        Activity.$create({
-          data: {
-            departFrom: '',
-            arriveAt: '',
-            description: '',
-            eta: '',
-
-            member_id: m.id
-          }
-        })
-          .then(activity => {
-            console.log('First default activity', activity);
-          })
-          .catch(e => console.log('Cannot create Activity in ProfileCard', e));
-      }
     }
   },
 

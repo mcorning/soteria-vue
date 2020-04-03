@@ -57,8 +57,50 @@
 
           <v-row>
             <!-- DateTime Section -->
-            <Duration @started-activity="activityStarted" />
+            <Duration
+              @started-activity="activityStarted"
+              @stopped-activity="activityStopped"
+              @expired-activity="activityExpired"
+              @escalated-activity="activityEscalated"
+            />
           </v-row>
+        </v-col>
+      </v-row>
+      <v-row
+        ><v-col>
+          <v-subheader>Your activity timeline:</v-subheader>
+          {{ late }}
+          <v-timeline align-top :dense="true">
+            <v-timeline-item
+              v-for="(item, i) in activeTimeline"
+              :key="i"
+              fill-dot
+              :icon="item.icon"
+              :color="item.color"
+            >
+              <v-card :color="item.color" dark>
+                <v-card-title v-if="item.title" class="title pt-3 pb-3">
+                  <h3 class="title">
+                    {{ `${item.title}` }}
+                  </h3>
+                </v-card-title>
+
+                <v-card-title v-if="item.note" class="title pt-3 pb-3">
+                  <h3 class="title">
+                    NOTES
+                  </h3>
+                </v-card-title>
+                <v-card-text v-if="item" class="white text--primary">
+                  {{ item.updated }}
+                </v-card-text>
+                <v-card-text v-if="item.note" class="white text--primary">
+                  <p class="pt-3 body-1 mb-0">
+                    {{ item.note }}
+                  </p>
+                </v-card-text>
+              </v-card>
+            </v-timeline-item>
+          </v-timeline>
         </v-col>
       </v-row>
     </v-container>
@@ -75,6 +117,7 @@ import Member from '@/models/Member';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
 import Preference from '@/models/Preference';
+import DataRepository from '@/store/repository.js';
 
 export default {
   components: {
@@ -87,9 +130,9 @@ export default {
     members() {
       let m = Member.query()
         .with('preferences')
-        .with('activities')
+        .with('activities.timeline')
         .get();
-      console.log('returning member', m);
+      console.info('returning member', m);
       return m;
     },
 
@@ -107,7 +150,31 @@ export default {
       return this.member.preferences.id;
     },
     lastActivity() {
-      return this.member.lastActivity;
+      const x = Activity.query()
+        .with('timeline')
+        .where('member_id', this.member.id)
+        .orderBy('created')
+        .last();
+      console.info('ORDERED ACTIVITY', x);
+      return x;
+    },
+
+    activeTimeline() {
+      if (!this.lastTimeline) {
+        return [];
+      }
+      let x = [];
+      this.lastTimeline.forEach(element => {
+        let t = this.timelineKeys.get(element.state);
+        x.push({
+          title: element.state,
+          updated: moment(element.updated).format(this.FULL_DATE),
+          color: t.color,
+          icon: t.icon
+        });
+      });
+      console.log('\tAnnotated timeline', x);
+      return x;
     },
     lastTimeline() {
       return this.lastActivity ? this.lastActivity.timeline : [];
@@ -120,9 +187,43 @@ export default {
         eta: moment()
           .add(this.duration, 'minutes')
           .toISOString(),
+        created: new Date().toISOString(),
         member_id: this.member.id
       };
     },
+    departed() {
+      return this.lastTimeline.length > 0
+        ? moment(this.lastTimeline[0].updated)
+        : null;
+    },
+
+    arrived() {
+      let x = this.lastTimeline
+        ? this.lastTimeline.reduce((a, c) => {
+            if (c.state === 'SAFE') {
+              return c;
+            }
+          }, {})
+        : null;
+      console.info(x);
+      return x ? moment(x.updated) : null;
+    },
+
+    late() {
+      console.info(this.arrived);
+      if (!this.arrived) {
+        return '';
+      }
+      console.info(this.departed);
+      if (!this.departed) {
+        return '';
+      }
+      let x = this.lastTimeline
+        ? moment.duration(this.arrived.diff(this.departed)).humanize()
+        : null;
+      return x ? 'Late: ' + x : '';
+    },
+
     now() {
       return moment().format(this.TIME);
     }
@@ -149,6 +250,12 @@ export default {
         departure: '',
         arrival: ''
       },
+      timelineKeys: new Map([
+        ['ACTIVE', { color: 'yellow darken-1', icon: 'mdi-door-open' }],
+        ['SAFE', { color: 'green lighten-1', icon: 'mdi-gift' }],
+        ['UNKNOWN', { color: 'orange lighten-1', icon: 'mdi-bell-alert' }],
+        ['ESCALATED', { color: 'red lighten-1', icon: 'mdi-shield-alert' }]
+      ]),
       departingAt: moment().format('HH:mm'),
       arrivingAt: moment()
         .add(30, 'minutes')
@@ -163,9 +270,27 @@ export default {
       Preference.fixQuickStart(this.member.id);
     },
     activityStarted() {
-      console.log('\tExpect member returns by', this.payload.eta);
-      this.updateActivity();
+      console.info(this.now, 'Member expects to return by', this.payload.eta);
+      this.createActivity();
+      this.updateTimeline('ACTIVE');
     },
+
+    activityStopped(source) {
+      console.info(
+        this.now,
+        `Member ended ${source === 'rescued' ? 'Emergency' : 'Activity'}`
+      );
+      this.updateTimeline('SAFE');
+    },
+    activityExpired() {
+      console.error(this.now, 'Member has not returned on time.');
+      this.updateTimeline('UNKNOWN');
+    },
+    activityEscalated() {
+      console.error(this.now, 'Activity escalated to first responders.');
+      this.updateTimeline('ESCALATED');
+    },
+
     handleOrigin(val) {
       this.origin = val;
     },
@@ -173,22 +298,28 @@ export default {
       this.destination = val;
     },
     handleDescription(val) {
-      console.log(val);
+      console.info(val);
       this.description = val;
     },
 
-    updateActivity() {
+    createActivity() {
       console.log('payload:', JSON.stringify(this.payload));
-      let id = this.lastActivity ? this.lastActivity.id : '';
-      Activity.$update({
-        where: id,
+      Activity.$create({
         data: this.payload
       }).then(activity => {
         console.log('\tNew actvity:', activity);
-        console.log('new lastActivity', this.lastActivity);
+        console.info('new lastActivity', this.lastActivity);
       });
     },
-
+    updateTimeline(state) {
+      Timeline.$update({
+        data: {
+          activity_id: this.lastActivity.id,
+          state: state,
+          updated: new Date().toISOString()
+        }
+      });
+    },
     destroy() {
       console.log('\t|activities|', this.member.hasActivity === 1);
       Timeline.$delete(
@@ -225,21 +356,19 @@ export default {
   async created() {
     this.loading = true;
     console.log(this.now, 'Entering Active.vue created()...');
-
-    await Member.$fetch();
-    console.log('Member', this.member.id);
+    await DataRepository.getMember();
     await Preference.$fetch();
-    console.log('Preference', this.perfID);
-
     await Activity.$fetch();
-    console.log('lastActivity', this.lastActivity);
-
     await Timeline.$fetch();
-    console.log('last timeline', this.lastTimeline);
-
-    console.log(this.now, '...Leaving Active.vue created()\n');
-    console.log('');
     this.loading = false;
+
+    console.info(this.now, '\tFinished Loading');
+    console.info(this.now, '\tMember', this.member.id);
+    console.info(this.now, '\tPreference', this.perfID);
+    console.info(this.now, '\tlastActivity', this.lastActivity);
+    console.info(this.now, '\tlast timeline', this.lastTimeline);
+    console.info(this.now, '...Leaving Active.vue created()\n');
+    console.info('');
   },
 
   mounted() {}

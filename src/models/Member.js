@@ -11,7 +11,15 @@ export default class Member extends Model {
     return this.activities.length;
   }
   get lastActivity() {
-    return this.activities[this.activities.length - 1];
+    if (this.activities.length === 1) {
+      return this.activities[0];
+    }
+    const x = this.$query()
+      .with('activities')
+      .orderBy('activities.created')
+      .last();
+    console.log('ORDERED ACTIVITY', x);
+    return x;
   }
   get hasDeparted() {
     if (this.lastActivity) {
