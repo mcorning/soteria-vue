@@ -26,8 +26,8 @@
                 :timeout="timeoutPref"
                 :multi-line="multiLine"
               >
-                Let us start with a description of your activity. We require a
-                Starting Place. The other two fields are optional.,
+                We require the ORIGIN, the intended DESTINATION, and the
+                ACTIVITY you are going to do.
                 <v-btn
                   text
                   dark

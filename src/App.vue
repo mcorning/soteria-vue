@@ -71,8 +71,15 @@
           :to="link.url"
           >{{ link.label }}</v-btn
         >
-        <v-flex primary lighten-2 py-4 text-center white--text xs12>
-          {{ new Date().getFullYear() }} —
+        <v-flex
+          prepend-icon="mdi-tm"
+          primary
+          lighten-2
+          py-4
+          text-center
+          white--text
+          xs12
+          >&copy; {{ new Date().getFullYear() }} —
           <strong>Secours.io</strong>
         </v-flex>
       </v-layout>

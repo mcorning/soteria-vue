@@ -30,7 +30,7 @@
     </v-card-text>
     <v-card-actions>
       <v-btn text color="deep-purple accent-4">
-        Email
+        <a href="mailto://support@secours.io">Email</a>
       </v-btn>
       <v-btn text color="deep-purple accent-4">
         Call

@@ -17,28 +17,31 @@
       <div slot="detail">
         <ol>
           <li>
-            Enter your "Starting Place", this could be you leaving your house
+            Enter your ORIGIN: this could be you leaving your "house"
           </li>
           <li>
-            Enter your "Ending Place: where you intend to go. It could be the
-            grocery store
+            Enter your DESTINATION: where you intend to go. It could be the
+            "grocery store" (or, for roundtrips, it's the same as ORIGIN)
           </li>
-          <li>Enter your "Activity" like shopping</li>
+          <li>Enter your ACTIVITY: like "shopping"</li>
           <li>
-            Enter how long you think it will take for you to get to the "Ending
-            Place". This could be minutes or hours or both
+            Enter how long you think it will take for you to get to your
+            DESTINATION. This could be minutes or hours or both
           </li>
           <li>
-            Destination buttons, when you leave your "Starting Place" click on
-            the depart button, when you arrive at the "Ending Place" click on
-            the arrive button, should you need help or are lost click on the
-            Help Me button. Click on the Help Me button it will connect you to
-            our Emergency Operations Centre and someone you trust.
+            When you leave your ORIGIN, click on the DEPART button. When you
+            arrive at the DESTINATION, click on the ARRIVE button. Should you
+            need help or are lost, click on the HELP ME button; and it will
+            connect you to our Emergency Operations Centre and someone you can
+            trust.
           </li>
           <li>
             If you go over your estimated time the alarm will sound to prompt
-            you. If you don't want that alarm you can click on the cancel button
-            at the bottom of the page.
+            you. If you don't want that alarm, use the toggle button at the
+            bottom of the page.
+          </li>
+          <li>
+            Use the CANCEL button to disregard an activity.
           </li>
         </ol>
       </div>

@@ -56,7 +56,7 @@
                   <v-row justify="center">
                     <v-col cols="12">
                       <v-text-field
-                        label="Legal first name*"
+                        label="First name*"
                         required
                         :rules="[rules.required]"
                         v-model="firstName"
@@ -65,7 +65,7 @@
 
                     <v-col cols="12">
                       <v-text-field
-                        label="Legal last name*"
+                        label="Last name*"
                         persistent-hint
                         required
                         :rules="[rules.required]"
