@@ -107,6 +107,13 @@
           </v-card-text>
         </v-card>
       </v-row>
+      Creds:{{ creds }}
+      <v-data-table
+        :headers="headers"
+        :items="creds"
+        :items-per-page="5"
+        class="elevation-1"
+      ></v-data-table>
     </v-container>
   </div>
 </template>
@@ -114,9 +121,11 @@
 <script>
 import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
+import Credential from '@/models/Credential';
 import Activity from '@/models/Activity';
 import Timeline from '@/models/Timeline';
 import Preference from '@/models/Preference';
+import DataRepository from '@/store/repository.js';
 
 export default {
   components: {
@@ -248,6 +257,14 @@ export default {
   },
 
   data: () => ({
+    creds: '',
+    headers: [
+      {
+        text: 'Test Date',
+        value: 'testDate'
+      },
+      { text: 'Test Result', value: 'schemaId' }
+    ],
     loading: false,
     showPictureInput: false,
     changePhoto: true,
@@ -280,6 +297,12 @@ export default {
   }),
 
   methods: {
+    async addCredentials() {
+      console.log(this.$store.state.credentials);
+      let x = await Credential.$create({ data: this.$store.state.credentials });
+      console.log(x);
+    },
+
     fixPrefs() {
       Preference.fixQuickStart(this.member.id);
     },
@@ -343,6 +366,8 @@ export default {
     let m = await Member.$fetch();
     await Preference.$fetch();
     console.log('created() Fetched member', m);
+    await this.addCredentials();
+    this.creds = await DataRepository.verify();
     this.loading = false;
   }
 };
