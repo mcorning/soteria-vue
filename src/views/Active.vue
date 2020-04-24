@@ -49,8 +49,8 @@
     <v-container class="purple lighten-5">
       <v-row>
         <v-col>
-          <v-row>
-            <!-- <NextActivity /> -->
+          <!-- Description Card-->
+          <v-row no-gutters>
             <Description
               @entered-origin="handleOrigin"
               @entered-destination="handleDestination"
@@ -58,8 +58,8 @@
             />
           </v-row>
 
-          <v-row>
-            <!-- DateTime Section -->
+          <!-- Duration Card -->
+          <v-row no-gutters>
             <Duration
               @started-activity="activityStarted"
               @stopped-activity="activityStopped"
@@ -69,7 +69,7 @@
           </v-row>
         </v-col>
       </v-row>
-      <v-row
+      <v-row no-gutters
         ><v-col>
           <v-subheader>Your activity timeline:</v-subheader>
           {{ late }}

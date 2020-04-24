@@ -5,7 +5,7 @@
       <v-list-item-content>
         <v-list-item-title class="headline">Secours </v-list-item-title>
         <v-list-item-subtitle
-          >Trust and Safety as a Service (v0.4.06)</v-list-item-subtitle
+          >Trust and Safety as a Service (v0.4.20)</v-list-item-subtitle
         >
       </v-list-item-content>
     </v-list-item>

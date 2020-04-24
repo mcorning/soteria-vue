@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import Active from '../views/Active.vue';
 import Profile from '../views/Profile.vue';
+import Covid from '../views/Covid.vue';
 import People from '../views/People.vue';
 import Test from '../views/Test.vue';
 
@@ -39,32 +40,15 @@ const routes = [
     component: Profile
   },
   {
+    path: '/covid',
+    name: 'covie',
+    component: Covid
+  },
+  {
     path: '/people',
     name: 'people',
     component: People
   }
-  // {
-  //   path: '/login',
-  //   name: 'login',
-  //   component: () => import('../views/Login.vue')
-  // },
-  // {
-  //   path: '/dashboard',
-  //   name: 'dashboard',
-  //   component: () => import('../views/Dashboard.vue')
-  // },
-
-  // {
-  //   path: '/signup',
-  //   name: 'signup',
-  //   component: () => import('../views/Signup.vue')
-  // }
-
-  // {
-  //   path: '/test',
-  //   name: 'test',
-  //   component: () => import('../views/test.vue')
-  // }
 ];
 
 const router = new VueRouter({

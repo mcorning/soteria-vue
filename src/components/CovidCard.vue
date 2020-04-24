@@ -7,92 +7,93 @@
       <v-row justify="center">
         <v-card>
           <v-card-title>
-            My Identifying Information
+            My Covid-19 Test Result
           </v-card-title>
           <v-card-text>
-            <v-container>
-              <v-row no-gutters justify="center">
-                <!-- change photo and helpers-->
-                <v-col cols="6">
-                  <v-row justify="space-between">
-                    <v-col v-if="changePhoto" cols="6">
-                      <picture-input
-                        :prefill="image"
-                        :prefillOptions="{ mediaType: 'image/png' }"
-                        @change="addImage"
-                        accept="image/jpeg, image/png, image/gif"
-                      >
-                      </picture-input>
-                    </v-col>
-                  </v-row>
+            <v-row no-gutters justify="center">
+              <v-col>
+                <v-row justify="center">
+                  <v-col cols="6" sm="6">
+                    <v-autocomplete
+                      v-model="testType"
+                      required
+                      :rules="[rules.required]"
+                      label="Test Type*"
+                      autofocus
+                      dense
+                      :items="['nasal swab', 'blood test']"
+                    ></v-autocomplete>
+                  </v-col>
 
-                  <v-row>
-                    <H3>Show:</H3>
-                    <v-checkbox
-                      class="caption"
-                      v-model="showQuickStarts"
-                      label="QuickStarts?"
-                    ></v-checkbox>
-                    <v-checkbox
-                      class="caption"
-                      v-model="showHelpIcons"
-                      label="Help Icons?"
-                    ></v-checkbox>
-                  </v-row>
-                </v-col>
-                <!-- Data entry form -->
-                <v-col>
-                  <v-row justify="center">
-                    <v-col cols="12">
-                      <v-text-field
-                        label="First name*"
-                        required
-                        :rules="[rules.required]"
-                        v-model="firstName"
-                      ></v-text-field>
-                    </v-col>
+                  <v-col cols="6" sm="6">
+                    <v-autocomplete
+                      style="width:290px"
+                      :items="['Home', 'Enter lab name']"
+                      label="Test Site*"
+                      v-model="testSite"
+                      @blur="siteEntered"
+                      required
+                      dense
+                      :rules="[rules.required]"
+                    ></v-autocomplete>
+                  </v-col>
 
-                    <v-col cols="12">
-                      <v-text-field
-                        label="Last name*"
-                        persistent-hint
-                        required
-                        :rules="[rules.required]"
-                        dense
-                        v-model="lastName"
-                      ></v-text-field>
-                    </v-col>
+                  <v-col cols="6" sm="6">
+                    <v-autocomplete
+                      v-model="testResult"
+                      required
+                      dense
+                      :rules="[rules.required]"
+                      label="Test Result*"
+                      :items="['Positive', 'Negative']"
+                    ></v-autocomplete>
+                  </v-col>
 
-                    <v-col>
-                      <v-autocomplete
-                        v-model="gender"
-                        label="Gender"
-                        :items="['Male', 'Female', 'NA']"
-                      ></v-autocomplete>
-
-                      <v-select
-                        :items="['0-17', '18-29', '30-54', '54+']"
-                        label="Age*"
-                        required
-                        v-model="age"
-                      ></v-select>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
-              <v-row align="end" justify="end" no-gutters>
-                <v-card tile>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="onClear"
-                    :disabled="noMember"
-                    >Delete Me</v-btn
-                  >
-                </v-card>
-              </v-row>
-            </v-container>
+                  <v-col cols="6" sm="6" md="4">
+                    <v-menu
+                      v-model="menu2"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="290px"
+                    >
+                      <template v-slot:activator="{ on }">
+                        <v-text-field
+                          v-model="date"
+                          label="Test Date*"
+                          readonly
+                          required
+                          :rules="[rules.required]"
+                          dense
+                          v-on="on"
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="date"
+                        @input="menu2 = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
             <small>*indicates required field</small>
+          </v-card-text>
+        </v-card>
+        <v-card>
+          <v-card-title>
+            Get a Covid-19 Credential
+          </v-card-title>
+          <v-card-text>
+            Scan this QR code to connect to Secours.id Credential Service
+          </v-card-text>
+          <v-card-text>
+            <v-row>
+              <v-col cols="6">
+                <v-img src="../assets/SecoursQR.jpg" />
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-row>
@@ -101,18 +102,10 @@
 </template>
 
 <script>
-import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
-import Credential from '@/models/Credential';
-import Activity from '@/models/Activity';
-import Timeline from '@/models/Timeline';
-import Preference from '@/models/Preference';
-import DataRepository from '@/store/repository.js';
 
 export default {
-  components: {
-    PictureInput
-  },
+  components: {},
 
   computed: {
     isReady() {
@@ -150,7 +143,7 @@ export default {
           : false;
       },
       set(newVal) {
-        Preference.changeQuickStart(this.perfID, newVal);
+        console.log(newVal);
       }
     },
     showHelpIcons: {
@@ -160,7 +153,7 @@ export default {
           : false;
       },
       set(newVal) {
-        Preference.changeHelpIcons(this.perfID, newVal);
+        console.log(newVal);
       }
     },
     firstName: {
@@ -215,6 +208,19 @@ export default {
       }
     },
 
+    // image: {
+    //   get() {
+    //     let x = this.member.image;
+    //     return x;
+    //   },
+    //   set(newVal) {
+    //     Member.$update({
+    //       where: this.member.id,
+    //       data: { image: newVal }
+    //     });
+    //   }
+    // },
+
     showImage() {
       console.log('show image?', this.image.length > 0);
       return this.image.length > 0 ? 'block' : 'none';
@@ -226,6 +232,9 @@ export default {
   },
 
   data: () => ({
+    menu2: false,
+    date: new Date().toISOString().substr(0, 10),
+
     creds: '',
     headers: [
       {
@@ -235,8 +244,10 @@ export default {
       { text: 'Test Result', value: 'schemaId' }
     ],
     loading: false,
-    showPictureInput: false,
-    changePhoto: true,
+    testType: '',
+    testSite: '',
+    testDate: '',
+    testResult: '',
     agreeToTerms: false,
     agreeToTermsRules: [
       value =>
@@ -266,15 +277,18 @@ export default {
   }),
 
   methods: {
+    siteEntered(e) {
+      if (e.target.value) {
+        this.$emit('entered-testSite', e.target.value);
+      }
+    },
     async addCredentials() {
       console.log(this.$store.state.credentials);
       let x = await Credential.$create({ data: this.$store.state.credentials });
       console.log(x);
     },
 
-    fixPrefs() {
-      Preference.fixQuickStart(this.member.id);
-    },
+    fixPrefs() {},
     addImage(val) {
       Member.$update({
         where: this.member.id,
@@ -288,55 +302,14 @@ export default {
     },
     getMember() {
       this.member = Member.query().first();
-    },
-    onClear() {
-      console.log('Deleting all entities');
-      Member.deleteAll();
-      Activity.deleteAll();
-      Timeline.deleteAll();
-      console.log('creating default Member and Activity');
-      Member.$create({
-        data: {
-          firstName: '',
-          lastName: '',
-          age: '',
-          gender: '',
-          image: '',
-          updated: new Date().toISOString(),
-          preferences: {
-            databaseName: '',
-            showQuickStarts: true,
-            showHelpIcons: true
-          },
-          activities: [
-            {
-              departFrom: '',
-              arriveAt: '',
-              description: '',
-              eta: '',
-              member_id: ''
-            }
-          ]
-        }
-      }).then(m => {
-        let aid = Activity.query().first().id;
-        console.log('update member/activity', m.id, aid);
-        Activity.$update({
-          where: aid,
-          data: { member_id: m.id }
-        });
-      });
     }
   },
 
   async created() {
     this.loading = true;
-    await Activity.$fetch();
     let m = await Member.$fetch();
-    await Preference.$fetch();
     console.log('created() Fetched member', m);
     // await this.addCredentials();
-    this.creds = await DataRepository.verify();
     this.loading = false;
   }
 };

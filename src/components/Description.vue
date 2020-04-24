@@ -4,101 +4,112 @@
       <h2>Loading...</h2>
     </div>
     <div v-else>
-      <v-container class="purple lighten-5 pt-0 pb-0">
-        <v-row>
-          <v-col class="pb-0"> <h2>My Activity</h2> </v-col>
-          <v-col cols="2" class="pb-0">
-            <div class="text-center">
-              <v-btn
-                v-model="showHelpIcons"
-                color="primary"
-                fab
-                x-small
-                dark
-                @click="snackbar = true"
-              >
-                <v-icon>mdi-help</v-icon>
-              </v-btn>
-              <v-snackbar
-                v-model="snackbar"
-                top
-                color="secondary"
-                :timeout="timeoutPref"
-                :multi-line="multiLine"
-              >
-                We require the ORIGIN, the intended DESTINATION, and the
-                ACTIVITY you are going to do.
+      <v-container class=" pt-0 pb-0">
+        <v-card>
+          <v-card-title>
+            <v-row>
+              <v-col cols="9"> My Activity</v-col>
+              <v-col>
                 <v-btn
-                  text
+                  v-model="showHelpIcons"
+                  color="primary"
+                  fab
+                  x-small
                   dark
-                  elevation="4"
-                  color="white"
-                  @click="snackbar = false"
+                  @click="snackbar = true"
                 >
-                  Close
+                  <v-icon>mdi-help</v-icon>
                 </v-btn>
-              </v-snackbar>
-            </div>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="4" sm="4">
-            <v-text-field
-              label="Origin*"
-              hint="Uses your last location"
-              persistent-hint
-              required
-              clearable
-              v-model="origin"
-              @blur="originEntered"
-              :rules="[rules.required]"
-            ></v-text-field>
-          </v-col>
+              </v-col></v-row
+            >
+          </v-card-title>
 
-          <v-col cols="4" sm="4">
-            <v-text-field
-              style="width:290px"
-              label="Destination"
-              hint="Leave blank for round trip"
-              persistent-hint
-              clearable
-              v-model="destination"
-              @blur="destinationEntered"
-            ></v-text-field>
-          </v-col>
+          <v-card-text>
+            <v-row>
+              <v-col cols="6">
+                <v-text-field
+                  label="Origin*"
+                  placeholder="From"
+                  outlined
+                  dense
+                  hint="Last location "
+                  persistent-hint
+                  required
+                  clearable
+                  v-model="origin"
+                  @blur="originEntered"
+                  :rules="[rules.required]"
+                ></v-text-field>
+              </v-col>
 
-          <v-col cols="4" sm="4">
-            <v-autocomplete
-              style="width:290px"
-              :items="[
-                'Backpacking',
-                'Baseball',
-                'Basejump',
-                'Basketball',
-                'Biking',
-                'Boating',
-                'Hiking',
-                'Hockey',
-                'Land sailing',
-                'Mountain Biking',
-                'Road trip',
-                'Running',
-                'Sailing',
-                'Shopping',
-                'Skiing',
-                'Soccer',
-                'Walking',
-                'Unlisted'
-              ]"
-              label="Activity"
-              hint="Choose an activity to help us help you if necessary"
-              persistent-hint
-              v-model="description"
-              @blur="descriptionEntered"
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
+              <v-col cols="6">
+                <v-text-field
+                  style="width:290px"
+                  label="Destination"
+                  placeholder="To"
+                  outlined
+                  dense
+                  hint="Blank for round trip"
+                  persistent-hint
+                  clearable
+                  v-model="destination"
+                  @blur="destinationEntered"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>
+                <v-autocomplete
+                  dense
+                  outlined
+                  :items="[
+                    'Backpacking',
+                    'Baseball',
+                    'Basejump',
+                    'Basketball',
+                    'Biking',
+                    'Boating',
+                    'Hiking',
+                    'Hockey',
+                    'Land sailing',
+                    'Mountain Biking',
+                    'Road trip',
+                    'Running',
+                    'Sailing',
+                    'Shopping',
+                    'Skiing',
+                    'Soccer',
+                    'Walking',
+                    'Unlisted'
+                  ]"
+                  label="Activity"
+                  hint="What are you doing?"
+                  persistent-hint
+                  v-model="description"
+                  @blur="descriptionEntered"
+                ></v-autocomplete>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
       </v-container>
+    </div>
+
+    <!-- Snackbar 1-->
+    <div class="text-center">
+      <v-snackbar
+        v-model="snackbar"
+        top
+        color="secondary"
+        :timeout="timeoutPref"
+        :multi-line="multiLine"
+      >
+        We require the ORIGIN, the intended DESTINATION, and the ACTIVITY you
+        are going to do.
+        <v-btn text dark elevation="4" color="white" @click="snackbar = false">
+          Close
+        </v-btn>
+      </v-snackbar>
     </div>
   </div>
 </template>
