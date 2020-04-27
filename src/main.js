@@ -4,8 +4,10 @@ import './registerServiceWorker';
 import router from './router';
 import store from './store';
 import vuetify from './plugins/vuetify';
+import VPopover from 'vue-js-popover';
 
 Vue.config.productionTip = false;
+Vue.use(VPopover, { tooltip: true });
 
 new Vue({
   router,

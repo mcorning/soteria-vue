@@ -31,12 +31,10 @@
                     <v-checkbox
                       class="caption"
                       v-model="showQuickStarts"
-                      label="QuickStarts?"
-                    ></v-checkbox>
-                    <v-checkbox
-                      class="caption"
-                      v-model="showHelpIcons"
-                      label="Help Icons?"
+                      label="QuickStarts"
+                      v-popover:tooltip="
+                        'Quick Starts are dialogs that explain what some page does for you.'
+                      "
                     ></v-checkbox>
                   </v-row>
                 </v-col>
@@ -78,6 +76,9 @@
                       ></v-select>
                     </v-col>
                   </v-row>
+                  <v-row no-gutters>
+                    <small>*indicates required field</small>
+                  </v-row>
                 </v-col>
               </v-row>
               <v-row align="end" justify="end" no-gutters>
@@ -92,7 +93,6 @@
                 </v-card>
               </v-row>
             </v-container>
-            <small>*indicates required field</small>
           </v-card-text>
         </v-card>
       </v-row>

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <tooltip />
     <div v-if="loading">
       <h2>Loading...</h2>
     </div>
@@ -9,7 +10,7 @@
           <v-card-title>
             <v-row>
               <v-col cols="9"> My Activity</v-col>
-              <v-col>
+              <!-- <v-col>
                 <v-btn
                   v-model="showHelpIcons"
                   color="primary"
@@ -20,8 +21,8 @@
                 >
                   <v-icon>mdi-help</v-icon>
                 </v-btn>
-              </v-col></v-row
-            >
+              </v-col>-->
+            </v-row>
           </v-card-title>
 
           <v-card-text>
@@ -39,6 +40,7 @@
                   v-model="origin"
                   @blur="originEntered"
                   :rules="[rules.required]"
+                  v-popover:tooltip="'Your activity will BEGIN here'"
                 ></v-text-field>
               </v-col>
 
@@ -54,6 +56,7 @@
                   clearable
                   v-model="destination"
                   @blur="destinationEntered"
+                  v-popover:tooltip="'Your activity will END here'"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -87,6 +90,9 @@
                   persistent-hint
                   v-model="description"
                   @blur="descriptionEntered"
+                  v-popover:tooltip="
+                    'You can overwrite activity type, if necessary'
+                  "
                 ></v-autocomplete>
               </v-col>
             </v-row>

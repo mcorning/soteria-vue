@@ -1,5 +1,7 @@
 <template>
   <div>
+    <tooltip />
+
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
     </div>
