@@ -10,24 +10,12 @@
           <v-card-title>
             <v-row>
               <v-col cols="9"> My Activity</v-col>
-              <!-- <v-col>
-                <v-btn
-                  v-model="showHelpIcons"
-                  color="primary"
-                  fab
-                  x-small
-                  dark
-                  @click="snackbar = true"
-                >
-                  <v-icon>mdi-help</v-icon>
-                </v-btn>
-              </v-col>-->
             </v-row>
           </v-card-title>
 
           <v-card-text>
             <v-row>
-              <v-col cols="6">
+              <v-col cols="12">
                 <v-text-field
                   label="Origin*"
                   placeholder="From"
@@ -35,6 +23,8 @@
                   dense
                   hint="Last location "
                   persistent-hint
+                  append-icon="mdi-map-marker"
+                  @click:append="locateMe"
                   required
                   clearable
                   v-model="origin"
@@ -44,9 +34,10 @@
                 ></v-text-field>
               </v-col>
 
-              <v-col cols="6">
+              <v-col cols="12">
                 <v-text-field
-                  style="width:290px"
+                  append-icon="mdi-map-marker"
+                  @click:append="locateDestination"
                   label="Destination"
                   placeholder="To"
                   outlined
@@ -154,6 +145,9 @@ export default {
 
   data() {
     return {
+      location: null,
+      gettingLocation: false,
+      errorStr: null,
       origin: '',
       destination: '',
       description: '',
@@ -177,6 +171,45 @@ export default {
   },
 
   methods: {
+    async getLocation() {
+      return new Promise((resolve, reject) => {
+        if (!('geolocation' in navigator)) {
+          reject(new Error('Geolocation is not available.'));
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            resolve(pos);
+          },
+          err => {
+            reject(err);
+          }
+        );
+      });
+    },
+    async locateMe() {
+      this.gettingLocation = true;
+      try {
+        this.gettingLocation = false;
+        this.location = await this.getLocation();
+        this.origin = `${this.location.coords.latitude} by ${this.location.coords.longitude}`;
+      } catch (e) {
+        this.gettingLocation = false;
+        this.errorStr = e.message;
+      }
+    },
+    async locateDestination() {
+      this.gettingLocation = true;
+      try {
+        this.gettingLocation = false;
+        this.location = await this.getLocation();
+        this.destination = `${this.location.coords.latitude} by ${this.location.coords.longitude}`;
+      } catch (e) {
+        this.gettingLocation = false;
+        this.errorStr = e.message;
+      }
+    },
+
     originEntered(e) {
       if (e.target.value) {
         this.$emit('entered-origin', e.target.value);
@@ -227,7 +260,6 @@ export default {
       this.description = this.lastActivity.description;
       console.log(this.now, this.origin);
     }
-
     console.log(this.now, '...Leaving Description.vue mounted()\n');
   }
 };
