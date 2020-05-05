@@ -5,12 +5,10 @@
       <h2>Loading...</h2>
     </div>
     <div v-else>
-      <v-container class=" pt-0 pb-0">
+      <v-container class="pl-0 pr-5 pt-0 pb-0">
         <v-card>
           <v-card-title>
-            <v-row>
-              <v-col cols="9"> My Activity</v-col>
-            </v-row>
+            My Activity
           </v-card-title>
 
           <v-card-text>
@@ -52,7 +50,7 @@
               </v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col>
+              <v-col cols="12">
                 <v-autocomplete
                   dense
                   outlined
@@ -90,23 +88,6 @@
           </v-card-text>
         </v-card>
       </v-container>
-    </div>
-
-    <!-- Snackbar 1-->
-    <div class="text-center">
-      <v-snackbar
-        v-model="snackbar"
-        top
-        color="secondary"
-        :timeout="timeoutPref"
-        :multi-line="multiLine"
-      >
-        We require the ORIGIN, the intended DESTINATION, and the ACTIVITY you
-        are going to do.
-        <v-btn text dark elevation="4" color="white" @click="snackbar = false">
-          Close
-        </v-btn>
-      </v-snackbar>
     </div>
   </div>
 </template>
@@ -154,7 +135,6 @@ export default {
       loading: false,
       TIME: 'hh:mm',
 
-      snackbar: false,
       multiLine: true,
       descriptionHelpText: '',
       timeoutPref: 30000,
@@ -169,6 +149,8 @@ export default {
       }
     };
   },
+
+  // https://www.mapdevelopers.com/geocode_tool.php?address=44.322839%20-121.523399
 
   methods: {
     async getLocation() {

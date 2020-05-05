@@ -4,23 +4,12 @@
       <h2>Loading...</h2>
     </div>
     <div v-else>
-      <v-container>
+      <v-container class="pl-0 pr-5 pt-3 pb-0">
         <v-card>
           <v-card-title>
             <v-row>
               <v-col cols="9">Will last this long</v-col>
-              <v-col>
-                <!-- <v-btn
-                  v-model="showHelpIcons"
-                  color="primary"
-                  fab
-                  x-small
-                  dark
-                  @click="snackbar = true"
-                >
-                  <v-icon>mdi-help</v-icon>
-                </v-btn> -->
-              </v-col>
+              <v-col> </v-col>
             </v-row>
           </v-card-title>
 
@@ -96,24 +85,13 @@
           </v-card-text>
         </v-card>
       </v-container>
-      <v-container>
+
+      <v-container class="pl-0 pr-5 pt-3 pb-0">
         <v-card>
           <v-card-title>
             <v-row>
               <v-col cols="9">Let's do this</v-col>
-              <v-col>
-                <!-- <v-btn
-                  id="b0"
-                  v-model="showHelpIcons"
-                  color="primary"
-                  fab
-                  x-small
-                  dark
-                  @click="snackbar = true"
-                >
-                  <v-icon>mdi-help</v-icon>
-                </v-btn> -->
-              </v-col>
+              <v-col> </v-col>
             </v-row>
           </v-card-title>
           <v-card-text>
@@ -228,77 +206,10 @@
 
             <!-- Cancel help -->
             <v-row align="center" justify="center">
-              <!-- <v-col cols="3">
-                    <div class="text-center">
-                      <v-btn
-                        color="primary"
-                        fab
-                        x-small
-                        dark
-                        @click="snackbar2 = true"
-                      >
-                        <v-icon>mdi-help</v-icon>
-                      </v-btn>
-                      <v-snackbar
-                        v-model="snackbar2"
-                        bottom
-                        color="secondary"
-                        :timeout="timeoutPref"
-                        :multi-line="multiLine"
-                      >
-                        Start your activity with Depart button. A timer will
-                        begin. To stop the timer and end your actvity, hit the
-                        Arrive buttton.
-                        <v-btn
-                          text
-                          dark
-                          elevation="4"
-                          color="white"
-                          @click="snackbar2 = false"
-                        >
-                          Close
-                        </v-btn>
-                      </v-snackbar>
-                    </div>
-                  </v-col> -->
-
               <v-btn rounded>
                 <span @click="cancel"> Cancel Activity</span>
                 <v-icon>mdi-bell-alert</v-icon>
               </v-btn>
-
-              <!-- <v-col cols="3">
-                    <div class="text-center">
-                      <v-btn
-                        color="primary"
-                        fab
-                        x-small
-                        dark
-                        @click="snackbar3 = true"
-                      >
-                        <v-icon>mdi-help</v-icon>
-                      </v-btn>
-                      <v-snackbar
-                        v-model="snackbar3"
-                        bottom
-                        color="secondary"
-                        :timeout="timeoutPref"
-                        :multi-line="multiLine"
-                      >
-                        Help Me button will connect you to our Secours Emergency
-                        Operations Centre and someone you trust.
-                        <v-btn
-                          text
-                          dark
-                          elevation="4"
-                          color="white"
-                          @click="snackbar3 = false"
-                        >
-                          Close
-                        </v-btn>
-                      </v-snackbar>
-                    </div>
-                  </v-col> -->
             </v-row>
             <v-row align="center" justify="center" no-gutters>
               <v-col cols="3"></v-col>
@@ -320,22 +231,6 @@
         </v-card>
       </v-container>
     </div>
-
-    <!-- <div class="text-center">
-      <v-snackbar
-        v-model="snackbar"
-        bottom
-        color="secondary"
-        :timeout="timeoutPref"
-        :multi-line="multiLine"
-      >
-        Use the slider(s) to set the minutes and hours you expect to be gone
-        for.
-        <v-btn text dark elevation="4" color="white" @click="snackbar = false">
-          Close
-        </v-btn>
-      </v-snackbar>
-    </div> -->
   </div>
 </template>
 
@@ -397,9 +292,6 @@ export default {
       running: false,
       wait: 1,
 
-      snackbar: false,
-      snackbar2: false,
-      snackbar3: false,
       multiLine: true,
       durationHelpText: '',
       timeoutPref: 10000,

@@ -3,7 +3,7 @@
     <div v-if="loading">
       <h2>Loading COVID Card</h2>
     </div>
-    <v-container v-else>
+    <v-container v-else class="purple lighten-5">
       <div class="home">
         <CovidCard />
       </div>

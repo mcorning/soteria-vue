@@ -5,7 +5,7 @@
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
     </div>
-    <v-container v-else>
+    <v-container v-else class="purple lighten-5">
       <div class="home">
         <QuickStart
           v-if="showQuickStart"

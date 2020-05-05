@@ -1,5 +1,5 @@
 <template>
-  <v-container justify="center">
+  <v-container justify="center" class="purple lighten-5">
     <div class="home">
       <div v-if="member">
         <Active />

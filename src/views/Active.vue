@@ -46,7 +46,7 @@
         </ol>
       </div>
     </QuickStart>
-    <v-container class="purple lighten-5">
+    <v-container class="purple lighten-5" fluid>
       <v-row>
         <v-col>
           <!-- Description Card-->
@@ -69,41 +69,44 @@
           </v-row>
         </v-col>
       </v-row>
+
+      <!-- Timeline -->
       <v-row no-gutters
         ><v-col>
-          <v-subheader>Your activity timeline:</v-subheader>
-          {{ late }}
-          <v-timeline align-top :dense="true">
-            <v-timeline-item
-              v-for="(item, i) in activeTimeline"
-              :key="i"
-              fill-dot
-              :icon="item.icon"
-              :color="item.color"
-            >
-              <v-card :color="item.color" dark>
-                <v-card-title v-if="item.title" class="title pt-3 pb-3">
-                  <h3 class="title">
-                    {{ `${item.title}` }}
-                  </h3>
-                </v-card-title>
+          <v-container class="pl-0 pr-5 pt-3 pb-0">
+            <v-subheader>Your activity timeline:</v-subheader>
+            <v-timeline align-top :dense="true">
+              <v-timeline-item
+                v-for="(item, i) in activeTimeline"
+                :key="i"
+                fill-dot
+                :icon="item.icon"
+                :color="item.color"
+              >
+                <v-card :color="item.color" dark>
+                  <v-card-title v-if="item.title" class="title pt-3 pb-3">
+                    <h3 class="title">State is {{ item.title }}</h3>
+                    <small> {{ item.text }}</small>
+                  </v-card-title>
 
-                <v-card-title v-if="item.note" class="title pt-3 pb-3">
-                  <h3 class="title">
-                    NOTES
-                  </h3>
-                </v-card-title>
-                <v-card-text v-if="item" class="white text--primary">
-                  {{ item.updated }}
-                </v-card-text>
-                <v-card-text v-if="item.note" class="white text--primary">
-                  <p class="pt-3 body-1 mb-0">
-                    {{ item.note }}
-                  </p>
-                </v-card-text>
-              </v-card>
-            </v-timeline-item>
-          </v-timeline>
+                  <v-card-title v-if="item.note" class="title pt-3 pb-3">
+                    <h3 class="title">
+                      NOTES
+                    </h3>
+                  </v-card-title>
+                  <v-card-text v-if="item" class="white text--primary">
+                    {{ item.updated }}
+                  </v-card-text>
+                  <v-card-text v-if="item.note" class="white text--primary">
+                    <p class="pt-3 body-1 mb-0">
+                      {{ item.note }}
+                    </p>
+                  </v-card-text>
+                </v-card>
+              </v-timeline-item>
+            </v-timeline>
+            {{ summary }}
+          </v-container>
         </v-col>
       </v-row>
     </v-container>
@@ -167,14 +170,43 @@ export default {
         return [];
       }
       let x = [];
+      let late = 0;
+      let lost = 0;
       this.lastTimeline.forEach(element => {
         let t = this.timelineKeys.get(element.state);
         x.push({
           title: element.state,
+          text:
+            element.state == 'ACTIVE'
+              ? 'You started out'
+              : element.state == 'UNKNOWN'
+              ? "Don't know if you're safe"
+              : element.state == 'ESCALATED'
+              ? 'You need emegency help'
+              : 'You closed your activity',
           updated: moment(element.updated).format(this.FULL_DATE),
           color: t.color,
           icon: t.icon
         });
+        if (element.state == 'UNKNOWN') {
+          late = moment(element.updated);
+        }
+
+        if (element.state == 'ESCALATED') {
+          lost = moment(element.updated);
+        }
+        if (element.state == 'SAFE') {
+          console.log('computing delinquencies');
+          console.log('late', late);
+          console.log('lost', lost);
+          console.log('-------------------------------------');
+          if (late) {
+            this.late = moment.duration(this.arrived.diff(late)).humanize();
+          }
+          if (this.arrived && lost) {
+            this.lost = moment.duration(this.arrived.diff(lost)).humanize();
+          }
+        }
       });
       console.log('\tAnnotated timeline', x);
       return x;
@@ -212,19 +244,19 @@ export default {
       return x ? moment(x.updated) : null;
     },
 
-    late() {
-      console.info(this.arrived);
-      if (!this.arrived) {
-        return '';
+    summary() {
+      if (this.arrived && this.departed) {
+        let msg = `You were active for ${moment
+          .duration(this.arrived.diff(this.departed))
+          .humanize()}`;
+        if (this.lost) {
+          msg = `You were lost for ${this.lost}`;
+        } else if (this.late) {
+          msg = `You were late for ${this.late}`;
+        }
+        return msg;
       }
-      console.info(this.departed);
-      if (!this.departed) {
-        return '';
-      }
-      let x = this.lastTimeline
-        ? moment.duration(this.arrived.diff(this.departed)).humanize()
-        : null;
-      return x ? 'Late: ' + x : '';
+      return '';
     },
 
     now() {
@@ -234,6 +266,9 @@ export default {
 
   data() {
     return {
+      late: 0,
+      lost: 0,
+      gone: 0,
       loading: false,
       origin: '',
       destination: '',
