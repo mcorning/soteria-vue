@@ -45,8 +45,19 @@
           text-center
           white--text
           xs12
-          >&copy; {{ new Date().getFullYear() }} —
-          <strong>Secours.io</strong>
+        >
+          <v-row no-gutters>
+            <v-col>
+              Version 0.5.6
+            </v-col>
+            <v-col>
+              Shipped May 6, 2020
+            </v-col>
+            <v-col>
+              &copy; {{ new Date().getFullYear() }} —
+              <strong>Secours.io</strong>
+            </v-col>
+          </v-row>
         </v-flex>
       </v-layout>
     </v-footer>

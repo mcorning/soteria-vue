@@ -1,4 +1,4 @@
-data: [
+[
   {
     member_id: '$uid1',
     credentialId: 'a9e947b7-21ab-462c-9cc8-b754aaa62625',

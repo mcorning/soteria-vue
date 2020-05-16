@@ -3,6 +3,7 @@ import { Model } from '@vuex-orm/core';
 import Activity from './Activity';
 import Profile from './Profile';
 import Preference from './Preference';
+import Credential from './Credential';
 
 export default class Member extends Model {
   static entity = 'members';
@@ -34,6 +35,7 @@ export default class Member extends Model {
       id: this.uid(),
       firstName: this.string(''),
       lastName: this.string(''),
+      email: this.string(''),
       age: this.string(''),
       gender: this.attr(''),
       image: this.attr(''),
@@ -43,6 +45,7 @@ export default class Member extends Model {
       profile: this.hasOne(Profile, 'member_id'),
       preferences: this.hasOne(Preference, 'member_id'),
 
+      credentials: this.hasMany(Credential, 'member_id'),
       activities: this.hasMany(Activity, 'member_id')
     };
   }

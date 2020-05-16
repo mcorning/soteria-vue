@@ -61,6 +61,17 @@
                       ></v-text-field>
                     </v-col>
 
+                    <v-col cols="12">
+                      <v-text-field
+                        label="Email*"
+                        persistent-hint
+                        required
+                        :rules="[rules.required, rules.email]"
+                        dense
+                        v-model="email"
+                      ></v-text-field>
+                    </v-col>
+
                     <v-col>
                       <v-autocomplete
                         v-model="gender"
@@ -86,9 +97,9 @@
                   <v-btn
                     color="blue darken-1"
                     text
-                    @click="onClear"
+                    @click="onSignUp"
                     :disabled="noMember"
-                    >Delete Me</v-btn
+                    >Get Membership Credential</v-btn
                   >
                 </v-card>
               </v-row>
@@ -109,6 +120,9 @@ import Timeline from '@/models/Timeline';
 import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 
+import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:3002/';
+
 export default {
   components: {
     PictureInput
@@ -118,17 +132,15 @@ export default {
     isReady() {
       return Member.all().length > 0;
     },
-    members() {
+    member() {
       let m = Member.query()
         .with('preferences')
-        .get();
+        .first();
+
       console.log('returning member', m);
       return m;
     },
-    member() {
-      console.log('member', this.members[0]);
-      return this.members[0];
-    },
+
     image() {
       let image = this.isReady ? this.member.image : '';
       return image;
@@ -187,6 +199,18 @@ export default {
         Member.$update({
           where: this.member.id,
           data: { lastName: newName }
+        });
+      }
+    },
+    email: {
+      get() {
+        let x = this.member.email;
+        return x;
+      },
+      set(newName) {
+        Member.$update({
+          where: this.member.id,
+          data: { email: newName }
         });
       }
     },
@@ -289,6 +313,38 @@ export default {
     getMember() {
       this.member = Member.query().first();
     },
+
+    onListConns() {
+      // curl -X GET "https://api.streetcred.id/agency/v1/connections?state=Connected" -H "accept: application/json" -H "Authorization: t2w1B4MJCJjFEWZPcw1Xsmbfca2qAQnzU-cp3_pdgZg" -H "X-Streetcred-Subscription-Key: a820c2f69495430cae43c66df163cdd1"
+
+      axios.get('connections?state=Connected').then(response => {
+        console.log(response.data);
+      });
+    },
+
+    onSignUp() {
+      // send connectionless credential to member
+      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default';
+      const data = {
+        definitionId: credId,
+        automaticIssuance: true,
+        // connectionId: '2b7f31ee-646b-4cd8-8cdc-f0a970cca268',
+        credentialValues: {
+          firstName: this.firstName,
+          lastName: this.lastName,
+          email: this.email,
+          gender: this.gender,
+          age: this.age
+        }
+      };
+
+      axios.post('/credentials/axios', data).then(response => {
+        console.log(response.data);
+        let offerUrl = response.data.offerUrl;
+        window.location.href = offerUrl;
+      });
+    },
+
     onClear() {
       console.log('Deleting all entities');
       Member.deleteAll();

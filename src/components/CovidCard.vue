@@ -26,16 +26,13 @@
                   </v-col>
 
                   <v-col cols="6" sm="6">
-                    <v-autocomplete
+                    <v-text-field
                       style="width:290px"
-                      :items="['Home', 'Enter lab name']"
                       label="Test Site*"
                       v-model="testSite"
-                      @blur="siteEntered"
-                      required
                       dense
                       :rules="[rules.required]"
-                    ></v-autocomplete>
+                    ></v-text-field>
                   </v-col>
 
                   <v-col cols="6" sm="6">
@@ -49,8 +46,16 @@
                     ></v-autocomplete>
                   </v-col>
 
-                  <v-col cols="6" sm="6" md="4">
-                    <v-menu
+                  <v-col cols="6" sm="6">
+                    <v-text-field
+                      v-model="testDate"
+                      style="width:290px"
+                      label="Test Date*"
+                      required
+                      dense
+                      :rules="[rules.required]"
+                    ></v-text-field>
+                    <!-- <v-menu
                       v-model="menu2"
                       :close-on-content-click="false"
                       :nudge-right="40"
@@ -60,7 +65,7 @@
                     >
                       <template v-slot:activator="{ on }">
                         <v-text-field
-                          v-model="date"
+                          v-model="testDate"
                           label="Test Date*"
                           readonly
                           required
@@ -70,31 +75,25 @@
                         ></v-text-field>
                       </template>
                       <v-date-picker
-                        v-model="date"
+                        v-model="testDate"
                         @input="menu2 = false"
                       ></v-date-picker>
-                    </v-menu>
+                    </v-menu> -->
                   </v-col>
                 </v-row>
               </v-col>
             </v-row>
             <small>*indicates required field</small>
           </v-card-text>
-        </v-card>
-        <v-card>
-          <v-card-title>
-            Get a Covid-19 Credential
-          </v-card-title>
-          <v-card-text>
-            Scan this QR code to connect to Secours.id Credential Service
-          </v-card-text>
-          <v-card-text>
-            <v-row>
-              <v-col cols="6">
-                <v-img src="../assets/SecoursQR.jpg" />
-              </v-col>
-            </v-row>
-          </v-card-text>
+          <v-card tile>
+            <v-btn
+              color="blue darken-1"
+              text
+              @click="onGetCredential"
+              :disabled="false"
+              >Get COVID Credential</v-btn
+            >
+          </v-card>
         </v-card>
       </v-row>
     </v-container>
@@ -102,7 +101,15 @@
 </template>
 
 <script>
+require('dotenv').config();
+
 import Member from '@/models/Member';
+import Credential from '@/models/Credential';
+
+import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:3002/';
+
+// const COVID_NEG_TEST_CRED_ID = process.env.COVID_NEG_TEST_CRED_ID;
 
 export default {
   components: {},
@@ -111,143 +118,82 @@ export default {
     isReady() {
       return Member.all().length > 0;
     },
-    members() {
+    member() {
       let m = Member.query()
-        .with('preferences')
-        .get();
+        .with('credentials')
+        .first();
       console.log('returning member', m);
       return m;
     },
-    member() {
-      console.log('member', this.members[0]);
-      return this.members[0];
-    },
-    image() {
-      let image = this.isReady ? this.member.image : '';
-      return image;
-    },
-    perfID() {
-      if (!this.member.preferences) {
-        this.fixPrefs();
-      }
-      return this.member.preferences.id;
-    },
-    noMember() {
-      return !this.member;
-    },
 
-    showQuickStarts: {
-      get() {
-        return this.member.preferences
-          ? this.member.preferences.showQuickStarts
-          : false;
-      },
-      set(newVal) {
-        console.log(newVal);
-      }
-    },
-    showHelpIcons: {
-      get() {
-        return this.member.preferences
-          ? this.member.preferences.showHelpIcons
-          : false;
-      },
-      set(newVal) {
-        console.log(newVal);
-      }
-    },
-    firstName: {
-      get() {
-        if (this.member == '') {
-          this.getMember();
-        }
-        let x = this.member.firstName;
-        return x;
-      },
-      set(newName) {
-        Member.$update({
-          where: this.member.id,
-          data: { firstName: newName }
-        });
-      }
-    },
-    lastName: {
-      get() {
-        let x = this.member.lastName;
-        return x;
-      },
-      set(newName) {
-        Member.$update({
-          where: this.member.id,
-          data: { lastName: newName }
-        });
-      }
-    },
-    age: {
-      get() {
-        let x = this.member.age;
-        return x;
-      },
-      set(newVal) {
-        Member.$update({
-          where: this.member.id,
-          data: { age: newVal }
-        });
-      }
-    },
-    gender: {
-      get() {
-        let x = this.member.gender;
-        return x;
-      },
-      set(newVal) {
-        Member.$update({
-          where: this.member.id,
-          data: { gender: newVal }
-        });
-      }
-    },
+    credential() {
+      console.log('Credential: ');
+      return this.member.credentials[0];
+    }
 
-    // image: {
+    // testType: {
     //   get() {
-    //     let x = this.member.image;
+    //     let x = this.credential ? this.credential.testType : '';
     //     return x;
     //   },
-    //   set(newVal) {
-    //     Member.$update({
-    //       where: this.member.id,
-    //       data: { image: newVal }
+    //   set(newName) {
+    //     Credential.$update({
+    //       where: this.credential.id,
+    //       data: { testType: newName }
     //     });
     //   }
     // },
-
-    showImage() {
-      console.log('show image?', this.image.length > 0);
-      return this.image.length > 0 ? 'block' : 'none';
-    },
-
-    getImage() {
-      return this.image.length == 0 ? 'block' : 'none';
-    }
+    // testSite: {
+    //   get() {
+    //     let x = this.credential ? this.credential.testSite : '';
+    //     return x;
+    //   },
+    //   set(newName) {
+    //     Credential.$update({
+    //       where: this.credential.id,
+    //       data: { testSite: newName }
+    //     });
+    //   }
+    // },
+    // testDate: {
+    //   get() {
+    //     let x = this.credential
+    //       ? this.credential.testDate
+    //       : new Date().toISOString().substr(0, 10);
+    //     return x;
+    //   },
+    //   set(newVal) {
+    //     Credential.$update({
+    //       where: this.credential.id,
+    //       data: { testDate: newVal }
+    //     });
+    //   }
+    // },
+    // testResult: {
+    //   get() {
+    //     let x = this.credential ? this.credential.testResult : '';
+    //     return x;
+    //   },
+    //   set(newVal) {
+    //     Credential.$update({
+    //       where: this.credential.id,
+    //       data: { testResult: newVal }
+    //     });
+    //   }
+    // }
   },
 
   data: () => ({
     menu2: false,
     date: new Date().toISOString().substr(0, 10),
-
-    creds: '',
-    headers: [
-      {
-        text: 'Test Date',
-        value: 'testDate'
-      },
-      { text: 'Test Result', value: 'schemaId' }
-    ],
-    loading: false,
     testType: '',
     testSite: '',
-    testDate: '',
+    testDate: new Date().toISOString().substr(0, 10),
     testResult: '',
+
+    creds: '',
+
+    loading: false,
     agreeToTerms: false,
     agreeToTermsRules: [
       value =>
@@ -277,9 +223,78 @@ export default {
   }),
 
   methods: {
+    onBizcard() {
+      // send connectionless credential to member
+      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102843:default';
+      const data = {
+        definitionId: credId,
+        automaticIssuance: true,
+        credentialValues: {
+          'Full Name': 'Katy Corning',
+          Title: 'Queen',
+          Email: 'katy@katy.com',
+          'Phone Number': '2221212',
+          'Company Name': 'me'
+        }
+      };
+      console.log('payload:\n', data);
+
+      axios.post('/credentials', data).then(response => {
+        console.log(response.data);
+        let offerUrl = response.data.offerUrl;
+        window.location.href = offerUrl;
+      });
+    },
+    onBvt() {
+      // send connectionless credential to member
+      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102843:default';
+      const data = {
+        definitionId: credId,
+        automaticIssuance: true,
+        credentialValues: {
+          date: '2020',
+          name: 'bvt',
+          boolean: true
+        }
+      };
+      console.log('payload:\n', data);
+
+      axios.post('/credentials', data).then(response => {
+        console.log(response.data);
+        let offerUrl = response.data.offerUrl;
+        window.location.href = offerUrl;
+      });
+    },
+    onGetCredential() {
+      // send connectionless credential to member
+      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default';
+      const data = {
+        definitionId: credId,
+        automaticIssuance: true,
+        credentialValues: {
+          testType: this.testType,
+          testSite: this.testSite,
+          testDate: this.testDate,
+          negativeResult: true
+        }
+      };
+      console.log('payload:\n', data);
+
+      axios.post('/credentials/axios', data).then(response => {
+        console.log(response.data);
+        let offerUrl = response.data.offerUrl;
+        if (offerUrl) {
+          window.location.href = offerUrl;
+          console.log(response);
+        } else {
+          alert('Apologies. We had trouble creating your credential.');
+        }
+      });
+    },
+
     siteEntered(e) {
       if (e.target.value) {
-        this.$emit('entered-testSite', e.target.value);
+        this.testSite = e.target.value;
       }
     },
     async addCredentials() {
@@ -290,10 +305,10 @@ export default {
 
     fixPrefs() {},
     addImage(val) {
-      Member.$update({
-        where: this.member.id,
+      Credential.$update({
+        where: this.credential.id,
         data: { image: val }
-      }).then(m => (this.member.image = m.image));
+      }).then(m => (this.credential.image = m.image));
       this.changePhoto = true;
     },
 
@@ -301,15 +316,16 @@ export default {
       this.image = '';
     },
     getMember() {
-      this.member = Member.query().first();
+      this.credential = Credential.query().first();
     }
   },
 
   async created() {
     this.loading = true;
     let m = await Member.$fetch();
-    console.log('created() Fetched member', m);
-    // await this.addCredentials();
+
+    let c = await Credential.$fetch();
+    console.log('created() Fetched ', m, c, 'Credential');
     this.loading = false;
   }
 };
