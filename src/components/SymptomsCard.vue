@@ -1,4 +1,4 @@
-<template>
+a..<template>
   <div>
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
@@ -10,8 +10,11 @@
             My Symptoms Today
           </v-card-title>
           <v-card-subtitle ml-3
-            >Your evidence you carry the virus is
-            <span class="">{{ score }}</span> decibels</v-card-subtitle
+            >Evidence you carry the virus is
+            <span class="">{{ score }}</span> decibels <br /><a
+              href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
+              >Source: Oregon Health Authority</a
+            ></v-card-subtitle
           >
           <v-card-text style="padding:0">
             <v-row no-gutters>
@@ -223,7 +226,7 @@
               text
               @click="onGetRiskScore"
               :disabled="false"
-              >Get Odds of COVID Exposure Score</v-btn
+              >Display your COVID Exposure Score</v-btn
             >
           </v-card>
         </v-card>
