@@ -3,12 +3,16 @@
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
     </div>
-    <v-container v-else pl-0>
+    <v-container v-else>
       <v-row justify="center">
         <v-card>
           <v-card-title>
             My Symptoms Today
           </v-card-title>
+          <v-card-subtitle ml-3
+            >Your evidence you carry the virus is
+            <span class="">{{ score }}</span> decibels</v-card-subtitle
+          >
           <v-card-text style="padding:0">
             <v-row no-gutters>
               <v-col cols="6">
@@ -19,6 +23,7 @@
                   :value="1"
                   label="Abdominal Pain"
                   class="mx-2"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -29,6 +34,7 @@
                   :value="2"
                   label="Bad Chest Xray"
                   class="mx-2"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col> </v-row
             ><v-row no-gutters>
@@ -40,6 +46,7 @@
                   :value="4"
                   class="mx-2"
                   label="ARDS"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -50,6 +57,7 @@
                   :value="5"
                   class="mx-2"
                   label="Chills"
+                  @change="onGetRiskScore"
                 ></v-checkbox> </v-col></v-row
             ><v-row no-gutters>
               <v-col cols="6">
@@ -60,6 +68,7 @@
                   :value="6"
                   class="mx-2"
                   label="Cough"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -70,6 +79,7 @@
                   :value="7"
                   class="mx-2"
                   label="Diarrhea"
+                  @change="onGetRiskScore"
                 ></v-checkbox> </v-col></v-row
             ><v-row no-gutters>
               <v-col cols="6">
@@ -80,6 +90,7 @@
                   :value="8"
                   class="mx-2"
                   label="Fever"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -90,6 +101,7 @@
                   :value="9"
                   class="mx-2"
                   label="Headache"
+                  @change="onGetRiskScore"
                 ></v-checkbox> </v-col></v-row
             ><v-row no-gutters>
               <v-col cols="6">
@@ -100,6 +112,7 @@
                   :value="10"
                   class="mx-2"
                   label="Loss Of Smell"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -110,6 +123,7 @@
                   :value="11"
                   class="mx-2"
                   label="Ventilator"
+                  @change="onGetRiskScore"
                 ></v-checkbox> </v-col></v-row
             ><v-row no-gutters>
               <v-col cols="6">
@@ -120,6 +134,7 @@
                   :value="12"
                   class="mx-2"
                   label="Muscle Aches"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -130,6 +145,7 @@
                   :value="13"
                   class="mx-2"
                   label="Nausea"
+                  @change="onGetRiskScore"
                 ></v-checkbox> </v-col></v-row
             ><v-row no-gutters>
               <v-col cols="6">
@@ -140,6 +156,7 @@
                   :value="14"
                   class="mx-2"
                   label="Pneumonia"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -150,6 +167,7 @@
                   hide-details
                   class="mx-2"
                   label="Runny Nose"
+                  @change="onGetRiskScore"
                 >
                 </v-checkbox> </v-col></v-row
             ><v-row no-gutters>
@@ -161,6 +179,7 @@
                   :value="16"
                   class="mx-2"
                   label="Short Of Breath"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -171,6 +190,7 @@
                   hide-details
                   class="mx-2"
                   label="Sore Throat"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col> </v-row
             ><v-row no-gutters>
@@ -182,6 +202,7 @@
                   hide-details
                   class="mx-2"
                   label="Vomiting"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
               <v-col>
@@ -191,6 +212,7 @@
                   dense
                   class="mx-2"
                   label="spO2 < 90%"
+                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
             </v-row>
@@ -288,12 +310,14 @@ export default {
       this.score = 0;
       this.checkedSymptoms.forEach(key => {
         let x = this.symptoms.get(key).default;
-        console.log(x);
         this.score += x;
       });
-      alert(
-        `Your risk of carrying the virus is ${this.score} (measured in decibels of evidence)`
-      );
+
+      if (this.spO2) {
+        alert(
+          'Your oxygen saturation is dangerously low. Consult your physician.'
+        );
+      }
     },
 
     siteEntered(e) {
