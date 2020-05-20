@@ -107,8 +107,8 @@ import Member from '@/models/Member';
 import Credential from '@/models/Credential';
 
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:3002/';
-
+axios.defaults.baseURL =
+  'https://secoursfirstazurefunction.azurewebsites.net/api';
 // const COVID_NEG_TEST_CRED_ID = process.env.COVID_NEG_TEST_CRED_ID;
 
 export default {
@@ -266,30 +266,42 @@ export default {
       });
     },
     onGetCredential() {
+      console.log('Get credential using Axios');
       // send connectionless credential to member
-      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default';
-      const data = {
+      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:89129:default';
+      const payload = {
         definitionId: credId,
         automaticIssuance: true,
         credentialValues: {
           testType: this.testType,
           testSite: this.testSite,
           testDate: this.testDate,
-          negativeResult: true
+          negativeResult: 'true'
         }
       };
-      console.log('payload:\n', data);
+      console.log('payload:\n', payload);
 
-      axios.post('/credentials/axios', data).then(response => {
-        console.log(response.data);
-        let offerUrl = response.data.offerUrl;
-        if (offerUrl) {
-          window.location.href = offerUrl;
-          console.log(response);
-        } else {
-          alert('Apologies. We had trouble creating your credential.');
+      axios({
+        url: '/StreetcredCredentials',
+        method: 'POST',
+        data: payload,
+        withCredentials: true, // key parameter to get to the Streetcred server with my dev creds
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'application/json'
         }
-      });
+      })
+        .then(response => {
+          console.log(response.data);
+          let offerUrl = response.data.offerUrl;
+          if (offerUrl) {
+            window.location.href = offerUrl;
+            console.log(response);
+          } else {
+            alert('Apologies. We had trouble creating your credential.');
+          }
+        })
+        .catch(e => console.log(e));
     },
 
     siteEntered(e) {

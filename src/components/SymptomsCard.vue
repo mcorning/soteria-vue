@@ -259,24 +259,24 @@ export default {
     score: 0,
     spO2: '',
     symptoms: new Map([
-      [1, { label: 'Abdominal pain', default: -6 }],
-      [2, { label: 'Abnormal chest xray', default: -5 }],
-      [3, { label: 'Any symptoms', default: 12 }],
-      [4, { label: 'ARDS', default: -12 }],
-      [5, { label: 'Chills', default: 2 }],
-      [6, { label: 'Cough', default: 6 }],
-      [7, { label: 'Diarrhea', default: -3 }],
-      [8, { label: 'Fever', default: 1 }],
-      [9, { label: 'Headache', default: 2 }],
-      [10, { label: 'Loss of smell', default: -1 }],
-      [11, { label: 'Mech Ventilator', default: -14 }],
-      [12, { label: 'Muscle aches', default: 3 }],
-      [13, { label: 'Nausea', default: -3 }],
-      [14, { label: 'Pneumonia', default: -6 }],
-      [15, { label: 'Runny nose', default: -2 }],
-      [16, { label: 'Short of breath', default: 0 }],
-      [17, { label: 'Sore throat', default: -1 }],
-      [18, { label: 'Vomiting', default: -8 }]
+      [1, { label: 'Abdominal pain', e: -1 }],
+      [2, { label: 'Abnormal chest xray', e: -4 }],
+      [3, { label: 'Any symptoms', e: 10 }],
+      [4, { label: 'ARDS', e: -9 }],
+      [5, { label: 'Chills', e: 2 }],
+      [6, { label: 'Cough', e: 6 }],
+      [7, { label: 'Diarrhea', e: 1 }],
+      [8, { label: 'Fever', e: 4 }],
+      [9, { label: 'Headache', e: 3 }],
+      [10, { label: 'Loss of smell', e: 0 }],
+      [11, { label: 'Mech Ventilator', e: -8 }],
+      [12, { label: 'Muscle aches', e: 3 }],
+      [13, { label: 'Nausea', e: 1 }],
+      [14, { label: 'Pneumonia', e: -3 }],
+      [15, { label: 'Runny nose', e: -1 }],
+      [16, { label: 'Short of breath', e: 4 }],
+      [17, { label: 'Sore throat', e: 2 }],
+      [18, { label: 'Vomiting', e: -3 }]
     ]),
 
     loading: false,
@@ -312,7 +312,7 @@ export default {
     onGetRiskScore() {
       this.score = 0;
       this.checkedSymptoms.forEach(key => {
-        let x = this.symptoms.get(key).default;
+        let x = this.symptoms.get(key).e;
         this.score += x;
       });
 

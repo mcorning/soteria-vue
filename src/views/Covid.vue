@@ -26,7 +26,7 @@ export default {
   name: 'profile',
 
   data: () => ({
-    testAvailable: false,
+    testAvailable: true,
     TIME: 'hh:mm',
     loading: false
   }),
