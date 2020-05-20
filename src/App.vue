@@ -48,10 +48,10 @@
         >
           <v-row no-gutters>
             <v-col>
-              Version 0.5.6
+              Version 0.5.19
             </v-col>
             <v-col>
-              Shipped May 6, 2020
+              Shipped May 19, 2020
             </v-col>
             <v-col>
               &copy; {{ new Date().getFullYear() }} —

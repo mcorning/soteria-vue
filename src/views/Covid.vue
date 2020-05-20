@@ -5,6 +5,9 @@
     </div>
     <v-container v-else class="purple lighten-5">
       <div class="home">
+        <SymptomsCard />
+      </div>
+      <div class="home" v-show="testAvailable">
         <CovidCard />
       </div>
     </v-container>
@@ -16,18 +19,21 @@ import moment from 'moment';
 
 // @ is an alias to /src
 import CovidCard from '@/components/CovidCard.vue';
+import SymptomsCard from '@/components/SymptomsCard.vue';
 
 import Member from '@/models/Member';
 export default {
   name: 'profile',
 
   data: () => ({
+    testAvailable: false,
     TIME: 'hh:mm',
     loading: false
   }),
 
   components: {
-    CovidCard
+    CovidCard,
+    SymptomsCard
   },
   computed: {
     members() {
