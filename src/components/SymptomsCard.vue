@@ -1,7 +1,7 @@
 a..<template>
   <div>
     <div v-if="loading">
-      <h2>Loading Profile Card</h2>
+      <h2>Loading Symptoms Card</h2>
     </div>
     <v-container v-else>
       <v-row justify="center">
@@ -9,14 +9,14 @@ a..<template>
           <v-card-title>
             My Symptoms Today
           </v-card-title>
-          <v-card-subtitle ml-3
+          <v-card-subtitle class="ml-6 mb-0"
             >Evidence you carry the virus is
             <span class="">{{ score }}</span> decibels <br /><a
               href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
               >Source: Oregon Health Authority</a
             ></v-card-subtitle
           >
-          <v-card-text style="padding:0">
+          <v-card-text style="padding:0 ">
             <v-row no-gutters>
               <v-col cols="6">
                 <v-checkbox
@@ -24,7 +24,7 @@ a..<template>
                   hide-details
                   v-model="checkedSymptoms"
                   :value="1"
-                  label="Abdominal Pain"
+                  label="Abdomen Pain"
                   class="mx-2"
                   @change="onGetRiskScore"
                 ></v-checkbox>
@@ -181,7 +181,7 @@ a..<template>
                   hide-details
                   :value="16"
                   class="mx-2"
-                  label="Short Of Breath"
+                  label="Short Breath"
                   @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
@@ -215,19 +215,20 @@ a..<template>
                   dense
                   class="mx-2"
                   label="spO2 < 90%"
-                  @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
             </v-row>
           </v-card-text>
-          <v-card tile>
-            <v-btn
-              color="blue darken-1"
-              text
-              @click="onGetRiskScore"
-              :disabled="false"
-              >Display your COVID Exposure Score</v-btn
+          <v-card v-if="spO2" class="red--text" text--lighten-1
+            ><v-card-title
+              >Your oxygen saturation is dangerously low.</v-card-title
             >
+            <v-card-subtitle>
+              Consult your physician.
+            </v-card-subtitle>
+          </v-card>
+          <v-card align-center>
+            <CovidScoreCard :covidScore="score" />
           </v-card>
         </v-card>
       </v-row>
@@ -237,9 +238,10 @@ a..<template>
 
 <script>
 import Member from '@/models/Member';
+import CovidScoreCard from '@/components/dialogs/CovidScoreCard.vue';
 
 export default {
-  components: {},
+  components: { CovidScoreCard },
 
   computed: {
     isReady() {
@@ -255,6 +257,8 @@ export default {
   },
 
   data: () => ({
+    show: true,
+    showWarning: false,
     checkedSymptoms: [],
     score: 0,
     spO2: '',
@@ -274,7 +278,7 @@ export default {
       [13, { label: 'Nausea', e: 1 }],
       [14, { label: 'Pneumonia', e: -3 }],
       [15, { label: 'Runny nose', e: -1 }],
-      [16, { label: 'Short of breath', e: 4 }],
+      [16, { label: 'Short breath', e: 4 }],
       [17, { label: 'Sore throat', e: 2 }],
       [18, { label: 'Vomiting', e: -3 }]
     ]),
@@ -309,6 +313,12 @@ export default {
   }),
 
   methods: {
+    showScore() {
+      this.show = !this.show;
+
+      return this.show;
+    },
+
     onGetRiskScore() {
       this.score = 0;
       this.checkedSymptoms.forEach(key => {
@@ -317,9 +327,7 @@ export default {
       });
 
       if (this.spO2) {
-        alert(
-          'Your oxygen saturation is dangerously low. Consult your physician.'
-        );
+        this.showWarning = true;
       }
     },
 

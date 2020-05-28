@@ -121,7 +121,8 @@ import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:3002/';
+axios.defaults.baseURL =
+  'https://secoursfirstazurefunction.azurewebsites.net/api';
 
 export default {
   components: {
@@ -322,13 +323,11 @@ export default {
       });
     },
 
-    onSignUp() {
+    async onSignUp() {
       // send connectionless credential to member
-      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default';
-      const data = {
-        definitionId: credId,
+      const payload = {
+        definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default',
         automaticIssuance: true,
-        // connectionId: '2b7f31ee-646b-4cd8-8cdc-f0a970cca268',
         credentialValues: {
           firstName: this.firstName,
           lastName: this.lastName,
@@ -337,12 +336,27 @@ export default {
           age: this.age
         }
       };
+      console.log('payload', payload);
 
-      axios.post('/credentials/axios', data).then(response => {
-        console.log(response.data);
-        let offerUrl = response.data.offerUrl;
+      // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
+      const axiosResponse = await axios({
+        url: '/StreetcredCredentials',
+        method: 'POST',
+        data: payload,
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(e => console.log(e));
+
+      console.log('Axios Response:', axiosResponse);
+      let offerUrl = axiosResponse.data.offerUrl;
+      if (offerUrl) {
+        console.log(offerUrl);
         window.location.href = offerUrl;
-      });
+      } else {
+        alert('Apologies. We had trouble creating your credential.');
+      }
     },
 
     onClear() {

@@ -1,61 +1,72 @@
 <template>
   <div>
     <div v-if="loading">
-      <h2>Loading Profile Card</h2>
+      <h2>Loading Covid Card</h2>
     </div>
+
     <v-container v-else>
+      <!-- <div>
+        <button v-tooltip="`You have ${count} new messages.`">Hover</button>
+      </div> -->
       <v-row justify="center">
-        <v-card>
-          <v-card-title>
-            My Covid-19 Test Result
-          </v-card-title>
-          <v-card-text>
-            <v-row no-gutters justify="center">
-              <v-col>
-                <v-row justify="center">
-                  <v-col cols="6" sm="6">
-                    <v-autocomplete
-                      v-model="testType"
-                      required
-                      :rules="[rules.required]"
-                      label="Test Type*"
-                      autofocus
-                      dense
-                      :items="['nasal swab', 'blood test']"
-                    ></v-autocomplete>
-                  </v-col>
+        <v-dialog v-model="dialog" persistent max-width="300">
+          <template v-slot:activator="{ on }">
+            <v-btn color="primary" dark v-on="on"
+              >Record your Covid Test Result</v-btn
+            >
+          </template>
 
-                  <v-col cols="6" sm="6">
-                    <v-text-field
-                      style="width:290px"
-                      label="Test Site*"
-                      v-model="testSite"
-                      dense
-                      :rules="[rules.required]"
-                    ></v-text-field>
-                  </v-col>
+          <v-card>
+            <v-card-title>
+              My Covid-19 Test Result
+            </v-card-title>
+            <v-card-text>
+              <v-row no-gutters justify="center">
+                <v-col>
+                  <v-row justify="center">
+                    <v-col cols="6" sm="6">
+                      <v-autocomplete
+                        v-model="testType"
+                        required
+                        :rules="[rules.required]"
+                        label="Test Type*"
+                        autofocus
+                        dense
+                        :items="['nasal swab', 'blood test']"
+                      ></v-autocomplete>
+                    </v-col>
 
-                  <v-col cols="6" sm="6">
-                    <v-autocomplete
-                      v-model="testResult"
-                      required
-                      dense
-                      :rules="[rules.required]"
-                      label="Test Result*"
-                      :items="['Positive', 'Negative']"
-                    ></v-autocomplete>
-                  </v-col>
+                    <v-col cols="6" sm="6">
+                      <v-text-field
+                        style="width:290px"
+                        label="Test Site*"
+                        v-model="testSite"
+                        dense
+                        :rules="[rules.required]"
+                      ></v-text-field>
+                    </v-col>
 
-                  <v-col cols="6" sm="6">
-                    <v-text-field
-                      v-model="testDate"
-                      style="width:290px"
-                      label="Test Date*"
-                      required
-                      dense
-                      :rules="[rules.required]"
-                    ></v-text-field>
-                    <!-- <v-menu
+                    <v-col cols="6" sm="6">
+                      <v-autocomplete
+                        v-model="testResult"
+                        required
+                        dense
+                        :rules="[rules.required]"
+                        label="Test Result*"
+                        :items="['Positive', 'Negative']"
+                      ></v-autocomplete>
+                    </v-col>
+
+                    <v-col cols="6" sm="6">
+                      <v-text-field
+                        v-model="testDate"
+                        style="width:290px"
+                        label="Test Date*"
+                        required
+                        dense
+                        :rules="[rules.required]"
+                      ></v-text-field>
+                      <!-- <v-menu
                       v-model="menu2"
                       :close-on-content-click="false"
                       :nudge-right="40"
@@ -79,22 +90,28 @@
                         @input="menu2 = false"
                       ></v-date-picker>
                     </v-menu> -->
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-            <small>*indicates required field</small>
-          </v-card-text>
-          <v-card tile>
-            <v-btn
-              color="blue darken-1"
-              text
-              @click="onGetCredential"
-              :disabled="false"
-              >Get COVID Credential</v-btn
-            >
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+              <small>*indicates required field</small>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="onGetCredential"
+                :disabled="false"
+                >Get COVID Credential</v-btn
+              >
+              <v-spacer></v-spacer>
+              <v-btn color="green darken-1" text @click="dialog = false"
+                >Close</v-btn
+              >
+            </v-card-actions>
           </v-card>
-        </v-card>
+        </v-dialog>
       </v-row>
     </v-container>
   </div>
@@ -102,13 +119,14 @@
 
 <script>
 require('dotenv').config();
-
 import Member from '@/models/Member';
 import Credential from '@/models/Credential';
 
 import axios from 'axios';
 axios.defaults.baseURL =
   'https://secoursfirstazurefunction.azurewebsites.net/api';
+//   'http://localhost:7071/api/';
+
 // const COVID_NEG_TEST_CRED_ID = process.env.COVID_NEG_TEST_CRED_ID;
 
 export default {
@@ -184,6 +202,8 @@ export default {
   },
 
   data: () => ({
+    count: 100,
+    dialog: false,
     menu2: false,
     date: new Date().toISOString().substr(0, 10),
     testType: '',
@@ -223,85 +243,53 @@ export default {
   }),
 
   methods: {
-    onBizcard() {
-      // send connectionless credential to member
-      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102843:default';
-      const data = {
-        definitionId: credId,
-        automaticIssuance: true,
-        credentialValues: {
-          'Full Name': 'Katy Corning',
-          Title: 'Queen',
-          Email: 'katy@katy.com',
-          'Phone Number': '2221212',
-          'Company Name': 'me'
-        }
-      };
-      console.log('payload:\n', data);
-
-      axios.post('/credentials', data).then(response => {
-        console.log(response.data);
-        let offerUrl = response.data.offerUrl;
-        window.location.href = offerUrl;
-      });
-    },
-    onBvt() {
-      // send connectionless credential to member
-      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102843:default';
-      const data = {
-        definitionId: credId,
-        automaticIssuance: true,
-        credentialValues: {
-          date: '2020',
-          name: 'bvt',
-          boolean: true
-        }
-      };
-      console.log('payload:\n', data);
-
-      axios.post('/credentials', data).then(response => {
-        console.log(response.data);
-        let offerUrl = response.data.offerUrl;
-        window.location.href = offerUrl;
-      });
-    },
-    onGetCredential() {
+    async onGetCredential() {
       console.log('Get credential using Axios');
       // send connectionless credential to member
-      const credId = 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:89129:default';
-      const payload = {
-        definitionId: credId,
-        automaticIssuance: true,
-        credentialValues: {
-          testType: this.testType,
-          testSite: this.testSite,
-          testDate: this.testDate,
-          negativeResult: 'true'
-        }
-      };
+      let payload;
+      if (this.testResult == 'Negative') {
+        payload = {
+          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:89129:default',
+          automaticIssuance: true,
+          credentialValues: {
+            testType: this.testType,
+            testSite: this.testSite,
+            testDate: this.testDate,
+            negativeResult: 'true'
+          }
+        };
+      } else {
+        payload = {
+          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:89127:default',
+          automaticIssuance: true,
+          credentialValues: {
+            testType: this.testType,
+            testSite: this.testSite,
+            testDate: this.testDate,
+            positiveResult: 'true'
+          }
+        };
+      }
       console.log('payload:\n', payload);
 
-      axios({
+      let axiosResponse = await axios({
         url: '/StreetcredCredentials',
         method: 'POST',
         data: payload,
-        withCredentials: true, // key parameter to get to the Streetcred server with my dev creds
         responseType: 'json',
         headers: {
           'Content-Type': 'application/json'
         }
-      })
-        .then(response => {
-          console.log(response.data);
-          let offerUrl = response.data.offerUrl;
-          if (offerUrl) {
-            window.location.href = offerUrl;
-            console.log(response);
-          } else {
-            alert('Apologies. We had trouble creating your credential.');
-          }
-        })
-        .catch(e => console.log(e));
+      }).catch(e => console.log(e));
+
+      console.log('Axios Response:', axiosResponse);
+      let offerUrl = axiosResponse.data.offerUrl;
+      if (offerUrl) {
+        console.log(offerUrl);
+        window.location.href = offerUrl;
+      } else {
+        alert('Apologies. We had trouble creating your credential.');
+      }
     },
 
     siteEntered(e) {
@@ -342,3 +330,114 @@ export default {
   }
 };
 </script>
+<style>
+.covidScore {
+  text-align: center;
+}
+
+.tooltip {
+  display: block !important;
+  z-index: 10000;
+}
+
+.tooltip .tooltip-inner {
+  background: black;
+  color: white;
+  border-radius: 16px;
+  padding: 5px 10px 4px;
+}
+
+.tooltip .tooltip-arrow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: absolute;
+  margin: 5px;
+  border-color: black;
+  z-index: 1;
+}
+
+.tooltip[x-placement^='top'] {
+  margin-bottom: 5px;
+}
+
+.tooltip[x-placement^='top'] .tooltip-arrow {
+  border-width: 5px 5px 0 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  bottom: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^='bottom'] {
+  margin-top: 5px;
+}
+
+.tooltip[x-placement^='bottom'] .tooltip-arrow {
+  border-width: 0 5px 5px 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+  top: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^='right'] {
+  margin-left: 5px;
+}
+
+.tooltip[x-placement^='right'] .tooltip-arrow {
+  border-width: 5px 5px 5px 0;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  left: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip[x-placement^='left'] {
+  margin-right: 5px;
+}
+
+.tooltip[x-placement^='left'] .tooltip-arrow {
+  border-width: 5px 0 5px 5px;
+  border-top-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  right: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip.popover .popover-inner {
+  background: #f9f9f9;
+  color: black;
+  padding: 24px;
+  border-radius: 5px;
+  box-shadow: 0 5px 30px rgba(black, 0.1);
+}
+
+.tooltip.popover .popover-arrow {
+  border-color: #f9f9f9;
+}
+
+.tooltip[aria-hidden='true'] {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s, visibility 0.15s;
+}
+
+.tooltip[aria-hidden='false'] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+</style>
