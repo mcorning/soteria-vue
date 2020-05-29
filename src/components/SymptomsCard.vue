@@ -71,6 +71,9 @@ a..<template>
                   :value="6"
                   class="mx-2"
                   label="Cough"
+                  v-tooltip="
+                    'Cough has the lowest measure of unknown instances in positive patients.'
+                  "
                   @change="onGetRiskScore"
                 ></v-checkbox>
               </v-col>
@@ -116,6 +119,9 @@ a..<template>
                   class="mx-2"
                   label="Loss Of Smell"
                   @change="onGetRiskScore"
+                  v-tooltip="
+                    'Loss of smell has the highest measure of unknown instances in positive patients.'
+                  "
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
@@ -215,6 +221,9 @@ a..<template>
                   dense
                   class="mx-2"
                   label="spO2 < 90%"
+                  v-tooltip="
+                    'Use the pulse oximeter on your phone to measure your spO2.'
+                  "
                 ></v-checkbox>
               </v-col>
             </v-row>

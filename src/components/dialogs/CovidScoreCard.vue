@@ -2,12 +2,21 @@
   <v-dialog v-model="dialog" persistent max-width="300px">
     <template v-slot:activator="{ on }">
       <v-layout align-center justify-center>
-        <v-btn color="primary" block dark v-on="on"
+        <v-btn
+          color="primary"
+          block
+          dark
+          v-on="on"
+          class=".subtitle-2"
+          v-tooltip="{
+            content: 'Hide your symptoms, but present your Covid Score.',
+            classes: '.subtitle-2'
+          }"
           >Show your Covid Score</v-btn
         >
       </v-layout>
     </template>
-    <v-card>
+    <v-card class="card">
       <v-card-title class="headline">My Covid-19 Score</v-card-title>
       <v-card-text
         class=" covidScore"
@@ -82,6 +91,10 @@ export default {
 };
 </script>
 <style>
+.card {
+  margin-bottom: 3em;
+}
+
 .covidScore {
   margin-top: 1em;
   margin-bottom: 1em;

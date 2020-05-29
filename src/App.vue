@@ -48,14 +48,15 @@
         >
           <v-row no-gutters>
             <v-col>
-              Version 0.5.22
+              <small>Version 0.5.28</small>
             </v-col>
-            <v-col>
-              Shipped May 22, 2020 1607 hours
-            </v-col>
+
             <v-col>
               &copy; {{ new Date().getFullYear() }} —
               <strong>Secours.io</strong>
+            </v-col>
+            <v-col>
+              <small>Shipped May 28, 2020 at 1418 hours</small>
             </v-col>
           </v-row>
         </v-flex>

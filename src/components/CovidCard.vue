@@ -5,13 +5,17 @@
     </div>
 
     <v-container v-else>
-      <!-- <div>
-        <button v-tooltip="`You have ${count} new messages.`">Hover</button>
-      </div> -->
       <v-row justify="center">
         <v-dialog v-model="dialog" persistent max-width="300">
           <template v-slot:activator="{ on }">
-            <v-btn color="primary" dark v-on="on"
+            <v-btn
+              color="primary"
+              dark
+              v-on="on"
+              class=".subtitle-2"
+              v-tooltip="
+                'Convert your test result into a verifiable credential.'
+              "
               >Record your Covid Test Result</v-btn
             >
           </template>
@@ -341,10 +345,11 @@ export default {
 }
 
 .tooltip .tooltip-inner {
-  background: black;
+  background: purple;
   color: white;
   border-radius: 16px;
-  padding: 5px 10px 4px;
+  padding: 5px 10px 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .tooltip .tooltip-arrow {
@@ -353,7 +358,7 @@ export default {
   border-style: solid;
   position: absolute;
   margin: 5px;
-  border-color: black;
+  border-color: purple;
   z-index: 1;
 }
 
@@ -419,10 +424,10 @@ export default {
 
 .tooltip.popover .popover-inner {
   background: #f9f9f9;
-  color: black;
+  color: purple;
   padding: 24px;
   border-radius: 5px;
-  box-shadow: 0 5px 30px rgba(black, 0.1);
+  box-shadow: 0 5px 30px rgba(purple, 0.1);
 }
 
 .tooltip.popover .popover-arrow {
