@@ -4,12 +4,50 @@
       <h2>Loading COVID Card</h2>
     </div>
     <v-container v-else class="purple lighten-5">
-      <div class="home">
-        <SymptomsCard />
-      </div>
-      <div class="home" v-show="testAvailable">
-        <CovidCard />
-      </div>
+      <v-row>
+        <v-col cols="8">
+          <div class="home">
+            <SymptomsCard />
+          </div>
+        </v-col>
+        <v-col cols="8">
+          <div class="home" v-show="testAvailable">
+            <CovidCard />
+          </div>
+        </v-col>
+        <v-col cols="8">
+          <div>
+            <v-card>
+              <v-card-title>
+                Request a Test Result Proof
+              </v-card-title>
+              <v-card-text>
+                <v-autocomplete
+                  v-model="testType"
+                  label="Connection"
+                  autofocus
+                  dense
+                  :items="['SM-G955U', 'YUKON237', 'Michael\'s iPhone']"
+                ></v-autocomplete>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="onGetProof"
+                  :disabled="false"
+                  >Get Proof Results</v-btn
+                >
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" text @click="dialog = false"
+                  >Close</v-btn
+                >
+              </v-card-actions>
+            </v-card>
+          </div></v-col
+        >
+      </v-row>
     </v-container>
   </div>
 </template>
@@ -50,7 +88,10 @@ export default {
       return moment().format(this.TIME);
     }
   },
-  methods: {},
+  methods: {
+    async onGetProof() {}
+  },
+
   async created() {
     this.loading = true;
 

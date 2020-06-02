@@ -92,7 +92,8 @@ export default {
 </script>
 <style>
 .card {
-  margin-bottom: 3em;
+  padding-top: 2em;
+  padding-bottom: 1em;
 }
 
 .covidScore {

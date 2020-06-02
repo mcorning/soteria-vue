@@ -3,7 +3,8 @@ import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import Active from '../views/Active.vue';
 import Profile from '../views/Profile.vue';
-import Covid from '../views/Covid.vue';
+// import Covid from '../views/Covid.vue';
+import Covid19 from '../views/Covid19.vue';
 import People from '../views/People.vue';
 import Test from '../views/Test.vue';
 
@@ -41,8 +42,8 @@ const routes = [
   },
   {
     path: '/covid',
-    name: 'covie',
-    component: Covid
+    name: 'covid',
+    component: Covid19
   },
   {
     path: '/people',

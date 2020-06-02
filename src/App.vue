@@ -48,7 +48,7 @@
         >
           <v-row no-gutters>
             <v-col>
-              <small>Version 0.5.28</small>
+              <small>Version {{ ver }}</small>
             </v-col>
 
             <v-col>
@@ -66,6 +66,8 @@
 </template>
 
 <script>
+require('dotenv').config();
+import config from '../config.json';
 import moment from 'moment';
 
 import store from '@/store';
@@ -85,6 +87,7 @@ export default {
 
   data() {
     return {
+      ver: config.VER,
       showQuickStart: true,
       prefs: null,
 

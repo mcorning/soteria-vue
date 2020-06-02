@@ -1,247 +1,238 @@
 a..<template>
   <div>
-    <div v-if="loading">
-      <h2>Loading Symptoms Card</h2>
-    </div>
-    <v-container v-else>
-      <v-row justify="center">
-        <v-card>
-          <v-card-title>
-            My Symptoms Today
-          </v-card-title>
-          <v-card-subtitle class="ml-6 mb-0"
-            >Evidence you carry the virus is
-            <span class="">{{ score }}</span> decibels <br /><a
-              href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
-              >Source: Oregon Health Authority</a
-            ></v-card-subtitle
-          >
-          <v-card-text style="padding:0 ">
-            <v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="1"
-                  label="Abdomen Pain"
-                  class="mx-2"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="2"
-                  label="Bad Chest Xray"
-                  class="mx-2"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col> </v-row
-            ><v-row no-gutters>
-              <v-col cols="6"
-                ><v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="4"
-                  class="mx-2"
-                  label="ARDS"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="5"
-                  class="mx-2"
-                  label="Chills"
-                  @change="onGetRiskScore"
-                ></v-checkbox> </v-col></v-row
-            ><v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="6"
-                  class="mx-2"
-                  label="Cough"
-                  v-tooltip="
-                    'Cough has the lowest measure of unknown instances in positive patients.'
-                  "
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="7"
-                  class="mx-2"
-                  label="Diarrhea"
-                  @change="onGetRiskScore"
-                ></v-checkbox> </v-col></v-row
-            ><v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="8"
-                  class="mx-2"
-                  label="Fever"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="9"
-                  class="mx-2"
-                  label="Headache"
-                  @change="onGetRiskScore"
-                ></v-checkbox> </v-col></v-row
-            ><v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="10"
-                  class="mx-2"
-                  label="Loss Of Smell"
-                  @change="onGetRiskScore"
-                  v-tooltip="
-                    'Loss of smell has the highest measure of unknown instances in positive patients.'
-                  "
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="11"
-                  class="mx-2"
-                  label="Ventilator"
-                  @change="onGetRiskScore"
-                ></v-checkbox> </v-col></v-row
-            ><v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  dense
-                  hide-details
-                  v-model="checkedSymptoms"
-                  :value="12"
-                  class="mx-2"
-                  label="Muscle Aches"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="checkedSymptoms"
-                  dense
-                  hide-details
-                  :value="13"
-                  class="mx-2"
-                  label="Nausea"
-                  @change="onGetRiskScore"
-                ></v-checkbox> </v-col></v-row
-            ><v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="checkedSymptoms"
-                  dense
-                  hide-details
-                  :value="14"
-                  class="mx-2"
-                  label="Pneumonia"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="checkedSymptoms"
-                  :value="15"
-                  dense
-                  hide-details
-                  class="mx-2"
-                  label="Runny Nose"
-                  @change="onGetRiskScore"
-                >
-                </v-checkbox> </v-col></v-row
-            ><v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="checkedSymptoms"
-                  dense
-                  hide-details
-                  :value="16"
-                  class="mx-2"
-                  label="Short Breath"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="checkedSymptoms"
-                  :value="17"
-                  dense
-                  hide-details
-                  class="mx-2"
-                  label="Sore Throat"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col> </v-row
-            ><v-row no-gutters>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="checkedSymptoms"
-                  :value="18"
-                  dense
-                  hide-details
-                  class="mx-2"
-                  label="Vomiting"
-                  @change="onGetRiskScore"
-                ></v-checkbox>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                  v-model="spO2"
-                  :value="19"
-                  dense
-                  class="mx-2"
-                  label="spO2 < 90%"
-                  v-tooltip="
-                    'Use the pulse oximeter on your phone to measure your spO2.'
-                  "
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-          </v-card-text>
-          <v-card v-if="spO2" class="red--text" text--lighten-1
-            ><v-card-title
-              >Your oxygen saturation is dangerously low.</v-card-title
+    <v-card>
+      <v-card-title>
+        My Symptoms Today
+      </v-card-title>
+      <v-card-subtitle class="ml-6 mb-0"
+        >Evidence you carry the virus is
+        <span class="">{{ score }}</span> decibels <br /><a
+          href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
+          >Source: Oregon Health Authority</a
+        ></v-card-subtitle
+      >
+      <v-card-text style="padding:0 ">
+        <v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="1"
+              label="Abdomen Pain"
+              class="mx-2"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="2"
+              label="Bad Chest Xray"
+              class="mx-2"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col> </v-row
+        ><v-row no-gutters>
+          <v-col cols="6"
+            ><v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="4"
+              class="mx-2"
+              label="ARDS"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="5"
+              class="mx-2"
+              label="Chills"
+              @change="onGetRiskScore"
+            ></v-checkbox> </v-col></v-row
+        ><v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="6"
+              class="mx-2"
+              label="Cough"
+              v-tooltip="
+                'Cough has the lowest measure of unknown instances in positive patients.'
+              "
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="7"
+              class="mx-2"
+              label="Diarrhea"
+              @change="onGetRiskScore"
+            ></v-checkbox> </v-col></v-row
+        ><v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="8"
+              class="mx-2"
+              label="Fever"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="9"
+              class="mx-2"
+              label="Headache"
+              @change="onGetRiskScore"
+            ></v-checkbox> </v-col></v-row
+        ><v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="10"
+              class="mx-2"
+              label="Loss Of Smell"
+              @change="onGetRiskScore"
+              v-tooltip="
+                'Loss of smell has the highest measure of unknown instances in positive patients.'
+              "
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="11"
+              class="mx-2"
+              label="Ventilator"
+              @change="onGetRiskScore"
+            ></v-checkbox> </v-col></v-row
+        ><v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              dense
+              hide-details
+              v-model="checkedSymptoms"
+              :value="12"
+              class="mx-2"
+              label="Muscle Aches"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              v-model="checkedSymptoms"
+              dense
+              hide-details
+              :value="13"
+              class="mx-2"
+              label="Nausea"
+              @change="onGetRiskScore"
+            ></v-checkbox> </v-col></v-row
+        ><v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              v-model="checkedSymptoms"
+              dense
+              hide-details
+              :value="14"
+              class="mx-2"
+              label="Pneumonia"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              v-model="checkedSymptoms"
+              :value="15"
+              dense
+              hide-details
+              class="mx-2"
+              label="Runny Nose"
+              @change="onGetRiskScore"
             >
-            <v-card-subtitle>
-              Consult your physician.
-            </v-card-subtitle>
-          </v-card>
-          <v-card align-center>
-            <CovidScoreCard :covidScore="score" />
-          </v-card>
-        </v-card>
-      </v-row>
-    </v-container>
+            </v-checkbox> </v-col></v-row
+        ><v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              v-model="checkedSymptoms"
+              dense
+              hide-details
+              :value="16"
+              class="mx-2"
+              label="Short Breath"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col cols="6">
+            <v-checkbox
+              v-model="checkedSymptoms"
+              :value="17"
+              dense
+              hide-details
+              class="mx-2"
+              label="Sore Throat"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col> </v-row
+        ><v-row no-gutters>
+          <v-col cols="6">
+            <v-checkbox
+              v-model="checkedSymptoms"
+              :value="18"
+              dense
+              hide-details
+              class="mx-2"
+              label="Vomiting"
+              @change="onGetRiskScore"
+            ></v-checkbox>
+          </v-col>
+          <v-col>
+            <v-checkbox
+              v-model="spO2"
+              :value="19"
+              dense
+              class="mx-2"
+              label="spO2 < 90%"
+              v-tooltip="
+                'Use the pulse oximeter on your phone to measure your spO2.'
+              "
+            ></v-checkbox>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card v-if="spO2" class="red--text" text--lighten-1
+        ><v-card-title>Your oxygen saturation is dangerously low.</v-card-title>
+        <v-card-subtitle>
+          Consult your physician.
+        </v-card-subtitle>
+      </v-card>
+      <v-card align-center>
+        <CovidScoreCard :covidScore="score" />
+      </v-card>
+    </v-card>
   </div>
 </template>
 
@@ -354,3 +345,115 @@ export default {
   }
 };
 </script>
+<style>
+.covidScore {
+  text-align: center;
+}
+
+.tooltip {
+  display: block !important;
+  z-index: 10000;
+}
+
+.tooltip .tooltip-inner {
+  background: purple;
+  color: white;
+  border-radius: 16px;
+  padding: 5px 10px 10px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.tooltip .tooltip-arrow {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  position: absolute;
+  margin: 5px;
+  border-color: purple;
+  z-index: 1;
+}
+
+.tooltip[x-placement^='top'] {
+  margin-bottom: 5px;
+}
+
+.tooltip[x-placement^='top'] .tooltip-arrow {
+  border-width: 5px 5px 0 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  bottom: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^='bottom'] {
+  margin-top: 5px;
+}
+
+.tooltip[x-placement^='bottom'] .tooltip-arrow {
+  border-width: 0 5px 5px 5px;
+  border-left-color: transparent !important;
+  border-right-color: transparent !important;
+  border-top-color: transparent !important;
+  top: -5px;
+  left: calc(50% - 5px);
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.tooltip[x-placement^='right'] {
+  margin-left: 5px;
+}
+
+.tooltip[x-placement^='right'] .tooltip-arrow {
+  border-width: 5px 5px 5px 0;
+  border-left-color: transparent !important;
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+  left: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip[x-placement^='left'] {
+  margin-right: 5px;
+}
+
+.tooltip[x-placement^='left'] .tooltip-arrow {
+  border-width: 5px 0 5px 5px;
+  border-top-color: transparent !important;
+  border-right-color: transparent !important;
+  border-bottom-color: transparent !important;
+  right: -5px;
+  top: calc(50% - 5px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tooltip.popover .popover-inner {
+  background: #f9f9f9;
+  color: purple;
+  padding: 24px;
+  border-radius: 5px;
+  box-shadow: 0 5px 30px rgba(purple, 0.1);
+}
+
+.tooltip.popover .popover-arrow {
+  border-color: #f9f9f9;
+}
+
+.tooltip[aria-hidden='true'] {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s, visibility 0.15s;
+}
+
+.tooltip[aria-hidden='false'] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.15s;
+}
+</style>
