@@ -8,6 +8,7 @@ a..<template>
         >Evidence you carry the virus is
         <span class="">{{ score }}</span> decibels <br /><a
           href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
+          target="_blank"
           >Source: Oregon Health Authority</a
         ></v-card-subtitle
       >

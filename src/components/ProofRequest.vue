@@ -94,6 +94,7 @@
       </v-card-text>
       <v-card-actions>
         <v-btn
+          v-if="verificationId"
           color="primary"
           @click="onGetProofResults"
           block

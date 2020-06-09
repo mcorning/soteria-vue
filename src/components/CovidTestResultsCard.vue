@@ -253,7 +253,7 @@ export default {
       }).catch(e => console.log(e));
 
       console.log('Axios Response:', axiosResponse);
-      let offerUrl = axiosResponse.data.offerUrl;
+      let offerUrl = axiosResponse.data.response.offerUrl;
       if (offerUrl) {
         console.log(offerUrl);
         window.location.href = offerUrl;

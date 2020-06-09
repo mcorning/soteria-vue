@@ -56,7 +56,7 @@
               <strong>Secours.io</strong>
             </v-col>
             <v-col>
-              <small>Shipped May 28, 2020 at 1418 hours</small>
+              <small>{{ shipString }}</small>
             </v-col>
           </v-row>
         </v-flex>
@@ -88,6 +88,7 @@ export default {
   data() {
     return {
       ver: config.VER,
+      shipString: config.SHIP_STRING,
       showQuickStart: true,
       prefs: null,
 
