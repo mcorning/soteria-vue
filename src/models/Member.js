@@ -38,6 +38,7 @@ export default class Member extends Model {
       email: this.string(''),
       age: this.string(''),
       gender: this.attr(''),
+      zipCode: this.attr(''),
       image: this.attr(''),
       updated: this.attr(null),
 

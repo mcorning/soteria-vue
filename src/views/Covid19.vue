@@ -7,11 +7,12 @@
         </v-card>
       </v-col>
       <v-col>
-        <CovidTestResultsCard />
-      </v-col>
-      <v-col>
         <ProofRequest />
       </v-col>
+      <v-col>
+        <CovidTestResultsCard />
+      </v-col>
+
       <v-col>
         <ContactTracing />
       </v-col>

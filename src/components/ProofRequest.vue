@@ -10,7 +10,6 @@
         <v-autocomplete
           v-model="credential"
           label="Credential Name"
-          autofocus
           dense
           item-text="name"
           item-value="policyId"
@@ -39,7 +38,7 @@
         <v-autocomplete
           v-model="connection"
           label="Connection"
-          autofocus
+          clearable
           dense
           item-text="name"
           item-value="connectionId"
@@ -57,7 +56,7 @@
               connectionId: '1852de98-80cd-4730-8de3-c5432b60b923'
             }
           ]"
-          :hint="`${connection.name}, ${connection.connectionId}`"
+          :hint="connectionHint"
           persistent-hint
           return-object
           single-line
@@ -79,6 +78,17 @@
           label="Verification ID"
           dense
           readonly
+          hide-details
+        >
+        </v-text-field>
+      </v-card-text>
+      <v-card-text>
+        <v-text-field
+          v-model="verificationResult"
+          label="Verification Result"
+          dense
+          readonly
+          hide-details
         >
         </v-text-field>
       </v-card-text>
@@ -92,16 +102,6 @@
           >Get Proof Results</v-btn
         >
       </v-card-actions>
-      <v-card-actions>
-        <v-btn
-          color="primary"
-          @click="onCheckContactTracing"
-          block
-          dark
-          :disabled="false"
-          >Check contact tracing</v-btn
-        >
-      </v-card-actions>
     </v-card>
   </div>
 </template>
@@ -110,17 +110,24 @@
 import axios from 'axios';
 axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
 export default {
+  computed: {
+    connectionHint() {
+      let msg =
+        this.connection && this.connection.name
+          ? `${this.connection.name}, ${this.connection.connectionId}`
+          : 'Connectionless verifiable exchange is default';
+      return msg;
+    }
+  },
   data: () => ({
-    connection: {
-      name: 'SM-G955U',
-      connectionId: 'cb79ecf0-9f84-459a-b608-073a7ed90bac'
-    },
+    connection: {},
     // be sure you match name and policyId in default, otherwise, policyId will control name
     credential: {
-      name: 'COVID-19 Negative Test Result',
-      policyId: '5d401288-4d61-4190-261a-08d7de69f4ca'
+      name: 'From Safe Place',
+      policyId: '4543223c-8710-4731-a27b-08d807eddf00'
     },
-    verificationId: ''
+    verificationId: '',
+    verificationResult: ''
   }),
   methods: {
     async onOfferProof() {
@@ -143,7 +150,7 @@ export default {
       let verificationRequestUrl = verification.verificationRequestUrl;
       if (verificationRequestUrl) {
         console.log(verificationRequestUrl);
-        window.open = verificationRequestUrl;
+        window.open(verificationRequestUrl, '_blank');
       } else {
         alert('Apologies. We had trouble creating your credential.');
       }
@@ -187,11 +194,10 @@ export default {
         if (axiosResponse) {
           console.log('Axios Response:', axiosResponse);
           console.log('response', axiosResponse.data.response);
-          if (axiosResponse.data.response.isValid) {
-            alert(
-              `Proof results: ${axiosResponse.data.response.test} on ${axiosResponse.data.response.testDate} was ${axiosResponse.data.response.isValid}.`
-            );
-          } else {
+          this.verificationResult = `Credential state: ${
+            axiosResponse.data.response.isValid ? 'valid' : 'invalid'
+          }`;
+          if (!axiosResponse.data.response.isValid) {
             alert(
               'Holder has not responded to proof request, yet. If they declined your offer, you will not know their decision. So, check again in a few minutes...'
             );

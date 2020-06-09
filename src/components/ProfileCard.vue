@@ -32,9 +32,6 @@
                       class="caption"
                       v-model="showQuickStarts"
                       label="QuickStarts"
-                      v-popover:tooltip="
-                        'Quick Starts are dialogs that explain what some page does for you.'
-                      "
                     ></v-checkbox>
                   </v-row>
                 </v-col>
@@ -86,22 +83,43 @@
                         v-model="age"
                       ></v-select>
                     </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        label="ZipCode*"
+                        persistent-hint
+                        required
+                        :rules="[rules.required, rules.zipCode]"
+                        dense
+                        v-model="zipCode"
+                      ></v-text-field>
+                    </v-col>
                   </v-row>
                   <v-row no-gutters>
                     <small>*indicates required field</small>
                   </v-row>
                 </v-col>
               </v-row>
-              <v-row align="end" justify="end" no-gutters>
-                <v-card tile>
+              <v-row align="end" justify="center" no-gutters>
+                <v-card-actions>
                   <v-btn
-                    color="blue darken-1"
-                    text
+                    color="primary"
+                    block
+                    dark
+                    @click="onPersonalCredential"
+                    :disabled="noMember"
+                    >Get your Personal Credential</v-btn
+                  >
+                </v-card-actions>
+                <v-card-actions>
+                  <v-btn
+                    color="primary"
+                    block
+                    dark
                     @click="onSignUp"
                     :disabled="noMember"
-                    >Get Membership Credential</v-btn
-                  >
-                </v-card>
+                    >Upgrade to Secours Membership
+                  </v-btn>
+                </v-card-actions>
               </v-row>
             </v-container>
           </v-card-text>
@@ -121,8 +139,7 @@ import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 
 import axios from 'axios';
-axios.defaults.baseURL =
-  'https://secoursfirstazurefunction.azurewebsites.net/api';
+axios.defaults.baseURL = 'https://secoursStreetcred.azurewebsites.net/api';
 
 export default {
   components: {
@@ -239,6 +256,18 @@ export default {
         });
       }
     },
+    zipCode: {
+      get() {
+        let x = this.member.zipCode;
+        return x;
+      },
+      set(newVal) {
+        Member.$update({
+          where: this.member.id,
+          data: { zipCode: newVal }
+        });
+      }
+    },
 
     showImage() {
       console.log('show image?', this.image.length > 0);
@@ -286,6 +315,10 @@ export default {
       email: value => {
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return pattern.test(value) || 'Invalid e-mail.';
+      },
+      zipCode: value => {
+        const pattern = /^\d{5}(?:[-\s]\d{4})?$/;
+        return pattern.test(value) || 'Invalid zipcode.';
       }
     }
   }),
@@ -323,24 +356,26 @@ export default {
       });
     },
 
-    async onSignUp() {
+    async onPersonalCredential() {
       // send connectionless credential to member
       const payload = {
-        definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default',
-        automaticIssuance: true,
-        credentialValues: {
-          firstName: this.firstName,
-          lastName: this.lastName,
-          email: this.email,
-          gender: this.gender,
-          age: this.age
+        // we added this wrapper so POST could get any payload
+        credential: {
+          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:107380:default',
+          automaticIssuance: true,
+          credentialValues: {
+            name: `${this.firstName} ${this.lastName}`,
+            gender: this.gender,
+            age: this.age,
+            zipCode: this.zipCode
+          }
         }
       };
       console.log('payload', payload);
 
       // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
       const axiosResponse = await axios({
-        url: '/StreetcredCredentials',
+        url: '/streetcred',
         method: 'POST',
         data: payload,
         responseType: 'json',
@@ -350,10 +385,49 @@ export default {
       }).catch(e => console.log(e));
 
       console.log('Axios Response:', axiosResponse);
-      let offerUrl = axiosResponse.data.offerUrl;
+      let offerUrl = axiosResponse.data.response.offerUrl;
       if (offerUrl) {
         console.log(offerUrl);
-        window.location.href = offerUrl;
+        window.open(offerUrl, '_blank');
+      } else {
+        alert('Apologies. We had trouble creating your credential.');
+      }
+    },
+
+    async onSignUp() {
+      // send connectionless credential to member
+      const payload = {
+        // we added this wrapper so POST could get any payload
+        credential: {
+          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default',
+          automaticIssuance: true,
+          credentialValues: {
+            firstName: this.firstName,
+            lastName: this.lastName,
+            email: this.email,
+            gender: this.gender,
+            age: this.age
+          }
+        }
+      };
+      console.log('payload', payload);
+
+      // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
+      const axiosResponse = await axios({
+        url: '/streetcred',
+        method: 'POST',
+        data: payload,
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(e => console.log(e));
+
+      console.log('Axios Response:', axiosResponse);
+      let offerUrl = axiosResponse.data.response.offerUrl;
+      if (offerUrl) {
+        console.log(offerUrl);
+        window.open(offerUrl, '_blank');
       } else {
         alert('Apologies. We had trouble creating your credential.');
       }
