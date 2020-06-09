@@ -25,15 +25,6 @@
                       </picture-input>
                     </v-col>
                   </v-row>
-
-                  <v-row>
-                    <H3>Show:</H3>
-                    <v-checkbox
-                      class="caption"
-                      v-model="showQuickStarts"
-                      label="QuickStarts"
-                    ></v-checkbox>
-                  </v-row>
                 </v-col>
                 <!-- Data entry form -->
                 <v-col>
@@ -42,6 +33,7 @@
                       <v-text-field
                         label="First name*"
                         required
+                        dense
                         :rules="[rules.required]"
                         v-model="firstName"
                       ></v-text-field>
@@ -69,20 +61,6 @@
                       ></v-text-field>
                     </v-col>
 
-                    <v-col>
-                      <v-autocomplete
-                        v-model="gender"
-                        label="Gender"
-                        :items="['Male', 'Female', 'NA']"
-                      ></v-autocomplete>
-
-                      <v-select
-                        :items="['0-17', '18-29', '30-54', '54+']"
-                        label="Age*"
-                        required
-                        v-model="age"
-                      ></v-select>
-                    </v-col>
                     <v-col cols="12">
                       <v-text-field
                         label="ZipCode*"
@@ -92,6 +70,20 @@
                         dense
                         v-model="zipCode"
                       ></v-text-field>
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        :items="['0-17', '18-29', '30-54', '54+']"
+                        label="Age*"
+                        required
+                        v-model="age"
+                      ></v-select>
+                      <v-autocomplete
+                        v-model="gender"
+                        label="Gender"
+                        hide-details
+                        :items="['Male', 'Female', 'NA']"
+                      ></v-autocomplete>
                     </v-col>
                   </v-row>
                   <v-row no-gutters>
@@ -124,6 +116,27 @@
             </v-container>
           </v-card-text>
         </v-card>
+      </v-row>
+
+      <v-row row justify="center" class="pt-2">
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>
+              My Settings
+            </v-card-title>
+            <v-row no-gutters justify="center">
+              <v-card-text>
+                <v-container>
+                  <v-checkbox
+                    class="caption"
+                    v-model="showQuickStarts"
+                    label="Show QuickStarts"
+                  ></v-checkbox>
+                </v-container>
+              </v-card-text>
+            </v-row>
+          </v-card>
+        </v-col>
       </v-row>
     </v-container>
   </div>
