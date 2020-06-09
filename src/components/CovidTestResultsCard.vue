@@ -13,7 +13,6 @@
                 required
                 :rules="[rules.required]"
                 label="Test Type*"
-                autofocus
                 dense
                 :items="['nasal swab', 'blood test']"
               ></v-autocomplete>
@@ -45,8 +44,8 @@
                 v-model="testDate"
                 style="width:290px"
                 label="Test Date*"
-                required
                 dense
+                required
                 :rules="[rules.required]"
               ></v-text-field>
               <!-- <v-menu
@@ -98,9 +97,7 @@ import Member from '@/models/Member';
 import Credential from '@/models/Credential';
 
 import axios from 'axios';
-axios.defaults.baseURL =
-  'https://secoursfirstazurefunction.azurewebsites.net/api';
-//   'http://localhost:7071/api/';
+axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
 
 export default {
   components: {},
@@ -246,9 +243,9 @@ export default {
       console.log('payload:\n', payload);
 
       let axiosResponse = await axios({
-        url: '/StreetcredCredentials',
+        url: '/streetcred',
         method: 'POST',
-        data: payload,
+        data: { credential: payload },
         responseType: 'json',
         headers: {
           'Content-Type': 'application/json'

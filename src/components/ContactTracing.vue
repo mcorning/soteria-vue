@@ -2,94 +2,26 @@
   <div>
     <v-card>
       <v-card-title>
-        Proof Requests
+        Contact Tracing
       </v-card-title>
 
       <v-card-text>
-        <!-- use this to fetch the credential data: https://api.streetcred.id/agency/v1/verificationPolicies -->
-        <v-autocomplete
-          v-model="credential"
-          label="Credential Name"
-          autofocus
-          dense
-          item-text="name"
-          item-value="policyId"
-          :items="[
-            {
-              name: 'From Safe Place',
-              policyId: '4543223c-8710-4731-a27b-08d807eddf00'
-            },
-            {
-              name: 'COVID-19 Negative Test Result',
-              policyId: '5d401288-4d61-4190-261a-08d7de69f4ca'
-            },
-            {
-              name: 'COVID-19 Positive Test Result',
-              policyId: '4a9b8374-86da-409d-2619-08d7de69f4ca'
-            }
-          ]"
-          :hint="`${credential.name}, ${credential.policyId}`"
-          persistent-hint
-          return-object
-          single-line
-        ></v-autocomplete>
+        If you show symptoms or receive a positive COVID-19 test, send a warning
+        to all the connections you have made in the last five days.
+      </v-card-text>
+      <v-card-text>
+        Otherwise, ping Secours periodically to see if anyone else (you
+        contacted) has come down with the virus (in the last five days).
       </v-card-text>
 
-      <v-card-text>
-        <v-autocomplete
-          v-model="connection"
-          label="Connection"
-          autofocus
-          dense
-          item-text="name"
-          item-value="connectionId"
-          :items="[
-            {
-              name: 'SM-G955U',
-              connectionId: 'cb79ecf0-9f84-459a-b608-073a7ed90bac'
-            },
-            {
-              name: 'YUKON237',
-              connectionId: '86f4ec53-3d79-4785-83f0-5602539d2288'
-            },
-            {
-              name: 'Michael\'s iPhone',
-              connectionId: '1852de98-80cd-4730-8de3-c5432b60b923'
-            }
-          ]"
-          :hint="`${connection.name}, ${connection.connectionId}`"
-          persistent-hint
-          return-object
-          single-line
-        ></v-autocomplete>
-      </v-card-text>
       <v-card-actions>
         <v-btn
           color="primary"
-          @click="onOfferProof"
+          @click="onCheckContactTracing"
           block
           dark
           :disabled="false"
-          >Offer Proof</v-btn
-        >
-      </v-card-actions>
-      <v-card-text>
-        <v-text-field
-          v-model="verificationId"
-          label="Verification ID"
-          dense
-          readonly
-        >
-        </v-text-field>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn
-          color="primary"
-          @click="onGetProofResults"
-          block
-          dark
-          :disabled="!verificationId"
-          >Get Proof Results</v-btn
+          >Check for warnings</v-btn
         >
       </v-card-actions>
       <v-card-actions>
@@ -99,7 +31,7 @@
           block
           dark
           :disabled="false"
-          >Check contact tracing</v-btn
+          >Warn others</v-btn
         >
       </v-card-actions>
     </v-card>
@@ -124,9 +56,8 @@ export default {
   }),
   methods: {
     async onOfferProof() {
-      let url = `Streetcred?name=proofOfferNoConn&policyId=${this.credential.policyId}`;
-      //         Streetcred?name=proofOfferNoConn&policyId=4543223c-8710-4731-a27b-08d807eddf00
-      console.log('url:', url);
+      let url = `Streetcred/?name=proof&connectionId=${this.connection.connectionId}&policyId=${this.credential.policyId}`;
+
       let axiosResponse = await axios({
         url: url,
         method: 'GET',
@@ -138,27 +69,15 @@ export default {
 
       console.log('Axios Response:', axiosResponse);
       let verification = axiosResponse.data.response;
-      // this is for connectionless
-      this.verificationId = verification.verificationId;
-      let verificationRequestUrl = verification.verificationRequestUrl;
-      if (verificationRequestUrl) {
-        console.log(verificationRequestUrl);
-        window.open = verificationRequestUrl;
+      if (verification) {
+        console.log('Proof Request:', verification);
+        this.verificationId = verification.verificationId;
+        alert(
+          `Verification ID: ${this.verificationId}. You can now get proof results.`
+        );
       } else {
         alert('Apologies. We had trouble creating your credential.');
       }
-
-      // this for connections
-      // let verification = axiosResponse.data.response;
-      // if (verification) {
-      //   console.log('Proof Request:', verification);
-      //   this.verificationId = verification.verificationId;
-      //   alert(
-      //     `Verification ID: ${this.verificationId}. You can now get proof results.`
-      //   );
-      // } else {
-      //   alert('Apologies. We had trouble creating your credential.');
-      // }
     },
 
     async onGetProofResults() {
