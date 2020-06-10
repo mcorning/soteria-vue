@@ -4,7 +4,14 @@
       <v-card-title>
         Proof Requests
       </v-card-title>
-
+      <v-card-subtitle dense>
+        <a
+          href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
+          target="_blank"
+          >COVID by Zipcode Map</a
+        ></v-card-subtitle
+      >
+      <v-card-subtitle>Choose a credential to prove:</v-card-subtitle>
       <v-card-text>
         <!-- use this to fetch the credential data: https://api.streetcred.id/agency/v1/verificationPolicies -->
         <v-autocomplete
@@ -62,37 +69,18 @@
           single-line
         ></v-autocomplete>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions v-if="step1">
         <v-btn
+          v-model="custom"
           color="primary"
           @click="onOfferProof"
           block
           dark
           :disabled="false"
-          >Offer Proof</v-btn
+          >1) Offer Proof</v-btn
         >
       </v-card-actions>
-      <v-card-text>
-        <v-text-field
-          v-model="verificationId"
-          label="Verification ID"
-          dense
-          readonly
-          hide-details
-        >
-        </v-text-field>
-      </v-card-text>
-      <v-card-text>
-        <v-text-field
-          v-model="verificationResult"
-          label="Verification Result"
-          dense
-          readonly
-          hide-details
-        >
-        </v-text-field>
-      </v-card-text>
-      <v-card-actions>
+      <v-card-actions v-else>
         <v-btn
           v-if="verificationId"
           color="primary"
@@ -100,9 +88,67 @@
           block
           dark
           :disabled="!verificationId"
-          >Get Proof Results</v-btn
+          >2) Get Proof Results</v-btn
         >
       </v-card-actions>
+      <!-- custom: {{ custom }}<br />
+      <v-card-text v-if="verificationRequestUrl">
+        <v-text-field label="Verification ID" dense readonly loading>
+          <template v-slot:progress>
+            <v-progress-linear
+              v-if="custom"
+              :value="progress"
+              :color="color"
+              absolute
+              height="7"
+            ></v-progress-linear>
+          </template>
+        </v-text-field>
+        <a :href="verificationRequestUrl" target="_blank">{{
+          verificationId
+        }}</a>
+      </v-card-text>
+-->
+      <v-card-text>
+        <v-text-field
+          v-if="gettingReady"
+          v-model="verificationId"
+          label="Verification ID"
+          dense
+          readonly
+          placeholder="Getting ready..."
+          hint="click to go to QR code"
+          loading
+        >
+          <template v-slot:progress>
+            <v-progress-linear
+              v-if="custom"
+              :value="progress"
+              :color="color"
+              absolute
+              height="7"
+            ></v-progress-linear>
+          </template>
+        </v-text-field>
+        <v-text-field
+          v-if="showMe"
+          v-model="verificationId"
+          @click="redirect"
+          label="Verification ID"
+        >
+        </v-text-field>
+
+        <v-text-field
+          v-if="showMe"
+          v-model="verificationResult"
+          @click="restart"
+          label="Verification Result"
+          dense
+          readonly
+          hide-details
+        >
+        </v-text-field>
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -112,15 +158,30 @@ import axios from 'axios';
 axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
 export default {
   computed: {
+    showMe() {
+      return this.verificationResult && !this.gettingReady;
+    },
+    progress() {
+      return Math.min(100, 1 * 10);
+    },
+    color() {
+      return 'success'; //['error', 'warning', 'success'][Math.floor(this.progress / 40)];
+    },
     connectionHint() {
       let msg =
         this.connection && this.connection.name
           ? `${this.connection.name}, ${this.connection.connectionId}`
           : 'Connectionless verifiable exchange is default';
       return msg;
+    },
+    step2() {
+      return !this.step1;
     }
   },
   data: () => ({
+    gettingReady: false,
+    step1: true,
+    custom: true,
     connection: {},
     // be sure you match name and policyId in default, otherwise, policyId will control name
     credential: {
@@ -128,12 +189,23 @@ export default {
       policyId: '4543223c-8710-4731-a27b-08d807eddf00'
     },
     verificationId: '',
-    verificationResult: ''
+    verificationResult: '',
+    verificationRequestUrl: ''
   }),
   methods: {
+    redirect() {
+      window.open(this.verificationRequestUrl, '_blank');
+    },
+    restart() {
+      this.step1 = true;
+      this.verificationResult = '';
+    },
     async onOfferProof() {
+      this.gettingReady = true;
+      this.step1 = false;
+      this.custom = false;
+      // this.verificationRequestUrl = 'Getting a proof request ready...';
       let url = `Streetcred?name=proofOfferNoConn&policyId=${this.credential.policyId}`;
-      //         Streetcred?name=proofOfferNoConn&policyId=4543223c-8710-4731-a27b-08d807eddf00
       console.log('url:', url);
       let axiosResponse = await axios({
         url: url,
@@ -143,17 +215,20 @@ export default {
           'Content-Type': 'application/json'
         }
       }).catch(e => console.log('Error:', e));
+      this.gettingReady = false;
 
-      console.log('Axios Response:', axiosResponse);
+      console.log('Axios Response for proofOfferNoConn:', axiosResponse);
       let verification = axiosResponse.data.response;
       // this is for connectionless
       this.verificationId = verification.verificationId;
-      let verificationRequestUrl = verification.verificationRequestUrl;
-      if (verificationRequestUrl) {
-        console.log(verificationRequestUrl);
-        window.open(verificationRequestUrl, '_blank');
+      this.verificationRequestUrl = verification.verificationRequestUrl;
+
+      if (this.verificationRequestUrl) {
+        console.log(this.verificationRequestUrl);
+        window.open(this.verificationRequestUrl, '_blank');
       } else {
-        alert('Apologies. We had trouble creating your credential.');
+        this.verificationResult =
+          'Apologies. We had trouble proving the credential.';
       }
 
       // this for connections
@@ -193,15 +268,16 @@ export default {
         });
 
         if (axiosResponse) {
-          console.log('Axios Response:', axiosResponse);
+          console.log('Axios Response to ver:', axiosResponse);
           console.log('response', axiosResponse.data.response);
           this.verificationResult = `Credential state: ${
             axiosResponse.data.response.isValid ? 'valid' : 'invalid'
           }`;
+          this.step1 = true;
+          // this.verificationId = '';
           if (!axiosResponse.data.response.isValid) {
-            alert(
-              'Holder has not responded to proof request, yet. If they declined your offer, you will not know their decision. So, check again in a few minutes...'
-            );
+            this.verificationResult = 'No response, yet. Try again.';
+            this.step1 = false;
           }
         } else {
           alert('Apologies. We had trouble creating your credential.');

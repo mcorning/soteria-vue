@@ -9,7 +9,7 @@ a..<template>
         <span class="">{{ score }}</span> decibels <br /><a
           href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
           target="_blank"
-          >Source: Oregon Health Authority</a
+          >Symptoms data from OHA</a
         ></v-card-subtitle
       >
       <v-card-text style="padding:0 ">
