@@ -11,7 +11,6 @@
           >COVID by Zipcode Map</a
         ></v-card-subtitle
       >
-      <v-card-subtitle>Choose a credential to prove:</v-card-subtitle>
       <v-card-text>
         <!-- use this to fetch the credential data: https://api.streetcred.id/agency/v1/verificationPolicies -->
         <v-autocomplete
@@ -34,7 +33,7 @@
               policyId: '4a9b8374-86da-409d-2619-08d7de69f4ca'
             }
           ]"
-          :hint="`${credential.name}, ${credential.policyId}`"
+          hint="Choose a credential to prove"
           persistent-hint
           return-object
           single-line
@@ -114,10 +113,8 @@
           v-if="gettingReady"
           v-model="verificationId"
           label="Verification ID"
-          dense
           readonly
           placeholder="Getting ready..."
-          hint="click to go to QR code"
           loading
         >
           <template v-slot:progress>
@@ -134,18 +131,21 @@
           v-if="showMe"
           v-model="verificationId"
           @click="redirect"
+          hint="click to go to QR code"
+          persistent-hint
           label="Verification ID"
         >
         </v-text-field>
-
+      </v-card-text>
+      <v-card-text>
         <v-text-field
           v-if="showMe"
           v-model="verificationResult"
           @click="restart"
           label="Verification Result"
-          dense
           readonly
-          hide-details
+          hint="click to abandon proof"
+          persistent-hint
         >
         </v-text-field>
       </v-card-text>

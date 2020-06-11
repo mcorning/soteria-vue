@@ -97,7 +97,8 @@ import Member from '@/models/Member';
 import Credential from '@/models/Credential';
 
 import axios from 'axios';
-axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
+// axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
+axios.defaults.baseURL = 'http://localhost:7071/api/Streetcred/';
 
 export default {
   components: {},
@@ -172,7 +173,7 @@ export default {
   },
 
   data: () => ({
-    count: 100,
+    credDefs: new Map(),
     dialog: false,
     menu2: false,
     date: new Date().toISOString().substr(0, 10),
@@ -219,7 +220,7 @@ export default {
       let payload;
       if (this.testResult == 'Negative') {
         payload = {
-          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:89129:default',
+          definitionId: this.credDefs.get(this.testResult),
           automaticIssuance: true,
           credentialValues: {
             testType: this.testType,
@@ -230,7 +231,7 @@ export default {
         };
       } else {
         payload = {
-          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:89127:default',
+          definitionId: this.credDefs.get(this.testResult),
           automaticIssuance: true,
           credentialValues: {
             testType: this.testType,
@@ -255,8 +256,7 @@ export default {
       console.log('Axios Response:', axiosResponse);
       let offerUrl = axiosResponse.data.response.offerUrl;
       if (offerUrl) {
-        console.log(offerUrl);
-        window.location.href = offerUrl;
+        window.open(offerUrl), '_blank';
       } else {
         alert('Apologies. We had trouble creating your credential.');
       }
@@ -296,6 +296,30 @@ export default {
 
     let c = await Credential.$fetch();
     console.log('created() Fetched ', m, c, 'Credential');
+  },
+
+  async mounted() {
+    this.loading = true;
+    let url = `Streetcred?name=credDefList`;
+    console.log('url:', url);
+    let axiosResponse = await axios({
+      url: url,
+      method: 'GET',
+      responseType: 'json',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).catch(e => console.log('Error:', e));
+
+    axiosResponse.data.response.filter(c => {
+      if (c.name.startsWith('COVID')) {
+        console.log(c.name);
+        let key = c.name.includes('Negative') ? 'Negative' : 'Positive';
+        this.credDefs.set(key, c.definitionId);
+      }
+    });
+
+    console.log(this.credDefs);
     this.loading = false;
   }
 };

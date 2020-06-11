@@ -10,9 +10,8 @@
         <ProofRequest />
       </v-col>
       <v-col>
-        <CovidTestResultsCard />
+        <CovidTestResultsCardV />
       </v-col>
-
       <v-col>
         <ContactTracing />
       </v-col>
@@ -21,7 +20,8 @@
 </template>
 
 <script>
-import CovidTestResultsCard from '@/components/CovidTestResultsCard.vue';
+// import CovidTestResultsCard from '@/components/CovidTestResultsCard.vue';
+import CovidTestResultsCardV from '@/components/CovidTestResultsCardV.vue';
 
 import SymptomsCard from '@/components/SymptomsCard.vue';
 import ProofRequest from '@/components/ProofRequest.vue';
@@ -30,7 +30,8 @@ import ContactTracing from '@/components/ContactTracing.vue';
 export default {
   components: {
     SymptomsCard,
-    CovidTestResultsCard,
+    // CovidTestResultsCard,
+    CovidTestResultsCardV,
     ProofRequest,
     ContactTracing
   },
