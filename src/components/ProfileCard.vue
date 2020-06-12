@@ -22,6 +22,20 @@
                       ></picture-input>
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-card-actions>
+                      <v-btn
+                        color="primary"
+                        @click="loader = 'loading1'"
+                        :loading="loading1"
+                        :disabled="loading1"
+                        >Connect to Secours
+                        <template v-slot:loader>
+                          <span>Connecting to Secours...</span>
+                        </template>
+                      </v-btn>
+                    </v-card-actions>
+                  </v-row>
                 </v-col>
                 <!-- Data entry form -->
                 <v-col>
@@ -93,7 +107,6 @@
                   <v-btn
                     color="primary"
                     block
-                    dark
                     :loading="loading2"
                     :disabled="loading2"
                     @click="loader = 'loading2'"
@@ -108,7 +121,6 @@
                   <v-btn
                     color="primary"
                     block
-                    dark
                     @click="loader = 'loading3'"
                     :loading="loading3"
                     :disabled="noMember"
@@ -166,17 +178,24 @@ export default {
       const l = this.loader;
       console.log('loader', l);
       this[l] = !this[l];
-      if (l == 'loading2') {
-        this.onPersonalCredential().then(() => {
-          this[l] = false;
-          this.loader = null;
-        });
-      }
-      if (l == 'loading3') {
-        this.onSignUp().then(() => {
-          this[l] = false;
-          this.loader = null;
-        });
+      switch (l) {
+        case 'loading1':
+          this.onMakeConnection().then(() => {
+            this[l] = false;
+            this.loader = null;
+          });
+          break;
+        case 'loading2':
+          this.onPersonalCredential().then(() => {
+            this[l] = false;
+            this.loader = null;
+          });
+          break;
+        case 'loading3':
+          this.onSignUp().then(() => {
+            this[l] = false;
+            this.loader = null;
+          });
       }
     }
   },
@@ -324,8 +343,10 @@ export default {
   },
 
   data: () => ({
+    qrCode: 'qrcode here',
     loader: null,
     loading: false,
+    loading1: false,
     loading2: false,
     loading3: false,
     gettingReady: false,
@@ -403,6 +424,47 @@ export default {
       axios.get('connections?state=Connected').then(response => {
         console.log(response.data);
       });
+    },
+
+    async onMakeConnection() {
+      // send connectionless credential to member
+      const payload = {
+        // we added this wrapper so POST could get any payload
+        connection: {
+          multiparty: false,
+          name: 'Secours.io'
+        }
+      };
+      console.log('payload', payload);
+
+      // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
+      try {
+        const axiosResponse = await axios({
+          url: 'streetcred',
+          method: 'POST',
+          data: payload,
+          responseType: 'json',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log(
+          'Axios Response:',
+          axiosResponse.data.response.invitationUrl
+        );
+        let invitationUrl = axiosResponse.data.response.invitationUrl;
+        if (invitationUrl) {
+          console.log(invitationUrl);
+          window.open(invitationUrl, '_blank');
+        } else {
+          alert('Apologies. We had trouble connecting to Secours.');
+        }
+      } catch (error) {
+        if (error.message == 'Network Error') {
+          console.error('Be sure Azure function is running.');
+        }
+      }
     },
 
     async onPersonalCredential() {

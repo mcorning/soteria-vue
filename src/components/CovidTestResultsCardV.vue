@@ -50,13 +50,18 @@
         <v-btn
           color="primary"
           block
-          dark
-          @click="onGetCredential"
-          :disabled="false"
-          >Get COVID Credential</v-btn
+          :loading="loading1"
+          :disabled="loading1"
+          @click="loader = 'loading1'"
+          >Get COVID Credential
+          <template v-slot:loader>
+            <span>Issuing COVID Credential...</span>
+          </template></v-btn
         >
       </v-card-actions>
-      <v-btn @click="clear">clear</v-btn>
+      <v-card-actions>
+        <v-btn block color="secondary" @click="clear">clear form</v-btn>
+      </v-card-actions>
     </form>
   </v-card>
 </template>
@@ -72,6 +77,19 @@ import Member from '@/models/Member';
 import Credential from '@/models/Credential';
 
 export default {
+  watch: {
+    loader() {
+      const l = this.loader;
+      console.log('loader', l);
+      this[l] = !this[l];
+      if (l == 'loading1') {
+        this.onGetCredential().then(() => {
+          this[l] = false;
+          this.loader = null;
+        });
+      }
+    }
+  },
   mixins: [validationMixin],
 
   validations: {
@@ -82,6 +100,9 @@ export default {
   },
 
   data: () => ({
+    loader: null,
+    loading: false,
+    loading1: false,
     credDefs: new Map(),
 
     testType: null,
