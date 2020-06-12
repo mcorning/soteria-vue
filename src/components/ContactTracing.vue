@@ -39,8 +39,10 @@
 </template>
 
 <script>
+import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
+axios.defaults.baseURL = config.BASEURL;
+
 export default {
   data: () => ({
     connection: {

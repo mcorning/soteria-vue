@@ -67,7 +67,7 @@
 
 <script>
 require('dotenv').config();
-import config from '../config.json';
+import config from '@/config.json';
 import moment from 'moment';
 
 import store from '@/store';

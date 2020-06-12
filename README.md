@@ -1,5 +1,49 @@
 # secours-vue
 
+Secours-vue uses VueJs on the front end, Trinsic server on the backend, and Azure functions in the middle.
+
+For local development:
+  1. use the `serve` script for secours-vue
+  2. use the `start` script for streetcred
+
+> NOTE: to enable local development and debugging we updated the start script by adding the cors argument:
+>
+>     "start": "func host start --cors *",
+
+## To debug secours-vue:
+
+1. run the `serve` script
+2. Press F5
+
+You should see:
+>App running at:
+>
+>- Local:   http://localhost:8080/
+>   - Network: http://192.168.1.7:8080/
+>
+>   Note that the development build is not optimized.
+>   To create a production build, run npm run build.
+
+## To debug secoursStreetcred:
+
+1. be sure you close any session in the terminal with a `ctrl-c` 
+2. Press F5
+3. wait for the screen to display
+
+> Http Functions:
+>
+>         Streetcred: [GET,POST] http://localhost:7071/api/Streetcred
+>
+> [6/12/2020 1:23:52 AM] Host lock lease acquired by instance ID '000000000000000000000000C12FDB8F'.
+>
+> [6/12/2020 1:23:53 AM] Debugger attached.
+>
+>> NOTE: if you start using the azure function before you see the last line, the debugger will not be working. Wait until the debugger attaches before you use the debugger on the function.
+
+---------------------------------------------------------------------------------------------------------------------------
+
+## Old Material (may be deprecated)
+
 bitly: <http://bit.ly/2SOMXEo>
 
 ## orm-localforage

@@ -68,56 +68,30 @@
           single-line
         ></v-autocomplete>
       </v-card-text>
-      <v-card-actions v-if="step1">
+
+      <v-card-actions>
+        <!-- Don't use dark prop if you want to use the loader template -->
         <v-btn
-          v-model="custom"
           color="primary"
-          @click="onOfferProof"
           block
-          dark
-          :disabled="false"
-          >1) Offer Proof</v-btn
+          @click="loader = 'loading1'"
+          :loading="loading1"
+          :disabled="loading1"
+          >First: Offer Proof
+          <template v-slot:loader>
+            <span>Making a proof request...</span>
+          </template></v-btn
         >
       </v-card-actions>
-      <v-card-actions v-else>
-        <v-btn
-          v-if="verificationId"
-          color="primary"
-          @click="onGetProofResults"
-          block
-          dark
-          :disabled="!verificationId"
-          >2) Get Proof Results</v-btn
-        >
-      </v-card-actions>
-      <!-- custom: {{ custom }}<br />
-      <v-card-text v-if="verificationRequestUrl">
-        <v-text-field label="Verification ID" dense readonly loading>
-          <template v-slot:progress>
-            <v-progress-linear
-              v-if="custom"
-              :value="progress"
-              :color="color"
-              absolute
-              height="7"
-            ></v-progress-linear>
-          </template>
-        </v-text-field>
-        <a :href="verificationRequestUrl" target="_blank">{{
-          verificationId
-        }}</a>
-      </v-card-text>
--->
       <v-card-text>
-        <v-text-field
+        <!--<v-text-field
           v-if="gettingReady"
           v-model="verificationId"
           label="Verification ID"
           readonly
-          placeholder="Getting ready..."
           loading
         >
-          <template v-slot:progress>
+        <template v-slot:progress>
             <v-progress-linear
               v-if="custom"
               :value="progress"
@@ -125,10 +99,9 @@
               absolute
               height="7"
             ></v-progress-linear>
-          </template>
-        </v-text-field>
+          </template> 
+        </v-text-field>-->
         <v-text-field
-          v-if="showMe"
           v-model="verificationId"
           @click="redirect"
           hint="click to go to QR code"
@@ -137,9 +110,23 @@
         >
         </v-text-field>
       </v-card-text>
+
+      <v-card-actions>
+        <v-btn
+          color="primary"
+          block
+          @click="loader = 'loading2'"
+          :loading="loading2"
+          :disabled="!verificationId"
+          >Now: Get Proof Results
+          <template v-slot:loader>
+            <span>Geting proof results...</span>
+          </template></v-btn
+        >
+      </v-card-actions>
+
       <v-card-text>
         <v-text-field
-          v-if="showMe"
           v-model="verificationResult"
           @click="restart"
           label="Verification Result"
@@ -154,19 +141,43 @@
 </template>
 
 <script>
+import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
+axios.defaults.baseURL = config.BASEURL;
+console.log('Using: ', config.BASEURL);
+
 export default {
+  watch: {
+    loader() {
+      const l = this.loader;
+      console.log('loader', l);
+      this[l] = !this[l];
+      if (l == 'loading1') {
+        this.onOfferProof().then(() => {
+          this.showMeId = true;
+          this[l] = false;
+          this.loader = null;
+        });
+      } else if (l == 'loading2') {
+        console.time('getting proof results');
+        this.onGetProofResults().then(() => {
+          this[l] = false;
+          this.loader = null;
+          console.timeEnd('getting proof results');
+        });
+      }
+    }
+  },
   computed: {
     showMe() {
       return this.verificationResult && !this.gettingReady;
     },
-    progress() {
-      return Math.min(100, 1 * 10);
-    },
-    color() {
-      return 'success'; //['error', 'warning', 'success'][Math.floor(this.progress / 40)];
-    },
+    // progress() {
+    //   return Math.min(100, 1 * 10);
+    // },
+    // color() {
+    //   return 'success'; //['error', 'warning', 'success'][Math.floor(this.progress / 40)];
+    // },
     connectionHint() {
       let msg =
         this.connection && this.connection.name
@@ -179,6 +190,11 @@ export default {
     }
   },
   data: () => ({
+    loader: null,
+    loading: false,
+    loading1: false,
+    loading2: false,
+    showMeId: false,
     gettingReady: false,
     step1: true,
     custom: true,

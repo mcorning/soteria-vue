@@ -6,9 +6,7 @@
     <v-container v-else>
       <v-row justify="center">
         <v-card>
-          <v-card-title>
-            My Identifying Information
-          </v-card-title>
+          <v-card-title>My Identifying Information</v-card-title>
           <v-card-text>
             <v-container>
               <v-row no-gutters justify="center">
@@ -21,8 +19,7 @@
                         :prefillOptions="{ mediaType: 'image/png' }"
                         @change="addImage"
                         accept="image/jpeg, image/png, image/gif"
-                      >
-                      </picture-input>
+                      ></picture-input>
                     </v-col>
                   </v-row>
                 </v-col>
@@ -97,19 +94,28 @@
                     color="primary"
                     block
                     dark
-                    @click="onPersonalCredential"
-                    :disabled="noMember"
-                    >Get your Personal Credential</v-btn
+                    :loading="loading2"
+                    :disabled="loading2"
+                    @click="loader = 'loading2'"
                   >
+                    Get Your Personal Credential
+                    <template v-slot:loader>
+                      <span>Issuing Personal Credential...</span>
+                    </template>
+                  </v-btn>
                 </v-card-actions>
                 <v-card-actions>
                   <v-btn
                     color="primary"
                     block
                     dark
-                    @click="onSignUp"
+                    @click="loader = 'loading3'"
+                    :loading="loading3"
                     :disabled="noMember"
                     >Upgrade to Secours Membership
+                    <template v-slot:loader>
+                      <span>Issuing Secours Membership Credential...</span>
+                    </template>
                   </v-btn>
                 </v-card-actions>
               </v-row>
@@ -121,9 +127,7 @@
       <v-row row justify="center" class="pt-2">
         <v-col cols="12">
           <v-card>
-            <v-card-title>
-              My Settings
-            </v-card-title>
+            <v-card-title>My Settings</v-card-title>
             <v-row no-gutters justify="center">
               <v-card-text>
                 <v-container>
@@ -143,6 +147,11 @@
 </template>
 
 <script>
+import config from '@/config.json';
+import axios from 'axios';
+axios.defaults.baseURL = config.BASEURL;
+console.log('Using: ', config.BASEURL);
+
 import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
 import Credential from '@/models/Credential';
@@ -151,15 +160,37 @@ import Timeline from '@/models/Timeline';
 import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 
-import axios from 'axios';
-axios.defaults.baseURL = 'https://secoursStreetcred.azurewebsites.net/api';
-
 export default {
+  watch: {
+    loader() {
+      const l = this.loader;
+      console.log('loader', l);
+      this[l] = !this[l];
+      if (l == 'loading2') {
+        this.onPersonalCredential().then(() => {
+          this[l] = false;
+          this.loader = null;
+        });
+      }
+      if (l == 'loading3') {
+        this.onSignUp().then(() => {
+          this[l] = false;
+          this.loader = null;
+        });
+      }
+    }
+  },
   components: {
     PictureInput
   },
 
   computed: {
+    progress() {
+      return Math.min(100, 1 * 10);
+    },
+    color() {
+      return 'success'; //['error', 'warning', 'success'][Math.floor(this.progress / 40)];
+    },
     isReady() {
       return Member.all().length > 0;
     },
@@ -293,6 +324,12 @@ export default {
   },
 
   data: () => ({
+    loader: null,
+    loading: false,
+    loading2: false,
+    loading3: false,
+    gettingReady: false,
+    custom: true,
     creds: '',
     headers: [
       {
@@ -301,7 +338,6 @@ export default {
       },
       { text: 'Test Result', value: 'schemaId' }
     ],
-    loading: false,
     showPictureInput: false,
     changePhoto: true,
     agreeToTerms: false,
@@ -374,7 +410,7 @@ export default {
       const payload = {
         // we added this wrapper so POST could get any payload
         credential: {
-          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:107380:default',
+          definitionId: config.PERS_CRED_ID,
           automaticIssuance: true,
           credentialValues: {
             name: `${this.firstName} ${this.lastName}`,
@@ -387,23 +423,29 @@ export default {
       console.log('payload', payload);
 
       // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
-      const axiosResponse = await axios({
-        url: '/streetcred',
-        method: 'POST',
-        data: payload,
-        responseType: 'json',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).catch(e => console.log(e));
+      try {
+        const axiosResponse = await axios({
+          url: 'streetcred',
+          method: 'POST',
+          data: payload,
+          responseType: 'json',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
 
-      console.log('Axios Response:', axiosResponse);
-      let offerUrl = axiosResponse.data.response.offerUrl;
-      if (offerUrl) {
-        console.log(offerUrl);
-        window.open(offerUrl, '_blank');
-      } else {
-        alert('Apologies. We had trouble creating your credential.');
+        console.log('Axios Response:', axiosResponse);
+        let offerUrl = axiosResponse.data.response.offerUrl;
+        if (offerUrl) {
+          console.log(offerUrl);
+          window.open(offerUrl, '_blank');
+        } else {
+          alert('Apologies. We had trouble creating your credential.');
+        }
+      } catch (error) {
+        if (error.message == 'Network Error') {
+          console.error('Be sure Azure function is running.');
+        }
       }
     },
 
@@ -427,7 +469,7 @@ export default {
 
       // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
       const axiosResponse = await axios({
-        url: '/streetcred',
+        url: 'streetcred',
         method: 'POST',
         data: payload,
         responseType: 'json',

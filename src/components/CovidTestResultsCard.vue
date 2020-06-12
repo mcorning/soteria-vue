@@ -93,12 +93,12 @@
 </template>
 
 <script>
+import config from '@/config.json';
+import axios from 'axios';
+axios.defaults.baseURL = config.BASEURL;
+
 import Member from '@/models/Member';
 import Credential from '@/models/Credential';
-
-import axios from 'axios';
-// axios.defaults.baseURL = 'https://secoursstreetcred.azurewebsites.net/api/';
-axios.defaults.baseURL = 'http://localhost:7071/api/Streetcred/';
 
 export default {
   components: {},
@@ -244,7 +244,7 @@ export default {
       console.log('payload:\n', payload);
 
       let axiosResponse = await axios({
-        url: '/streetcred',
+        url: 'streetcred',
         method: 'POST',
         data: { credential: payload },
         responseType: 'json',
