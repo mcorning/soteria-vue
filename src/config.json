@@ -1,5 +1,5 @@
 {
-    "BASEURL": "http://localhost:7071/api/",
+    "BASEURL": "https://secoursstreetcred.azurewebsites.net/api/",
     "BASEURL_LOCAL": "http://localhost:7071/api/",
     "BASEURL_AZURE": "https://secoursstreetcred.azurewebsites.net/api/",
     "VER": "06.11.17.34",
