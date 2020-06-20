@@ -10,30 +10,77 @@
         to all the connections you have made in the last five days.
       </v-card-text>
       <v-card-text>
-        Otherwise, ping Secours periodically to see if anyone else (you
+        Otherwise, ping the network periodically to see if anyone else (you
         contacted) has come down with the virus (in the last five days).
       </v-card-text>
 
       <v-card-actions>
         <v-btn
           color="primary"
-          @click="onCheckContactTracing"
+          @click="onMakeConnections"
           block
           dark
           :disabled="false"
-          >Check for warnings</v-btn
+          >Make connections</v-btn
         >
       </v-card-actions>
+      <v-text-field
+        v-model="newConnectionId"
+        label="New connectionId"
+        class="pl-3 pr-3"
+      >
+      </v-text-field>
       <v-card-actions>
         <v-btn
-          color="primary"
-          @click="onCheckContactTracing"
-          block
+          color="secondary"
+          @click="onGetLastMessage"
           dark
+          block
           :disabled="false"
-          >Warn others</v-btn
+          >Check for exposure alerts</v-btn
         >
       </v-card-actions>
+      <v-container>
+        <v-row align="center" justify="center" no-gutters
+          ><v-col cols="12">
+            <v-card class="pa-1 text-center" outlined tile>
+              Notify
+            </v-card>
+          </v-col></v-row
+        >
+        <v-row no-gutters justify="center" dense
+          ><v-col cols="6">
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                @click="onNotify('I am in quarantine.')"
+                dark
+                block
+                :disabled="false"
+              >
+                Rooms</v-btn
+              >
+            </v-card-actions></v-col
+          >
+          <v-col cols="6">
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                @click="
+                  onNotify(
+                    'You may have been exposed to Covid-19 within the last five days.'
+                  )
+                "
+                dark
+                block
+                :disabled="false"
+              >
+                Occupants</v-btn
+              >
+            </v-card-actions></v-col
+          ></v-row
+        ></v-container
+      >
     </v-card>
   </div>
 </template>
@@ -44,95 +91,10 @@ import axios from 'axios';
 axios.defaults.baseURL = config.BASEURL;
 
 export default {
-  data: () => ({
-    connection: {
-      name: 'SM-G955U',
-      connectionId: 'cb79ecf0-9f84-459a-b608-073a7ed90bac'
-    },
-    // be sure you match name and policyId in default, otherwise, policyId will control name
-    credential: {
-      name: 'COVID-19 Negative Test Result',
-      policyId: '5d401288-4d61-4190-261a-08d7de69f4ca'
-    },
-    verificationId: ''
-  }),
+  data: () => ({ newConnectionId: '' }),
   methods: {
-    async onOfferProof() {
-      let url = `Streetcred/?name=proof&connectionId=${this.connection.connectionId}&policyId=${this.credential.policyId}`;
-
-      let axiosResponse = await axios({
-        url: url,
-        method: 'GET',
-        responseType: 'json',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).catch(e => console.log('Error:', e));
-
-      console.log('Axios Response:', axiosResponse);
-      let verification = axiosResponse.data.response;
-      if (verification) {
-        console.log('Proof Request:', verification);
-        this.verificationId = verification.verificationId;
-        alert(
-          `Verification ID: ${this.verificationId}. You can now get proof results.`
-        );
-      } else {
-        alert('Apologies. We had trouble creating your credential.');
-      }
-    },
-
-    async onGetProofResults() {
-      console.log('ver id', this.verificationId);
-      if (this.verificationId) {
-        var rawPayload = JSON.stringify({
-          verificationId: this.verificationId
-        });
-        console.log(rawPayload);
-        let url = `Streetcred/?name=ver&connectionId=${this.connection.connectionId}&verificationId=${this.verificationId}`;
-        console.log('url', url);
-        let axiosResponse = await axios({
-          // don't forget the bloody slash, otherwise the log will be empty, but the streaming log will
-          url: url,
-          method: 'GET',
-          // data: rawPayload,
-          responseType: 'json',
-          headers: {
-            'Content-Type': 'text/html'
-          }
-        }).catch(e => {
-          console.log('Catch Axios - ', e);
-          return;
-        });
-
-        if (axiosResponse) {
-          console.log('Axios Response:', axiosResponse);
-          console.log('response', axiosResponse.data.response);
-          if (axiosResponse.data.response.isValid) {
-            alert(
-              `Proof results: ${axiosResponse.data.response.test} on ${axiosResponse.data.response.testDate} was ${axiosResponse.data.response.isValid}.`
-            );
-          } else {
-            alert(
-              'Holder has not responded to proof request, yet. If they declined your offer, you will not know their decision. So, check again in a few minutes...'
-            );
-          }
-        } else {
-          alert('Apologies. We had trouble creating your credential.');
-        }
-      } else {
-        alert(
-          'You need a verification ID. Offer a connection a proof request, first.'
-        );
-      }
-    },
-
-    async onCheckContactTracing() {
-      var rawPayload = JSON.stringify({
-        connectionId: this.connection.connectionId
-      });
-      console.log(rawPayload);
-      let url = `/GetMessages/?connectionId=${this.connection.connectionId}`;
+    async onMakeConnections() {
+      let url = '/connections';
       console.log('url', url);
       let axiosResponse = await axios({
         // don't forget the bloody slash, otherwise the log will be empty, but the streaming log will
@@ -150,11 +112,54 @@ export default {
 
       if (axiosResponse) {
         console.log('Axios Response:', axiosResponse);
-        console.log('response', axiosResponse.data.messages);
-        alert(`Is proof valid? ${axiosResponse.data.messages}`);
+        console.log('New connectionId', axiosResponse.data.connectionId);
+        this.newConnectionId = axiosResponse.data.connectionId;
+        window.open(axiosResponse.data.url, '_blank');
       } else {
         alert('Apologies. We had trouble creating your credential.');
       }
+    },
+
+    async onNotify(msg) {
+      let url = '/messages';
+      console.log('url', url);
+      let payload = {
+        connectionId: this.newConnectionId,
+        text: msg
+      };
+      console.log('payload:', payload);
+      await axios({
+        url: url,
+        method: 'POST',
+        data: payload,
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }).catch(e => {
+        console.log('Catch Axios - ', e);
+        return;
+      });
+    },
+    async onGetLastMessage() {
+      let url = `/messages/connection/?connectionId=${this.newConnectionId}`;
+      console.log('url:', url);
+
+      let results = await axios({
+        url: url,
+        method: 'GET',
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }).catch(e => {
+        console.log('Catch Axios - ', e);
+        return;
+      });
+      let msgs = results.data;
+      console.log(msgs);
+      let msg = msgs[msgs.length - 1];
+      alert(msg.sentTime + '\n' + msg.text);
     }
   }
 };

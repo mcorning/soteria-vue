@@ -12,6 +12,9 @@
         </v-card>
       </v-col>
       <v-col>
+        <ContactTracing />
+      </v-col>
+      <v-col>
         <v-card>
           <SymptomsCard />
         </v-card>
@@ -21,9 +24,6 @@
       </v-col>
       <v-col>
         <CovidTestResultsCardV />
-      </v-col>
-      <v-col>
-        <ContactTracing />
       </v-col>
     </v-row>
   </v-container>
