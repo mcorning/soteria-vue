@@ -1,5 +1,5 @@
 {
-    "BASEURL": "https://secoursstreetcred.azurewebsites.net/api/",
+    "BASEURL": "http://localhost:7071/api/",
     "BASEURL_LOCAL": "http://localhost:7071/api/",
     "BASEURL_AZURE": "https://secoursstreetcred.azurewebsites.net/api/",
     "VER": "06.11.17.34",
@@ -9,6 +9,7 @@
     "MEMBER_CRED_ID": "N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default",
     "COVID_NEG_TEST_CRED_ID": "N4dqaFJG3qu2P5A7xKEKrB:3:CL:89129:default",
     "COVID_POS_TEST_CRED_ID": "N4dqaFJG3qu2P5A7xKEKrB:3:CL:89127:default",
-    "PERS_CRED_ID": "N4dqaFJG3qu2P5A7xKEKrB:3:CL:107380:default",
-    "SCHEMA_ID": "SCHEMA_ID:'NGZRy3B7HgE4RpBJpzjM5y:2:business-card:1.0"
+    "PERS_CRED_ID": "N4dqaFJG3qu2P5A7xKEKrB:3:CL:109646:connected",
+    "SCHEMA_ID": "SCHEMA_ID:'NGZRy3B7HgE4RpBJpzjM5y:2:business-card:1.0",
+    "FROM_SAFE_ZIPCODE_POL_ID": "4543223c-8710-4731-a27b-08d807eddf00"
 }

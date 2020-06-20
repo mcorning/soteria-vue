@@ -3,6 +3,16 @@
     <v-row>
       <v-col>
         <v-card>
+          <VerifyVisitor />
+        </v-card>
+      </v-col>
+      <v-col>
+        <v-card>
+          <VerifyRoom />
+        </v-card>
+      </v-col>
+      <v-col>
+        <v-card>
           <SymptomsCard />
         </v-card>
       </v-col>
@@ -26,6 +36,8 @@ import CovidTestResultsCardV from '@/components/CovidTestResultsCardV.vue';
 import SymptomsCard from '@/components/SymptomsCard.vue';
 import ProofRequest from '@/components/ProofRequest.vue';
 import ContactTracing from '@/components/ContactTracing.vue';
+import VerifyVisitor from '@/components/VerifyVisitor.vue';
+import VerifyRoom from '@/components/VerifyRoom.vue';
 
 export default {
   components: {
@@ -33,9 +45,12 @@ export default {
     // CovidTestResultsCard,
     CovidTestResultsCardV,
     ProofRequest,
-    ContactTracing
+    ContactTracing,
+    VerifyVisitor,
+    VerifyRoom
   },
-  methods: {}
+  methods: {},
+  mounted() {}
 };
 </script>
 

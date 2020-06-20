@@ -7,6 +7,7 @@
       <v-row justify="center">
         <v-card>
           <v-card-title>My Identifying Information</v-card-title>
+
           <v-card-text>
             <v-container>
               <v-row no-gutters justify="center">
@@ -21,20 +22,6 @@
                         accept="image/jpeg, image/png, image/gif"
                       ></picture-input>
                     </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-card-actions>
-                      <v-btn
-                        color="primary"
-                        @click="loader = 'loading1'"
-                        :loading="loading1"
-                        :disabled="loading1"
-                        >Connect to Secours
-                        <template v-slot:loader>
-                          <span>Connecting to Secours...</span>
-                        </template>
-                      </v-btn>
-                    </v-card-actions>
                   </v-row>
                 </v-col>
                 <!-- Data entry form -->
@@ -58,6 +45,15 @@
                         :rules="[rules.required]"
                         dense
                         v-model="lastName"
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col cols="12">
+                      <v-text-field
+                        label="Connection ID"
+                        persistent-hint
+                        dense
+                        v-model="connectionId"
                       ></v-text-field>
                     </v-col>
 
@@ -106,6 +102,18 @@
                 <v-card-actions>
                   <v-btn
                     color="primary"
+                    @click="loader = 'loading1'"
+                    :loading="loading1"
+                    :disabled="loading1 || isConnected"
+                    >Connect to Secours
+                    <template v-slot:loader>
+                      <span>Connecting to Secours...</span>
+                    </template>
+                  </v-btn>
+                </v-card-actions>
+                <v-card-actions>
+                  <v-btn
+                    color="primary"
                     block
                     :loading="loading2"
                     :disabled="loading2"
@@ -123,7 +131,6 @@
                     block
                     @click="loader = 'loading3'"
                     :loading="loading3"
-                    :disabled="noMember"
                     >Upgrade to Secours Membership
                     <template v-slot:loader>
                       <span>Issuing Secours Membership Credential...</span>
@@ -204,11 +211,8 @@ export default {
   },
 
   computed: {
-    progress() {
-      return Math.min(100, 1 * 10);
-    },
-    color() {
-      return 'success'; //['error', 'warning', 'success'][Math.floor(this.progress / 40)];
+    isConnected() {
+      return this.connectionId != '';
     },
     isReady() {
       return Member.all().length > 0;
@@ -283,6 +287,18 @@ export default {
         });
       }
     },
+    connectionId: {
+      get() {
+        let x = this.member.connectionId;
+        return x;
+      },
+      set(newName) {
+        Member.$update({
+          where: this.member.id,
+          data: { connectionId: newName }
+        });
+      }
+    },
     email: {
       get() {
         let x = this.member.email;
@@ -343,14 +359,12 @@ export default {
   },
 
   data: () => ({
-    qrCode: 'qrcode here',
     loader: null,
     loading: false,
     loading1: false,
     loading2: false,
     loading3: false,
-    gettingReady: false,
-    custom: true,
+    deepLink: `id.streetcred://launch?c_i=`,
     creds: '',
     headers: [
       {
@@ -454,7 +468,14 @@ export default {
           axiosResponse.data.response.invitationUrl
         );
         let invitationUrl = axiosResponse.data.response.invitationUrl;
+        this.deepLink += axiosResponse.data.response.invitation;
+        console.log('deepLink', this.deepLink);
         if (invitationUrl) {
+          console.log(
+            'Connection ID:',
+            axiosResponse.data.response.connectionId
+          );
+          this.connectionId = axiosResponse.data.response.connectionId;
           console.log(invitationUrl);
           window.open(invitationUrl, '_blank');
         } else {
@@ -475,10 +496,11 @@ export default {
           definitionId: config.PERS_CRED_ID,
           automaticIssuance: true,
           credentialValues: {
+            connectionId: this.connectionId,
             name: `${this.firstName} ${this.lastName}`,
             gender: this.gender,
             age: this.age,
-            zipCode: this.zipCode
+            zipcode: this.zipCode
           }
         }
       };
@@ -516,7 +538,7 @@ export default {
       const payload = {
         // we added this wrapper so POST could get any payload
         credential: {
-          definitionId: 'N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default',
+          definitionId: config.MEMBER_CRED_ID,
           automaticIssuance: true,
           credentialValues: {
             firstName: this.firstName,
