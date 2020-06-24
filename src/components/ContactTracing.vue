@@ -1,19 +1,76 @@
 <template>
   <div>
+    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
+      <template v-slot:activator="{ on }">
+        <v-layout align-center justify-center>
+          <v-btn
+            color="primary"
+            block
+            dark
+            v-on="on"
+            class=".subtitle-2"
+            v-tooltip="{
+              content:
+                'Leave your connectionId with the room so they can notify you of exposure.',
+              classes: '.subtitle-2'
+            }"
+            >Leave your connection</v-btn
+          >
+        </v-layout>
+      </template>
+
+      <v-card class="card">
+        <v-img
+          id="qr"
+          class="white--text align-end"
+          :src="qrSource"
+          lazy-src="https://picsum.photos/id/11/100/60"
+          height="200"
+          width="200"
+          alt="QR code appears here"
+        >
+          <template v-slot:placeholder>
+            <v-row class="fill-height ma-0" align="center" justify="center">
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
+            </v-row>
+          </template>
+        </v-img>
+
+        <!-- <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="openInWallet"
+            v-tooltip="{
+              content:
+                'Skip the QR code, and open the verification request in your wallet.',
+              classes: '.subtitle-2'
+            }"
+            >Open in Wallet</v-btn
+          >
+        </v-card-actions> -->
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-card>
       <v-card-title>
         Contact Tracing
       </v-card-title>
-
       <v-card-text>
-        If you show symptoms or receive a positive COVID-19 test, send a warning
-        to all the connections you have made in the last five days.
+        As an occupant, the first thing you need to do is leave your
+        connectionId with the room. During local contact tracing, the room uses
+        this connectionId to notify you of exposure to the virus.
+        <p class="red--text">
+          This app deletes connectionIds every fourteen days.
+        </p>
       </v-card-text>
-      <v-card-text>
-        Otherwise, ping the network periodically to see if anyone else (you
-        contacted) has come down with the virus (in the last five days).
-      </v-card-text>
-
       <v-card-actions>
         <v-btn
           color="primary"
@@ -30,6 +87,15 @@
         class="pl-3 pr-3"
       >
       </v-text-field>
+      <v-card-text>
+        If you show symptoms or receive a positive COVID-19 test, send a warning
+        to all the connections you have made in the last five days.
+      </v-card-text>
+      <v-card-text>
+        Otherwise, ping the network periodically to see if anyone else (you
+        contacted) has come down with the virus (in the last five days).
+      </v-card-text>
+
       <v-card-actions>
         <v-btn
           color="secondary"
@@ -88,19 +154,37 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
+axios.defaults.baseURL = config.BASEURL_AZURE;
 
 export default {
-  data: () => ({ newConnectionId: '' }),
+  computed: {
+    qrSource() {
+      return `https://chart.googleapis.com/chart?cht=qr&chl=${this.connectionRequestUrl}&chs=200x200&chld=L|1`;
+    }
+  },
+
+  data: () => ({
+    dialog: false,
+    confirm: false,
+    connectionRequestUrl: '',
+    newConnectionId: ''
+  }),
   methods: {
+    openInWallet() {
+      console.log('Deep link content:', this.verificationData);
+      window.location.href = `id.streetcred://launch?c_i=${this.verificationData}`;
+    },
+    hide() {
+      this.dialog = !this.dialog;
+      this.confirm = true;
+    },
     async onMakeConnections() {
+      this.dialog = true;
       let url = '/connections';
       console.log('url', url);
       let axiosResponse = await axios({
-        // don't forget the bloody slash, otherwise the log will be empty, but the streaming log will
         url: url,
         method: 'GET',
-        // data: rawPayload,
         responseType: 'json',
         headers: {
           'Content-Type': 'text/html'
@@ -114,7 +198,8 @@ export default {
         console.log('Axios Response:', axiosResponse);
         console.log('New connectionId', axiosResponse.data.connectionId);
         this.newConnectionId = axiosResponse.data.connectionId;
-        window.open(axiosResponse.data.url, '_blank');
+        // window.open(axiosResponse.data.url, '_blank');
+        this.connectionRequestUrl = axiosResponse.data.url;
       } else {
         alert('Apologies. We had trouble creating your credential.');
       }

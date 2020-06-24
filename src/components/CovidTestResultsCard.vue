@@ -98,7 +98,7 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
+axios.defaults.baseURL = config.BASEURL_AZURE;
 
 import Member from '@/models/Member';
 import Credential from '@/models/Credential';

@@ -27,12 +27,70 @@
           @click="loader = 'loading1'"
           :loading="loading1"
           :disabled="loading1"
-          >First: Verify Room
+          >Offer Room a Safety Verification
           <template v-slot:loader>
             <span>Verifying Room...</span>
           </template></v-btn
         >
       </v-card-actions>
+      <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
+        <template v-slot:activator="{ on }">
+          <v-layout align-center justify-center>
+            <v-btn
+              color="primary"
+              block
+              dark
+              v-on="on"
+              class=".subtitle-2"
+              v-tooltip="{
+                content: 'See if it is safe to enter the room.',
+                classes: '.subtitle-2'
+              }"
+              >Visitor Assessment</v-btn
+            >
+          </v-layout>
+        </template>
+
+        <v-card class="card">
+          <v-img
+            id="qr"
+            class="white--text align-end"
+            :src="qrSource"
+            lazy-src="https://picsum.photos/id/11/100/60"
+            height="200"
+            width="200"
+            alt="QR code appears here"
+          >
+            <template v-slot:placeholder>
+              <v-row class="fill-height ma-0" align="center" justify="center">
+                <v-progress-circular
+                  indeterminate
+                  color="grey lighten-5"
+                ></v-progress-circular>
+              </v-row>
+            </template>
+          </v-img>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="green darken-1"
+              text
+              @click="openInWallet"
+              v-tooltip="{
+                content:
+                  'Skip the QR code, and open the verification request in your wallet.',
+                classes: '.subtitle-2'
+              }"
+              >Open in Wallet</v-btn
+            >
+          </v-card-actions>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="hide">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-card-text>
         <v-text-field
           v-model="verificationId"
@@ -48,10 +106,10 @@
         <v-btn
           color="primary"
           block
-          @click="test"
+          @click="startTest"
           :loading="loading2"
           :disabled="!verificationId"
-          >Now: Assess room
+          >Assess room's credentials
           <template v-slot:loader>
             <span>Assessing room...</span>
           </template></v-btn
@@ -76,8 +134,8 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
-console.log('Using: ', config.BASEURL);
+axios.defaults.baseURL = config.BASEURL_AZURE;
+console.log('Using: ', config.BASEURL_AZURE);
 
 export default {
   watch: {
@@ -87,7 +145,6 @@ export default {
       this[l] = !this[l];
       if (l == 'loading1') {
         this.verify('verify/room').then(() => {
-          this.showMeId = true;
           this[l] = false;
           this.loader = null;
         });
@@ -101,21 +158,34 @@ export default {
       }
     }
   },
-  computed: {},
+  computed: {
+    qrSource() {
+      return `https://chart.googleapis.com/chart?cht=qr&chl=${this.verificationRequestUrl}&chs=200x200&chld=L|1`;
+    }
+  },
 
   data: () => ({
+    dialog: false,
+
     loader: null,
     loading: false,
     loading1: false,
     loading2: false,
+
     verificationId: '',
     verificationResult: '',
     verificationRequestUrl: '',
+    verificationData: '',
+
     threshold: '5'
   }),
   methods: {
-    test() {
+    startTest() {
       this.loader = 'loading2';
+    },
+
+    hide() {
+      this.dialog = !this.dialog;
     },
 
     redirect() {
@@ -124,6 +194,11 @@ export default {
     restart() {
       this.step1 = true;
       this.verificationResult = '';
+    },
+
+    openInWallet() {
+      console.log('Deep link content:', this.verificationData);
+      window.location.href = `id.streetcred://launch?c_i=${this.verificationData}`;
     },
 
     async verify(url) {
@@ -142,7 +217,9 @@ export default {
         console.log('Proof Request:', verification);
         this.verificationId = verification.id;
         this.verificationRequestUrl = verification.url;
-        window.open(this.verificationRequestUrl, '_blank');
+        this.verificationData = verification.data;
+        console.log(this.verificationData);
+        this.dialog = true;
       } else {
         alert('Apologies. We had trouble creating your credential.');
       }

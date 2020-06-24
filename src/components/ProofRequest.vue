@@ -143,8 +143,8 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
-console.log('Using: ', config.BASEURL);
+axios.defaults.baseURL = config.BASEURL_AZURE;
+console.log('Using: ', config.BASEURL_AZURE);
 
 export default {
   watch: {
