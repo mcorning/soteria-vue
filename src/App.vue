@@ -1,9 +1,9 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark dense>
-      <a href="http://secours.io">
+      <a href="https://sway.office.com/2gPCu04Gpv9Qws2H">
         <v-img
-          src="./assets/Secours.ioLogo400X310.png"
+          src="./assets/covid.jpg"
           max-height="4em"
           max-width="4em"
           class="pl-0"
@@ -53,7 +53,7 @@
 
             <v-col>
               &copy; {{ new Date().getFullYear() }} —
-              <strong>Secours.io</strong>
+              <strong>Soteria.id</strong>
             </v-col>
             <v-col>
               <small>{{ shipString }}</small>
@@ -75,9 +75,7 @@ import store from '@/store';
 export default {
   name: 'App',
   store,
-  components: {
-    // QuickStart
-  },
+  components: {},
 
   computed: {
     now() {
@@ -89,7 +87,6 @@ export default {
     return {
       ver: config.VER,
       shipString: config.SHIP_STRING,
-      showQuickStart: true,
       prefs: null,
 
       homeRoute: '',
@@ -105,13 +102,12 @@ export default {
           url: '/profile'
         },
         {
+          label: 'PHI',
+          url: '/phi'
+        },
+        {
           label: 'Covid-19',
           url: '/covid'
-        },
-
-        {
-          label: 'Activity',
-          url: '/Activity'
         },
         {
           label: 'About',

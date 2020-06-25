@@ -1,10 +1,10 @@
-a..<template>
+<template>
   <div>
     <v-card>
       <v-card-title>
         My Symptoms Today
       </v-card-title>
-      <v-card-subtitle class="ml-6 mb-0"
+      <v-card-subtitle
         >Evidence you carry the virus is
         <span class="">{{ score }}</span> decibels <br /><a
           href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
@@ -12,7 +12,7 @@ a..<template>
           >Symptoms data from OHA</a
         ></v-card-subtitle
       >
-      <v-card-text style="padding:0 ">
+      <v-card-text style="padding:1 ">
         <v-row no-gutters>
           <v-col cols="6">
             <v-checkbox

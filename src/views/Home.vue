@@ -1,11 +1,6 @@
 <template>
   <v-container justify="center" class="purple lighten-5">
-    <div class="home">
-      <div v-if="member">
-        <Active />
-      </div>
-      <div v-else><Profile /></div>
-    </div>
+    <Profile />
   </v-container>
 </template>
 
@@ -15,13 +10,11 @@ import moment from 'moment';
 // @ is an alias to /src
 import Member from '@/models/Member';
 
-import Active from '@/views/Active.vue';
 import Profile from '@/views/Profile.vue';
 
 export default {
   name: 'home',
   components: {
-    Active,
     Profile
   },
   computed: {

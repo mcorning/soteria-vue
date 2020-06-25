@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="pa-3">
     <v-card-title>
       My Covid-19 Test Result
     </v-card-title>

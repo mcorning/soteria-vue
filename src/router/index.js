@@ -1,12 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
-import Active from '../views/Active.vue';
 import Profile from '../views/Profile.vue';
-// import Covid from '../views/Covid.vue';
 import Covid19 from '../views/Covid19.vue';
-import People from '../views/People.vue';
-import Test from '../views/Test.vue';
+import Phi from '../views/Phi.vue';
 
 Vue.use(VueRouter);
 
@@ -15,11 +12,6 @@ const routes = [
     path: '/',
     name: 'home',
     component: Home
-  },
-  {
-    path: '/activity',
-    name: 'activity',
-    component: Active
   },
   {
     path: '/about',
@@ -31,24 +23,19 @@ const routes = [
       import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path: '/test',
-    name: 'test',
-    component: Test
-  },
-  {
     path: '/profile',
     name: 'profile',
     component: Profile
   },
   {
+    path: '/phi',
+    name: 'phi',
+    component: Phi
+  },
+  {
     path: '/covid',
     name: 'covid',
     component: Covid19
-  },
-  {
-    path: '/people',
-    name: 'people',
-    component: People
   }
 ];
 

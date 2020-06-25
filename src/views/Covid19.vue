@@ -43,53 +43,81 @@
       <v-card-title>Local Contact Tracing</v-card-title>
       <v-row no-gutters>
         <v-col dense>
-          <v-select
-            v-model="role"
-            :items="items"
-            label="Your Role"
-            class="pl-3"
-          ></v-select>
           <VerifyVisitor v-if="visitor" />
 
           <VerifyRoom v-if="room" />
 
           <ContactTracing v-if="occupant" />
         </v-col>
-        <v-col v-if="role != 'room'">
-          <v-card-title>Your Data</v-card-title>
-          <v-card-text
-            >Monitor your symptoms or get tested. If you are positive, we will
-            alert everybody who needs to know.</v-card-text
-          >
-          <SymptomsCard />
-          <!-- <ProofRequest /> -->
-          <CovidTestResultsCardV />
-        </v-col>
       </v-row>
     </v-card>
+    <v-row dense>
+      <v-col>Need a digital wallet?</v-col>
+    </v-row>
+    <v-row dense justify="center">
+      <v-col md="4">
+        <a
+          href="https://apps.apple.com/us/app/streetcred-identity-agent/id1475160728"
+        >
+          <v-img
+            src="../assets/AppStore.png"
+            max-height="4.5em"
+            max-width="4.5em"
+          ></v-img>
+        </a>
+      </v-col>
+      <v-col md="4">
+        <a
+          href="https://play.google.com/store/apps/details?id=id.streetcred.apps.mobile"
+        >
+          <v-img
+            src="../assets/GooglePlay.png"
+            max-height="4.5em"
+            max-width="4.5em"
+          ></v-img>
+        </a>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script>
-// import CovidTestResultsCard from '@/components/CovidTestResultsCard.vue';
-import CovidTestResultsCardV from '@/components/CovidTestResultsCardV.vue';
-
-import SymptomsCard from '@/components/SymptomsCard.vue';
-// import ProofRequest from '@/components/ProofRequest.vue';
 import ContactTracing from '@/components/ContactTracing.vue';
 import VerifyVisitor from '@/components/VerifyVisitor.vue';
 import VerifyRoom from '@/components/VerifyRoom.vue';
+import Member from '@/models/Member';
+// import Credential from '@/models/Credential';
+import Preference from '@/models/Preference';
+import DataRepository from '@/store/repository.js';
 
 export default {
   components: {
-    SymptomsCard,
-    CovidTestResultsCardV,
-    // ProofRequest,
     ContactTracing,
     VerifyVisitor,
     VerifyRoom
   },
   computed: {
+    member() {
+      let m = Member.query()
+        .with('preferences')
+        .first();
+
+      console.log('returning member', m);
+      return m;
+    },
+    isRoomRiskManager: {
+      get() {
+        return this.member.preferences
+          ? this.member.preferences.isRoomRiskManager
+          : false;
+      },
+      set(newVal) {
+        Preference.changeisRoomRiskManager(this.perfID, newVal);
+      }
+    },
+    role() {
+      return this.isRoomRiskManager ? 'room' : 'visitor';
+    },
     visitor() {
       // visitor roles verify rooms
       return this.role === 'room';
@@ -104,9 +132,7 @@ export default {
   },
   data() {
     return {
-      role: 'room',
-      firstTime: true,
-      items: ['visitor', 'room', 'occupant']
+      firstTime: true
     };
   },
   methods: {
@@ -115,7 +141,16 @@ export default {
     }
   },
 
-  mounted() {}
+  mounted() {},
+  async created() {
+    this.loading = true;
+    let m = await Member.$fetch();
+    await Preference.$fetch();
+    console.log('created() Fetched member', m);
+    // await this.addCredentials();
+    this.creds = await DataRepository.verify();
+    this.loading = false;
+  }
 };
 </script>
 

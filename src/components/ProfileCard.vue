@@ -102,18 +102,6 @@
                 <v-card-actions>
                   <v-btn
                     color="primary"
-                    @click="loader = 'loading1'"
-                    :loading="loading1"
-                    :disabled="loading1 || isConnected"
-                    >Connect to Secours
-                    <template v-slot:loader>
-                      <span>Connecting to Secours...</span>
-                    </template>
-                  </v-btn>
-                </v-card-actions>
-                <v-card-actions>
-                  <v-btn
-                    color="primary"
                     block
                     :loading="loading2"
                     :disabled="loading2"
@@ -122,18 +110,6 @@
                     Get Your Personal Credential
                     <template v-slot:loader>
                       <span>Issuing Personal Credential...</span>
-                    </template>
-                  </v-btn>
-                </v-card-actions>
-                <v-card-actions>
-                  <v-btn
-                    color="primary"
-                    block
-                    @click="loader = 'loading3'"
-                    :loading="loading3"
-                    >Upgrade to Secours Membership
-                    <template v-slot:loader>
-                      <span>Issuing Secours Membership Credential...</span>
                     </template>
                   </v-btn>
                 </v-card-actions>
@@ -152,8 +128,8 @@
                 <v-container>
                   <v-checkbox
                     class="caption"
-                    v-model="showQuickStarts"
-                    label="Show QuickStarts"
+                    v-model="isRoomRiskManager"
+                    label="I am a room risk manager"
                   ></v-checkbox>
                 </v-container>
               </v-card-text>
@@ -174,8 +150,6 @@ console.log('Using: ', config.BASEURL_AZURE);
 import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
 import Credential from '@/models/Credential';
-import Activity from '@/models/Activity';
-import Timeline from '@/models/Timeline';
 import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 
@@ -240,14 +214,14 @@ export default {
       return !this.member;
     },
 
-    showQuickStarts: {
+    isRoomRiskManager: {
       get() {
         return this.member.preferences
-          ? this.member.preferences.showQuickStarts
+          ? this.member.preferences.isRoomRiskManager
           : false;
       },
       set(newVal) {
-        Preference.changeQuickStart(this.perfID, newVal);
+        Preference.changeisRoomRiskManager(this.perfID, newVal);
       }
     },
     showHelpIcons: {
@@ -415,7 +389,7 @@ export default {
     },
 
     fixPrefs() {
-      Preference.fixQuickStart(this.member.id);
+      Preference.isRoomRiskManager(this.member.id);
     },
     addImage(val) {
       Member.$update({
@@ -533,50 +507,9 @@ export default {
       }
     },
 
-    async onSignUp() {
-      // send connectionless credential to member
-      const payload = {
-        // we added this wrapper so POST could get any payload
-        credential: {
-          definitionId: config.MEMBER_CRED_ID,
-          automaticIssuance: true,
-          credentialValues: {
-            firstName: this.firstName,
-            lastName: this.lastName,
-            email: this.email,
-            gender: this.gender,
-            age: this.age
-          }
-        }
-      };
-      console.log('payload', payload);
-
-      // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
-      const axiosResponse = await axios({
-        url: 'streetcred',
-        method: 'POST',
-        data: payload,
-        responseType: 'json',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).catch(e => console.log(e));
-
-      console.log('Axios Response:', axiosResponse);
-      let offerUrl = axiosResponse.data.response.offerUrl;
-      if (offerUrl) {
-        console.log(offerUrl);
-        window.open(offerUrl, '_blank');
-      } else {
-        alert('Apologies. We had trouble creating your credential.');
-      }
-    },
-
     onClear() {
       console.log('Deleting all entities');
       Member.deleteAll();
-      Activity.deleteAll();
-      Timeline.deleteAll();
       console.log('creating default Member and Activity');
       Member.$create({
         data: {
@@ -588,33 +521,16 @@ export default {
           updated: new Date().toISOString(),
           preferences: {
             databaseName: '',
-            showQuickStarts: true,
+            isRoomRiskManager: true,
             showHelpIcons: true
-          },
-          activities: [
-            {
-              departFrom: '',
-              arriveAt: '',
-              description: '',
-              eta: '',
-              member_id: ''
-            }
-          ]
+          }
         }
-      }).then(m => {
-        let aid = Activity.query().first().id;
-        console.log('update member/activity', m.id, aid);
-        Activity.$update({
-          where: aid,
-          data: { member_id: m.id }
-        });
       });
     }
   },
 
   async created() {
     this.loading = true;
-    await Activity.$fetch();
     let m = await Member.$fetch();
     await Preference.$fetch();
     console.log('created() Fetched member', m);

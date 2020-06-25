@@ -53,6 +53,7 @@
             >Open in Wallet</v-btn
           >
         </v-card-actions> -->
+
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="hide">Close</v-btn>
