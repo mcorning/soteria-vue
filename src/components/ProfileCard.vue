@@ -3,7 +3,59 @@
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
     </div>
-    <v-container v-else>
+    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
+      <template v-slot:activator="{ on }">
+        <v-layout align-center justify-center>
+          <v-btn color="primary" block dark v-on="on" class=".subtitle-2"
+            >Get Your Personal Credential</v-btn
+          >
+        </v-layout>
+      </template>
+
+      <v-card class="card">
+        <v-card-text
+          >Open your digital wallet and scan this QR code:</v-card-text
+        >
+        <v-img
+          id="qr"
+          class="white--text align-end"
+          :src="qrSource"
+          lazy-src="https://picsum.photos/id/11/100/60"
+          height="200"
+          width="200"
+          alt="QR code appears here"
+        >
+          <template v-slot:placeholder>
+            <v-row class="fill-height ma-0" align="center" justify="center">
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
+            </v-row>
+          </template>
+        </v-img>
+
+        <!-- <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="openInWallet"
+            v-tooltip="{
+              content:
+                'Skip the QR code, and open the verification request in your wallet.',
+              classes: '.subtitle-2'
+            }"
+            >Open in Wallet</v-btn
+          >
+        </v-card-actions> -->
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-container class="pa-1 mt-0" v-else>
       <v-row justify="center">
         <v-card>
           <v-card-title>My Identifying Information</v-card-title>
@@ -26,7 +78,7 @@
                 </v-col>
                 <!-- Data entry form -->
                 <v-col>
-                  <v-row justify="center">
+                  <v-row justify="center" no-gutters>
                     <v-col cols="12">
                       <v-text-field
                         label="First name*"
@@ -40,7 +92,6 @@
                     <v-col cols="12">
                       <v-text-field
                         label="Last name*"
-                        persistent-hint
                         required
                         :rules="[rules.required]"
                         dense
@@ -50,52 +101,73 @@
 
                     <v-col cols="12">
                       <v-text-field
-                        label="Connection ID"
-                        persistent-hint
-                        dense
-                        v-model="connectionId"
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-text-field
-                        label="Email*"
-                        persistent-hint
-                        required
-                        :rules="[rules.required, rules.email]"
-                        dense
-                        v-model="email"
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-text-field
                         label="ZipCode*"
-                        persistent-hint
                         required
                         :rules="[rules.required, rules.zipCode]"
                         dense
                         v-model="zipCode"
                       ></v-text-field>
                     </v-col>
-                    <v-col>
+                    <v-col cols="12">
                       <v-select
                         :items="['0-17', '18-29', '30-54', '54+']"
                         label="Age*"
                         required
+                        dense
                         v-model="age"
                       ></v-select>
+                    </v-col>
+                    <v-col cols="12">
                       <v-autocomplete
                         v-model="gender"
                         label="Gender"
                         hide-details
+                        dense
                         :items="['Male', 'Female', 'NA']"
                       ></v-autocomplete>
                     </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        label="Email"
+                        :rules="[rules.email]"
+                        dense
+                        v-model="email"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                      <v-text-field
+                        label="Symptoms Score"
+                        hint="See PHI tab"
+                        persistent-hint
+                        dense
+                        readonly
+                        required
+                        :rules="[rules.required]"
+                        v-model="symptomsScore"
+                      ></v-text-field>
+                    </v-col>
                   </v-row>
-                  <v-row no-gutters>
-                    <small>*indicates required field</small>
-                  </v-row>
+                </v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-checkbox
+                    dense
+                    class="caption"
+                    v-model="isRoomRiskManager"
+                    label="I am a room risk manager"
+                  ></v-checkbox>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-text-field
+                    class="caption"
+                    :disabled="!isRoomRiskManager"
+                    v-model="roomRiskThreshold"
+                    hint="(in dBs of evidence)"
+                    label="Room risk threshold"
+                    dense
+                  ></v-text-field>
                 </v-col>
               </v-row>
               <v-row align="end" justify="center" no-gutters>
@@ -103,9 +175,9 @@
                   <v-btn
                     color="primary"
                     block
-                    :loading="loading2"
-                    :disabled="loading2"
-                    @click="loader = 'loading2'"
+                    :loading="loading1"
+                    :disabled="loading1"
+                    @click="loader = 'loading1'"
                   >
                     Get Your Personal Credential
                     <template v-slot:loader>
@@ -117,25 +189,6 @@
             </v-container>
           </v-card-text>
         </v-card>
-      </v-row>
-
-      <v-row row justify="center" class="pt-2">
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>My Settings</v-card-title>
-            <v-row no-gutters justify="center">
-              <v-card-text>
-                <v-container>
-                  <v-checkbox
-                    class="caption"
-                    v-model="isRoomRiskManager"
-                    label="I am a room risk manager"
-                  ></v-checkbox>
-                </v-container>
-              </v-card-text>
-            </v-row>
-          </v-card>
-        </v-col>
       </v-row>
     </v-container>
   </div>
@@ -159,24 +212,11 @@ export default {
       const l = this.loader;
       console.log('loader', l);
       this[l] = !this[l];
-      switch (l) {
-        case 'loading1':
-          this.onMakeConnection().then(() => {
-            this[l] = false;
-            this.loader = null;
-          });
-          break;
-        case 'loading2':
-          this.onPersonalCredential().then(() => {
-            this[l] = false;
-            this.loader = null;
-          });
-          break;
-        case 'loading3':
-          this.onSignUp().then(() => {
-            this[l] = false;
-            this.loader = null;
-          });
+      if (l == 'loading1') {
+        this.onPersonalCredential().then(() => {
+          this[l] = false;
+          this.loader = null;
+        });
       }
     }
   },
@@ -185,6 +225,10 @@ export default {
   },
 
   computed: {
+    qrSource() {
+      return `https://chart.googleapis.com/chart?cht=qr&chl=${this.offerUrl}&chs=200x200&chld=L|1`;
+    },
+
     isConnected() {
       return this.connectionId != '';
     },
@@ -214,6 +258,16 @@ export default {
       return !this.member;
     },
 
+    symptomsScore: {
+      get() {
+        return this.member.preferences
+          ? this.member.preferences.symptomsScore
+          : false;
+      },
+      set(newVal) {
+        Preference.changeSymptomsScore(this.perfID, newVal);
+      }
+    },
     isRoomRiskManager: {
       get() {
         return this.member.preferences
@@ -221,7 +275,17 @@ export default {
           : false;
       },
       set(newVal) {
-        Preference.changeisRoomRiskManager(this.perfID, newVal);
+        Preference.changeIsRoomRiskManager(this.perfID, newVal);
+      }
+    },
+    roomRiskThreshold: {
+      get() {
+        return this.member.preferences
+          ? this.member.preferences.roomRiskThreshold
+          : 0;
+      },
+      set(newVal) {
+        Preference.changeRoomRiskThreshold(this.perfID, newVal);
       }
     },
     showHelpIcons: {
@@ -333,11 +397,11 @@ export default {
   },
 
   data: () => ({
+    dialog: false,
+    offerUrl: '',
     loader: null,
     loading: false,
     loading1: false,
-    loading2: false,
-    loading3: false,
     deepLink: `id.streetcred://launch?c_i=`,
     creds: '',
     headers: [
@@ -382,6 +446,10 @@ export default {
   }),
 
   methods: {
+    hide() {
+      this.dialog = !this.dialog;
+    },
+
     async addCredentials() {
       console.log(this.$store.state.credentials);
       let x = await Credential.$create({ data: this.$store.state.credentials });
@@ -470,11 +538,11 @@ export default {
           definitionId: config.PERS_CRED_ID,
           automaticIssuance: true,
           credentialValues: {
-            connectionId: this.connectionId,
             name: `${this.firstName} ${this.lastName}`,
             gender: this.gender,
             age: this.age,
-            zipcode: this.zipCode
+            zipCode: this.zipCode,
+            symptomsScore: this.symptomsScore
           }
         }
       };
@@ -493,12 +561,17 @@ export default {
         });
 
         console.log('Axios Response:', axiosResponse);
-        let offerUrl = axiosResponse.data.response.offerUrl;
-        if (offerUrl) {
-          console.log(offerUrl);
-          window.open(offerUrl, '_blank');
+        this.offerUrl = axiosResponse.data.response.offerUrl;
+        if (this.offerUrl) {
+          console.log(this.offerUrl);
+          // window.open(offerUrl, '_blank');
+          this.dialog = true;
         } else {
-          alert('Apologies. We had trouble creating your credential.');
+          // this path with double response is awkward and belies fuzzy thinking...
+          const msg = `Apologies. We had trouble creating your credential
+          ${axiosResponse.data.response.response.body}`;
+          //...plus we should parse the inner message json
+          alert(msg);
         }
       } catch (error) {
         if (error.message == 'Network Error') {

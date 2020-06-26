@@ -132,7 +132,7 @@ export default {
   },
   data() {
     return {
-      firstTime: true
+      firstTime: false
     };
   },
   methods: {

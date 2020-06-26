@@ -9,7 +9,8 @@ export default class Preference extends Model {
       id: this.uid(),
       databaseName: this.string(''),
       isRoomRiskManager: this.boolean(true),
-      showHelpIcons: this.boolean(true),
+      roomRiskThreshold: this.string(''),
+      symptomsScore: this.string(''),
 
       // Profile is a child of Member, so we need an member_id here
       member_id: this.attr(''), // used in relationship below
@@ -20,9 +21,21 @@ export default class Preference extends Model {
     };
   }
 
-  static async changeisRoomRiskManager(perfID, val) {
+  static async changeIsRoomRiskManager(perfID, val) {
     let p = await this.$update({
       data: { id: perfID, isRoomRiskManager: val }
+    });
+    return p;
+  }
+  static async changeRoomRiskThreshold(perfID, val) {
+    let p = await this.$update({
+      data: { id: perfID, roomRiskThreshold: val }
+    });
+    return p;
+  }
+  static async changeSymptomsScore(perfID, val) {
+    let p = await this.$update({
+      data: { id: perfID, symptomsScore: val }
     });
     return p;
   }

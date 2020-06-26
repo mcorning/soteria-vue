@@ -4,14 +4,6 @@
       <v-card-title>
         Verify Room
       </v-card-title>
-      <v-card-subtitle dense>
-        <a
-          href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
-          target="_blank"
-          >COVID by Zipcode Map</a
-        ></v-card-subtitle
-      >
-
       <v-card-text>
         If the visitor is safe for the room, the second step enables the visitor
         to assess the risk of the room.
@@ -27,7 +19,7 @@
           @click="loader = 'loading1'"
           :loading="loading1"
           :disabled="loading1"
-          >Offer Room a Safety Verification
+          >Checkout the room
           <template v-slot:loader>
             <span>Verifying Room...</span>
           </template></v-btn
@@ -126,6 +118,13 @@
           persistent-hint
         >
         </v-text-field>
+        <v-card-subtitle dense>
+          <a
+            href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
+            target="_blank"
+            >Need to check their zip code?</a
+          ></v-card-subtitle
+        >
       </v-card-text>
     </v-card>
   </div>

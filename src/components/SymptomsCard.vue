@@ -239,6 +239,7 @@
 
 <script>
 import Member from '@/models/Member';
+import Preference from '@/models/Preference';
 import CovidScoreCard from '@/components/dialogs/CovidScoreCard.vue';
 
 export default {
@@ -250,10 +251,26 @@ export default {
     },
     member() {
       let m = Member.query()
-        .with('credentials')
+        .with('preferences')
         .first();
       console.log('returning member', m);
       return m;
+    },
+    perfID() {
+      if (!this.member.preferences) {
+        this.fixPrefs();
+      }
+      return this.member.preferences.id;
+    },
+    symptomsScore: {
+      get() {
+        return this.member.preferences
+          ? this.member.preferences.symptomsScore
+          : false;
+      },
+      set(newVal) {
+        Preference.changeSymptomsScore(this.perfID, newVal);
+      }
     }
   },
 
@@ -314,6 +331,9 @@ export default {
   }),
 
   methods: {
+    fixPrefs() {
+      Preference.isRoomRiskManager(this.member.id);
+    },
     showScore() {
       this.show = !this.show;
 
@@ -326,7 +346,7 @@ export default {
         let x = this.symptoms.get(key).e;
         this.score += x;
       });
-
+      Preference.changeSymptomsScore(this.perfID, this.score);
       if (this.spO2) {
         this.showWarning = true;
       }

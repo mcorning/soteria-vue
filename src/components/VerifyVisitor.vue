@@ -4,25 +4,17 @@
       <v-card-title>
         Verify Visitor
       </v-card-title>
-      <v-card-subtitle dense>
-        <a
-          href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
-          target="_blank"
-          >COVID by Zipcode Map</a
-        ></v-card-subtitle
-      >
-
-      <v-card-text>
+      <v-card-text class="pt-1">
         The first step in local contact tracing is for the room to assess the
         risk of a visitor.
       </v-card-text>
-      <v-card-text>
+      <v-card-text class="pt-1">
         If the visitor is safe for the room, the second step enables the visitor
         to assess the risk of the room.
       </v-card-text>
-      <v-card-text>
-        Only when the room and the visitor have a meeting of minds do each side
-        exchange connections.
+      <v-card-text class="pt-1">
+        The room and the visitor exchange connections only after they have a
+        meeting of minds and only if the visitor wants contact tracing.
       </v-card-text>
       <v-card-actions>
         <!-- Don't use dark prop if you want to use the loader template -->
@@ -32,7 +24,7 @@
           @click="loader = 'loading1'"
           :loading="loading1"
           :disabled="loading1"
-          >Offer Visitor a Verification
+          >Check your visitor
           <template v-slot:loader>
             <span>Verifying visitor...</span>
           </template></v-btn
@@ -132,6 +124,13 @@
           persistent-hint
         >
         </v-text-field>
+        <v-card-subtitle dense>
+          <a
+            href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
+            target="_blank"
+            >Need to check their zip code?</a
+          ></v-card-subtitle
+        >
       </v-card-text>
     </v-card>
   </div>

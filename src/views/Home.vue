@@ -23,6 +23,7 @@ export default {
     }
   },
   data: () => ({
+    firstTime: true,
     loading: false,
     error: null,
     member: null
