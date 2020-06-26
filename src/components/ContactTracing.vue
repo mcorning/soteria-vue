@@ -60,6 +60,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
     <v-card>
       <v-card-title>
         Contact Tracing
@@ -68,8 +69,8 @@
         As an occupant, the first thing you need to do is leave your
         connectionId with the room. During local contact tracing, the room uses
         this connectionId to notify you of exposure to the virus.
-        <p class="red--text">
-          This app deletes connectionIds every fourteen days.
+        <p class="red--text pt-2">
+          This app deletes connectionIds every five days.
         </p>
       </v-card-text>
       <v-card-actions>

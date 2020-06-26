@@ -1,6 +1,6 @@
 <template>
   <v-container class="purple lighten-5 pa-2">
-    <v-card v-if="firstTime">
+    <!-- <v-card v-if="firstTime">
       <v-card-title>Introducing Local Contact Tracing</v-card-title>
       <v-card-text class="pb-1"
         >Local contact tracing assumes:
@@ -38,9 +38,9 @@
         </ol>
       </v-card-text>
       <v-btn @click="close">Close</v-btn>
-    </v-card>
-    <v-card v-else>
-      <v-card-title>Local Contact Tracing</v-card-title>
+    </v-card> -->
+    <!-- <v-card v-else> -->
+    <v-card>
       <v-row no-gutters>
         <v-col dense>
           <VerifyVisitor v-if="visitor" />
@@ -98,17 +98,24 @@ export default {
   },
   computed: {
     member() {
-      let m = Member.query()
-        .with('preferences')
-        .first();
+      console.log('Member ready?', this.m);
+      if (this.m) {
+        let m = Member.query()
+          .with('preferences')
+          .first();
 
-      console.log('returning member', m);
-      return m;
+        console.log('returning member', m);
+
+        return m;
+      }
+      return null;
     },
     isRoomRiskManager: {
       get() {
-        return this.member.preferences
-          ? this.member.preferences.isRoomRiskManager
+        return this.member
+          ? this.member.preferences
+            ? this.member.preferences.isRoomRiskManager
+            : false
           : false;
       },
       set(newVal) {
@@ -132,21 +139,26 @@ export default {
   },
   data() {
     return {
-      firstTime: false
+      m: null
     };
   },
   methods: {
     close() {
       this.firstTime = false;
+    },
+    async fetch() {
+      await Member.$fetch();
+      await Preference.$fetch();
     }
   },
 
   mounted() {},
+
   async created() {
     this.loading = true;
-    let m = await Member.$fetch();
+    this.m = await Member.$fetch();
     await Preference.$fetch();
-    console.log('created() Fetched member', m);
+    console.log('created() Fetched member', this.m);
     // await this.addCredentials();
     this.creds = await DataRepository.verify();
     this.loading = false;

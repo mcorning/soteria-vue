@@ -10,8 +10,11 @@
     <v-img src="https://picsum.photos/500/300?image=50" height="194"></v-img>
 
     <v-card-text>
-      Soteria.id is a nonprofit organization focused on reopening the economy
-      without reopening the pandemic.
+      <a href="https://sway.office.com/2gPCu04Gpv9Qws2H" target="_blank"
+        >Soteria.id</a
+      >
+      is a nonprofit organization focused on reopening the economy without
+      reopening the pandemic.
     </v-card-text>
 
     <v-card-text>

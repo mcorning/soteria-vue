@@ -107,8 +107,12 @@ export default {
           url: '/phi'
         },
         {
-          label: 'Covid-19',
-          url: '/covid'
+          label: 'Risk',
+          url: '/risk'
+        },
+        {
+          label: 'Tracing',
+          url: '/tracing'
         },
         {
           label: 'About',

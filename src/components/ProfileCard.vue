@@ -121,19 +121,10 @@
                       <v-autocomplete
                         v-model="gender"
                         label="Gender"
-                        hide-details
-                        dense
                         :items="['Male', 'Female', 'NA']"
                       ></v-autocomplete>
                     </v-col>
-                    <v-col cols="12">
-                      <v-text-field
-                        label="Email"
-                        :rules="[rules.email]"
-                        dense
-                        v-model="email"
-                      ></v-text-field>
-                    </v-col>
+
                     <v-col cols="12">
                       <v-text-field
                         label="Symptoms Score"

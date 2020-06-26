@@ -5,8 +5,8 @@
         Verify Visitor
       </v-card-title>
       <v-card-text class="pt-1">
-        The first step in local contact tracing is for the room to assess the
-        risk of a visitor.
+        As a room risk manager, the first step in local contact tracing is for
+        the room to assess the risk of a visitor.
       </v-card-text>
       <v-card-text class="pt-1">
         If the visitor is safe for the room, the second step enables the visitor

@@ -2,7 +2,8 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import Profile from '../views/Profile.vue';
-import Covid19 from '../views/Covid19.vue';
+import Risk from '../views/Risk.vue';
+import Tracing from '../views/Tracing.vue';
 import Phi from '../views/Phi.vue';
 
 Vue.use(VueRouter);
@@ -33,9 +34,14 @@ const routes = [
     component: Phi
   },
   {
-    path: '/covid',
-    name: 'covid',
-    component: Covid19
+    path: '/risk',
+    name: 'risk',
+    component: Risk
+  },
+  {
+    path: '/tracing',
+    name: 'tracing',
+    component: Tracing
   }
 ];
 

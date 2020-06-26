@@ -1,16 +1,102 @@
 <template>
   <div>
-    <v-card>
-      <v-card-title>
+    <v-dialog v-if="ask" v-model="ask" persistent max-width="300px">
+      <template v-slot:activator="{ on }">
+        <v-layout align-center justify-center>
+          <v-btn color="primary" block dark v-on="on" class=".subtitle-2"
+            >Room Assessment</v-btn
+          >
+        </v-layout>
+      </template>
+      <v-card class="card">
+        <v-card-text>
+          The data tells us that the risk of exposure within the room is
+          {{ risk }}.
+        </v-card-text>
+        <v-card-text>What do you want to do?</v-card-text>
+
+        <v-card-actions>
+          <v-btn color="green darken-1" text @click="proceed()">Enter</v-btn>
+        </v-card-actions>
+        <v-card-actions>
+          <v-btn color="green darken-1" text @click="ask = false"
+            >Come back later</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
+      <template v-slot:activator="{ on }">
+        <v-layout align-center justify-center>
+          <v-btn
+            color="primary"
+            block
+            dark
+            v-on="on"
+            class=".subtitle-2"
+            v-tooltip="{
+              content: 'See if it is safe to enter the room.',
+              classes: '.subtitle-2'
+            }"
+            >Visitor Assessment</v-btn
+          >
+        </v-layout>
+      </template>
+
+      <v-card class="card">
+        <v-img
+          id="qr"
+          class="white--text align-end"
+          :src="qrSource"
+          lazy-src="https://picsum.photos/id/11/100/60"
+          height="200"
+          width="200"
+          alt="QR code appears here"
+        >
+          <template v-slot:placeholder>
+            <v-row class="fill-height ma-0" align="center" justify="center">
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
+            </v-row>
+          </template>
+        </v-img>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="openInWallet"
+            v-tooltip="{
+              content:
+                'Skip the QR code, and open the verification request in your wallet.',
+              classes: '.subtitle-2'
+            }"
+            >Open in Wallet</v-btn
+          >
+        </v-card-actions>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-card v-if="connect">
+      <ContactTracing />
+    </v-card>
+    <v-card v-else>
+      <v-card-title class="pt-1">
         Verify Room
       </v-card-title>
       <v-card-text>
-        If the visitor is safe for the room, the second step enables the visitor
+        If you, the visitor, are safe for the room, the second step enables you
         to assess the risk of the room.
       </v-card-text>
-      <v-card-text>
-        If the visitor enters the room, we can add the visitor to the list for
-        local contact tracing.
+      <v-card-text class="pt-0">
+        If you enter the room, you will take the final step to enable full local
+        contact tracing.
       </v-card-text>
       <v-card-actions>
         <v-btn
@@ -25,70 +111,14 @@
           </template></v-btn
         >
       </v-card-actions>
-      <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
-        <template v-slot:activator="{ on }">
-          <v-layout align-center justify-center>
-            <v-btn
-              color="primary"
-              block
-              dark
-              v-on="on"
-              class=".subtitle-2"
-              v-tooltip="{
-                content: 'See if it is safe to enter the room.',
-                classes: '.subtitle-2'
-              }"
-              >Visitor Assessment</v-btn
-            >
-          </v-layout>
-        </template>
 
-        <v-card class="card">
-          <v-img
-            id="qr"
-            class="white--text align-end"
-            :src="qrSource"
-            lazy-src="https://picsum.photos/id/11/100/60"
-            height="200"
-            width="200"
-            alt="QR code appears here"
-          >
-            <template v-slot:placeholder>
-              <v-row class="fill-height ma-0" align="center" justify="center">
-                <v-progress-circular
-                  indeterminate
-                  color="grey lighten-5"
-                ></v-progress-circular>
-              </v-row>
-            </template>
-          </v-img>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="green darken-1"
-              text
-              @click="openInWallet"
-              v-tooltip="{
-                content:
-                  'Skip the QR code, and open the verification request in your wallet.',
-                classes: '.subtitle-2'
-              }"
-              >Open in Wallet</v-btn
-            >
-          </v-card-actions>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="hide">Close</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-card-text>
+      <v-card-text class="pt-0">
         <v-text-field
           v-model="verificationId"
           @click="redirect"
           hint="click to go to QR code"
           persistent-hint
+          readonly
           label="Verification ID"
         >
         </v-text-field>
@@ -108,7 +138,7 @@
         >
       </v-card-actions>
 
-      <v-card-text>
+      <v-card-text class="pt-0">
         <v-text-field
           v-model="verificationResult"
           @click="restart"
@@ -122,7 +152,7 @@
           <a
             href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
             target="_blank"
-            >Need to check their zip code?</a
+            >Need to check this zip code?</a
           ></v-card-subtitle
         >
       </v-card-text>
@@ -133,10 +163,15 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
+import ContactTracing from '@/components/ContactTracing';
+
 axios.defaults.baseURL = config.BASEURL_AZURE;
 console.log('Using: ', config.BASEURL_AZURE);
 
 export default {
+  components: {
+    ContactTracing
+  },
   watch: {
     loader() {
       const l = this.loader;
@@ -153,6 +188,7 @@ export default {
           this[l] = false;
           this.loader = null;
           console.timeEnd('getting proof results');
+          this.ask = true;
         });
       }
     }
@@ -165,7 +201,9 @@ export default {
 
   data: () => ({
     dialog: false,
-
+    ask: false,
+    connect: false,
+    risk: 'low',
     loader: null,
     loading: false,
     loading1: false,
@@ -188,7 +226,9 @@ export default {
     },
 
     redirect() {
-      window.open(this.verificationRequestUrl, '_blank');
+      if (this.verificationRequestUrl) {
+        window.open(this.verificationRequestUrl, '_blank');
+      }
     },
     restart() {
       this.step1 = true;
@@ -241,12 +281,18 @@ export default {
       console.log('assess() Response:', axiosResponse);
       let verification = axiosResponse.data;
       if (verification) {
+        let threshold = verification.value;
+        this.risk = threshold > 6 ? 'high' : threshold > 4 ? 'moderate' : 'low';
         console.log('verification', verification);
         this.verificationResult =
-          verification.value <= this.threshold
+          threshold <= this.threshold
             ? 'Room is safe enough to enter.'
             : 'Perhaps we will come back another time.';
       }
+    },
+    proceed() {
+      this.ask = false;
+      this.connect = true;
     }
   },
   mounted() {}
