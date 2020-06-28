@@ -479,7 +479,7 @@ export default {
         // we added this wrapper so POST could get any payload
         connection: {
           multiparty: false,
-          name: 'Secours.io'
+          name: 'Soteria.id'
         }
       };
       console.log('payload', payload);
@@ -512,7 +512,7 @@ export default {
           console.log(invitationUrl);
           window.open(invitationUrl, '_blank');
         } else {
-          alert('Apologies. We had trouble connecting to Secours.');
+          alert('Apologies. We had trouble connecting to Azure function.');
         }
       } catch (error) {
         if (error.message == 'Network Error') {

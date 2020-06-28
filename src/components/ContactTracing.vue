@@ -3,17 +3,7 @@
     <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
       <template v-slot:activator="{ on }">
         <v-layout align-center justify-center>
-          <v-btn
-            color="primary"
-            block
-            dark
-            v-on="on"
-            class=".subtitle-2"
-            v-tooltip="{
-              content:
-                'Leave your connectionId with the room so they can notify you of exposure.',
-              classes: '.subtitle-2'
-            }"
+          <v-btn color="primary" block dark v-on="on" class=".subtitle-2"
             >Leave your connection</v-btn
           >
         </v-layout>
@@ -70,10 +60,10 @@
         connectionId with the room. During local contact tracing, the room uses
         this connectionId to notify you of exposure to the virus.
         <p class="red--text pt-2">
-          This app deletes connectionIds every five days.
+          Your app deletes connectionIds every five days.
         </p>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions class="pt-0">
         <v-btn
           color="primary"
           @click="onMakeConnections"
@@ -86,21 +76,28 @@
       <v-text-field
         v-model="newConnectionId"
         label="New connectionId"
-        class="pl-3 pr-3"
+        class="pl-3 pr-3 pt-1"
+        :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+        @click:append="show1 = !show1"
       >
       </v-text-field>
-      <v-card-text>
+      <div v-if="show1">
+        connections<small
+          ><pre>{{ connections }}</pre></small
+        >
+      </div>
+      <v-card-text class="pt-1">
         If you show symptoms or receive a positive COVID-19 test, send a warning
         to all the connections you have made in the last five days.
       </v-card-text>
-      <v-card-text>
+      <v-card-text class="pt-1">
         Otherwise, ping the network periodically to see if anyone else (you
         contacted) has come down with the virus (in the last five days).
       </v-card-text>
 
       <v-card-actions>
         <v-btn
-          color="secondary"
+          color="primary"
           @click="onGetLastMessage"
           dark
           block
@@ -108,68 +105,94 @@
           >Check for exposure alerts</v-btn
         >
       </v-card-actions>
-      <v-container>
-        <v-row align="center" justify="center" no-gutters
-          ><v-col cols="12">
-            <v-card class="pa-1 text-center" outlined tile>
-              Notify
-            </v-card>
-          </v-col></v-row
+      <v-card-actions>
+        <v-btn
+          v-if="!isRoomRiskManager"
+          color="secondary"
+          @click="onNotify('I am in quarantine.')"
+          dark
+          block
+          :disabled="false"
         >
-        <v-row no-gutters justify="center" dense
-          ><v-col cols="6">
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                @click="onNotify('I am in quarantine.')"
-                dark
-                block
-                :disabled="false"
-              >
-                Rooms</v-btn
-              >
-            </v-card-actions></v-col
-          >
-          <v-col cols="6">
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                @click="
-                  onNotify(
-                    'You may have been exposed to Covid-19 within the last five days.'
-                  )
-                "
-                dark
-                block
-                :disabled="false"
-              >
-                Occupants</v-btn
-              >
-            </v-card-actions></v-col
-          ></v-row
-        ></v-container
-      >
+          Notify Rooms</v-btn
+        >
+
+        <v-btn
+          v-if="isRoomRiskManager"
+          color="secondary"
+          @click="
+            onNotify(
+              'You may have been exposed to Covid-19 within the last five days.'
+            )
+          "
+          dark
+          block
+          :disabled="false"
+        >
+          Alert Occupants</v-btn
+        >
+      </v-card-actions>
     </v-card>
   </div>
 </template>
 
 <script>
+import Member from '@/models/Member';
+import Connection from '@/models/Connection';
+import Preference from '@/models/Preference';
+
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL_AZURE;
+axios.defaults.baseURL = config.BASEURL_LOCAL; //config.BASEURL_AZURE;
 
 export default {
   computed: {
     qrSource() {
       return `https://chart.googleapis.com/chart?cht=qr&chl=${this.connectionRequestUrl}&chs=200x200&chld=L|1`;
+    },
+    member() {
+      console.log('Member ready?', this.m);
+      if (this.m) {
+        let m = Member.query()
+          .with('preferences')
+          .first();
+
+        console.log('returning member', m);
+
+        return m;
+      }
+      return null;
+    },
+    isRoomRiskManager: {
+      get() {
+        return this.member
+          ? this.member.preferences
+            ? this.member.preferences.isRoomRiskManager
+            : false
+          : false;
+      },
+      set(newVal) {
+        Preference.changeisRoomRiskManager(this.perfID, newVal);
+      }
+    },
+    perfID() {
+      if (!this.member.preferences) {
+        this.fixPrefs();
+      }
+      return this.member.preferences.id;
+    },
+    connections() {
+      return Connection.all();
     }
   },
 
   data: () => ({
+    show1: false,
     dialog: false,
     confirm: false,
     connectionRequestUrl: '',
-    newConnectionId: ''
+    newConnectionId: '',
+    m: null
   }),
   methods: {
     openInWallet() {
@@ -179,7 +202,44 @@ export default {
     hide() {
       this.dialog = !this.dialog;
       this.confirm = true;
+      this.checkConnection();
     },
+
+    async checkConnection() {
+      // confirm invitation's Connected state
+      let url = `/connection/?connectionId=${this.newConnectionId}`;
+      console.log('url', url);
+      let axiosResponse = await axios({
+        url: url,
+        method: 'GET',
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }).catch(e => {
+        console.log('Catch Axios - ', e);
+        return;
+      });
+
+      if (axiosResponse) {
+        console.log('Axios Response:', axiosResponse);
+        console.log('State of invitation', axiosResponse.data.state);
+        if (axiosResponse.data.state == 'Connected') {
+          // note: if the offeror is a room then the accepting connection cannot be a room
+          // so we set the isRoomId to false
+          Connection.$update({
+            data: {
+              connectionId: this.newConnectionId,
+              date: new Date(),
+              isRoomId: !this.isRoomRiskManager
+            }
+          });
+        }
+      } else {
+        alert('Apologies. We had trouble creating your credential.');
+      }
+    },
+
     async onMakeConnections() {
       this.dialog = true;
       let url = '/connections';
@@ -200,7 +260,6 @@ export default {
         console.log('Axios Response:', axiosResponse);
         console.log('New connectionId', axiosResponse.data.connectionId);
         this.newConnectionId = axiosResponse.data.connectionId;
-        // window.open(axiosResponse.data.url, '_blank');
         this.connectionRequestUrl = axiosResponse.data.url;
       } else {
         alert('Apologies. We had trouble creating your credential.');
@@ -208,10 +267,43 @@ export default {
     },
 
     async onNotify(msg) {
+      let x = Connection.query().first();
+      console.log('warning', x);
+      this.warn(msg, x.connectionId);
+      // Connection.all().forEach(conn => {
+      //   this.warn(msg, conn.connectionId);
+      // });
+    },
+
+    async warn(msg, connectionId) {
+      let url = `/verify/occupant/?connectionId=${connectionId}`;
+      console.log('path', url);
+
+      let payload = {
+        connectionId: connectionId
+      };
+      console.log('msg:', msg);
+      console.log('payload:', payload);
+      await axios({
+        url: url,
+        method: 'GET',
+        // data: payload,
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }).catch(e => {
+        console.log('Catch Axios - ', e);
+        return;
+      });
+    },
+
+    async notify(msg, connectionId) {
       let url = '/messages';
       console.log('url', url);
+
       let payload = {
-        connectionId: this.newConnectionId,
+        connectionId: connectionId,
         text: msg
       };
       console.log('payload:', payload);
@@ -228,6 +320,7 @@ export default {
         return;
       });
     },
+
     async onGetLastMessage() {
       let url = `/messages/connection/?connectionId=${this.newConnectionId}`;
       console.log('url:', url);
@@ -248,6 +341,14 @@ export default {
       let msg = msgs[msgs.length - 1];
       alert(msg.sentTime + '\n' + msg.text);
     }
+  },
+  async created() {
+    this.loading = true;
+    this.m = await Member.$fetch();
+    await Preference.$fetch();
+    await Connection.$fetch();
+    console.log('created() Fetched member', this.m);
+    this.loading = false;
   }
 };
 </script>

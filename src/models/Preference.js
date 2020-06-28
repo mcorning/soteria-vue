@@ -11,7 +11,6 @@ export default class Preference extends Model {
       isRoomRiskManager: this.boolean(true),
       roomRiskThreshold: this.string(''),
       symptomsScore: this.string(''),
-      connections: this.attr(null),
 
       // Profile is a child of Member, so we need an member_id here
       member_id: this.attr(''), // used in relationship below
@@ -37,13 +36,6 @@ export default class Preference extends Model {
   static async changeSymptomsScore(perfID, val) {
     let p = await this.$update({
       data: { id: perfID, symptomsScore: val }
-    });
-    return p;
-  }
-  static async addConnection(perfID, val) {
-    let x = this.symptomsScore.push(val);
-    let p = await this.$update({
-      data: { id: perfID, symptomsScore: x }
     });
     return p;
   }
