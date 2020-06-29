@@ -188,8 +188,7 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL_AZURE;
-console.log('Using: ', config.BASEURL_AZURE);
+axios.defaults.baseURL = config.BASEURL;
 
 import PictureInput from 'vue-picture-input';
 import Member from '@/models/Member';
@@ -251,9 +250,11 @@ export default {
 
     symptomsScore: {
       get() {
-        return this.member.preferences
-          ? this.member.preferences.symptomsScore
-          : false;
+        return this.member
+          ? this.member.preferences
+            ? this.member.preferences.symptomsScore
+            : 0
+          : 0;
       },
       set(newVal) {
         Preference.changeSymptomsScore(this.perfID, newVal);
@@ -261,8 +262,10 @@ export default {
     },
     isRoomRiskManager: {
       get() {
-        return this.member.preferences
-          ? this.member.preferences.isRoomRiskManager
+        return this.member
+          ? this.member.preferences
+            ? this.member.preferences.isRoomRiskManager
+            : false
           : false;
       },
       set(newVal) {
@@ -271,8 +274,10 @@ export default {
     },
     roomRiskThreshold: {
       get() {
-        return this.member.preferences
-          ? this.member.preferences.roomRiskThreshold
+        return this.member
+          ? this.member.preferences
+            ? this.member.preferences.roomRiskThreshold
+            : 0
           : 0;
       },
       set(newVal) {
@@ -294,7 +299,7 @@ export default {
         if (this.member == '') {
           this.getMember();
         }
-        let x = this.member.firstName;
+        let x = this.member ? this.member.firstName : '';
         return x;
       },
       set(newName) {
@@ -306,7 +311,7 @@ export default {
     },
     lastName: {
       get() {
-        let x = this.member.lastName;
+        let x = this.member ? this.member.lastName : '';
         return x;
       },
       set(newName) {
@@ -342,7 +347,7 @@ export default {
     },
     age: {
       get() {
-        let x = this.member.age;
+        let x = this.member ? this.member.age : '';
         return x;
       },
       set(newVal) {
@@ -354,7 +359,7 @@ export default {
     },
     gender: {
       get() {
-        let x = this.member.gender;
+        let x = this.member ? this.member.gender : '';
         return x;
       },
       set(newVal) {
@@ -366,7 +371,7 @@ export default {
     },
     zipCode: {
       get() {
-        let x = this.member.zipCode;
+        let x = this.member ? this.member.zipCode : '';
         return x;
       },
       set(newVal) {
@@ -600,6 +605,7 @@ export default {
     console.log('created() Fetched member', m);
     // await this.addCredentials();
     this.creds = await DataRepository.verify();
+    console.log('Using:', axios.defaults.baseURL);
     this.loading = false;
   }
 };

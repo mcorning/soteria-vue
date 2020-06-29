@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark dense>
-      <a href="https://sway.office.com/2gPCu04Gpv9Qws2H">
+      <a href="/">
         <v-img
           src="./assets/covid.jpg"
           max-height="4em"
@@ -111,7 +111,7 @@ export default {
           url: '/risk'
         },
         {
-          label: 'Tracing',
+          label: 'Trace',
           url: '/tracing'
         },
         {

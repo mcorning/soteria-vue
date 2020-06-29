@@ -1,6 +1,50 @@
 <template>
   <v-container justify="center" class="purple lighten-5">
-    <Profile />
+    <v-card>
+      <v-card-title class="pb-1">Steps in Local Contact Tracing</v-card-title>
+      <HowTo class="pt-0"
+    /></v-card>
+    <v-card>
+      <v-card-title>Local Contact Tracing Rationale</v-card-title>
+      <v-card-text class="pb-1"
+        >Local contact tracing assumes:
+        <ul>
+          <li>the virus is local</li>
+          <li>risk of exposure is between two people</li>
+          <li>privacy is paramount</li>
+        </ul>
+      </v-card-text>
+      <v-card-text class="pb-1">
+        Local contact tracing takes three perspectives:
+        <ul>
+          <li>The Room</li>
+          <li>A visitor</li>
+          <li>Occupants</li>
+        </ul>
+      </v-card-text>
+      <v-card-text class="pb-1">
+        Local contact tracing depends on three tasks:
+        <ol>
+          <li>Room assesses safety of the visitor</li>
+          <li>Visitor assesses safety of the room</li>
+          <li>Both exchange connection IDs</li>
+        </ol>
+      </v-card-text>
+      <v-card-text>
+        If an occupant tests positive:
+        <ol>
+          <li>
+            The occupent sends an encrypted message to each room they entered
+          </li>
+          <li>
+            Each room alerts each occupant of exposure
+          </li>
+        </ol>
+      </v-card-text>
+    </v-card>
+    <a href="https://sway.office.com/2gPCu04Gpv9Qws2H" target="_blank"
+      >Additional info</a
+    >
   </v-container>
 </template>
 
@@ -9,13 +53,12 @@ import moment from 'moment';
 
 // @ is an alias to /src
 import Member from '@/models/Member';
-
-import Profile from '@/views/Profile.vue';
+import HowTo from '@/components/dialogs/HowTo.vue';
 
 export default {
   name: 'home',
   components: {
-    Profile
+    HowTo
   },
   computed: {
     now() {
@@ -23,7 +66,6 @@ export default {
     }
   },
   data: () => ({
-    firstTime: true,
     loading: false,
     error: null,
     member: null

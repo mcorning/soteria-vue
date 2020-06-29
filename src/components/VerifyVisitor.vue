@@ -140,8 +140,7 @@
 import config from '@/config.json';
 
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL_AZURE;
-console.log('Using: ', config.BASEURL_AZURE);
+axios.defaults.baseURL = config.BASEURL;
 
 export default {
   component: {},
@@ -540,7 +539,9 @@ export default {
     }
   },
 
-  mounted() {}
+  mounted() {
+    console.log('Using:', axios.defaults.baseURL);
+  }
 };
 </script>
 

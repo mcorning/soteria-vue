@@ -94,7 +94,7 @@
         Otherwise, ping the network periodically to see if anyone else (you
         contacted) has come down with the virus (in the last five days).
       </v-card-text>
-
+      <!-- 
       <v-card-actions>
         <v-btn
           color="primary"
@@ -104,7 +104,7 @@
           :disabled="false"
           >Check for exposure alerts</v-btn
         >
-      </v-card-actions>
+      </v-card-actions> -->
       <v-card-actions>
         <v-btn
           v-if="!isRoomRiskManager"
@@ -143,7 +143,7 @@ import Preference from '@/models/Preference';
 
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL_LOCAL; //config.BASEURL_AZURE;
+axios.defaults.baseURL = config.BASEURL;
 
 export default {
   computed: {
@@ -267,12 +267,12 @@ export default {
     },
 
     async onNotify(msg) {
-      let x = Connection.query().first();
-      console.log('warning', x);
-      this.warn(msg, x.connectionId);
-      // Connection.all().forEach(conn => {
-      //   this.warn(msg, conn.connectionId);
-      // });
+      // let x = Connection.query().first();
+      // console.log('warning', x);
+      // this.warn(msg, x.connectionId);
+      Connection.all().forEach(conn => {
+        this.warn(msg, conn.connectionId);
+      });
     },
 
     async warn(msg, connectionId) {
@@ -348,6 +348,8 @@ export default {
     await Preference.$fetch();
     await Connection.$fetch();
     console.log('created() Fetched member', this.m);
+    console.log('Using:', axios.defaults.baseURL);
+
     this.loading = false;
   }
 };

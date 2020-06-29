@@ -69,7 +69,7 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL_AZURE;
+axios.defaults.baseURL = config.BASEURL;
 
 import { validationMixin } from 'vuelidate';
 import { required } from 'vuelidate/lib/validators';
@@ -235,6 +235,7 @@ export default {
 
   async mounted() {
     this.loading = true;
+    console.log('Using:', axios.defaults.baseURL);
     let url = `Streetcred?name=credDefList`;
     console.log('url:', url);
     let axiosResponse = await axios({

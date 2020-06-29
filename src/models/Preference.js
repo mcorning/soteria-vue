@@ -8,9 +8,9 @@ export default class Preference extends Model {
     return {
       id: this.uid(),
       databaseName: this.string(''),
-      isRoomRiskManager: this.boolean(true),
+      isRoomRiskManager: this.boolean(false),
       roomRiskThreshold: this.string(''),
-      symptomsScore: this.string(''),
+      symptomsScore: this.string('0'),
 
       // Profile is a child of Member, so we need an member_id here
       member_id: this.attr(''), // used in relationship below

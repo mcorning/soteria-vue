@@ -161,12 +161,10 @@
 </template>
 
 <script>
+import ContactTracing from '@/components/ContactTracing';
 import config from '@/config.json';
 import axios from 'axios';
-import ContactTracing from '@/components/ContactTracing';
-
-axios.defaults.baseURL = config.BASEURL_AZURE;
-console.log('Using: ', config.BASEURL_AZURE);
+axios.defaults.baseURL = config.BASEURL;
 
 export default {
   components: {
@@ -295,7 +293,9 @@ export default {
       this.connect = true;
     }
   },
-  mounted() {}
+  mounted() {
+    console.log('Using:', axios.defaults.baseURL);
+  }
 };
 </script>
 

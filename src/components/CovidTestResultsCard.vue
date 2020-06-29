@@ -98,7 +98,7 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL_AZURE;
+axios.defaults.baseURL = config.BASEURL;
 
 import Member from '@/models/Member';
 import Credential from '@/models/Credential';
@@ -315,6 +315,7 @@ export default {
 
     let c = await Credential.$fetch();
     console.log('created() Fetched ', m, c, 'Credential');
+    console.log(axios.defaults.baseURL);
   },
 
   async mounted() {
@@ -339,6 +340,8 @@ export default {
     });
 
     console.log(this.credDefs);
+    console.log('Using:', axios.defaults.baseURL);
+
     this.loading = false;
   }
 };
