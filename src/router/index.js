@@ -5,6 +5,7 @@ import Profile from '../views/Profile.vue';
 import Risk from '../views/Risk.vue';
 import Tracing from '../views/Tracing.vue';
 import Phi from '../views/Phi.vue';
+import Onboard from '../views/Onboard.vue';
 
 Vue.use(VueRouter);
 
@@ -42,6 +43,11 @@ const routes = [
     path: '/tracing',
     name: 'tracing',
     component: Tracing
+  },
+  {
+    path: '/onboard',
+    name: 'onboard',
+    component: Onboard
   }
 ];
 

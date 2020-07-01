@@ -6,7 +6,7 @@
           src="./assets/covid.jpg"
           max-height="4em"
           max-width="4em"
-          class="pl-0"
+          class="pa-0"
         ></v-img>
       </a>
 

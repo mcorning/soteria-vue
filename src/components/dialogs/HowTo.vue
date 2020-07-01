@@ -81,7 +81,7 @@ export default {
 
             {
               text:
-                'Later, if a Visitor get a Positive test or present symptoms with a Score > 6, then you should notify all the rooms you have been in for the last five days.'
+                'Later, if a Visitor get a Positive test or present symptoms with a Score > 6, then they should notify all the rooms occupied in for the last five days.'
             },
 
             {
