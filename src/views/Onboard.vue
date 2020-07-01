@@ -64,18 +64,38 @@
         </v-card></v-col
       ><v-col>
         <v-card>
-          <v-card-subtitle>Onboarding customers</v-card-subtitle>
-          <v-card-text>
-            Step 1) Install Digital Wallets
-          </v-card-text>
-          <v-row>
+          <v-card-subtitle
+            >Onboarding customers (in three steps)</v-card-subtitle
+          >
+          <v-row no-gutters>
             <v-col>
               <v-card-subtitle
-                >Step 1a) Digital Wallets on Android Phones</v-card-subtitle
+                >Step 1) Ensure you have an internet
+                connection:</v-card-subtitle
+              >
+              <v-card-text>
+                <ul>
+                  <li>
+                    Connect with our network access point (we will give you the
+                    password)
+                  </li>
+                  <li>
+                    Another option is to use your Mobile Hot Spot (if you have
+                    that capability)
+                  </li>
+                </ul>
+              </v-card-text>
+            </v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col>
+              <v-card-subtitle
+                >Step 2) Install digital wallet on Android
+                Phones</v-card-subtitle
               >
               <v-card-text>
                 If you have an Android phone, scan this QR to install a digital
-                wallet:</v-card-text
+                wallet from the <strong>Play Store</strong>:</v-card-text
               >
             </v-col>
             <v-col>
@@ -86,13 +106,14 @@
               <img
             /></v-col>
           </v-row>
-          <v-row>
+          <v-row no-gutters>
             <v-col>
               <v-card-subtitle
-                >Step 1a) Digital Wallets on iPhones</v-card-subtitle
+                >Step 2) Install digital wallet on iPhones</v-card-subtitle
               >
               <v-card-text>
-                If you have an iPhone, scan this QR to install a digital wallet:
+                If you have an iPhone, scan this QR to install a digital wallet
+                from the <strong>AppStore</strong>:
               </v-card-text>
             </v-col>
             <v-col>
@@ -103,16 +124,22 @@
               <img
             /></v-col>
           </v-row>
-          <v-row>
+          <v-row no-gutters>
             <v-col>
               <v-card-subtitle
-                >Step 1b) Go to Local Contact Tracing web app</v-card-subtitle
+                >Step 3) Go to <strong>Local Contact Tracing</strong> web
+                app:</v-card-subtitle
               >
-              <v-card-text> Scan this QR code to go to the url: </v-card-text>
               <v-card-text>
-                Add the Local Contact Tracing app to your Home
-                screen</v-card-text
-              >
+                <ul>
+                  <li>
+                    Scan this QR code to go to the url (use your phone's camera)
+                  </li>
+                  <li>
+                    Add the Local Contact Tracing app to your Home screen
+                  </li>
+                </ul>
+              </v-card-text>
             </v-col>
             <v-col>
               <img
