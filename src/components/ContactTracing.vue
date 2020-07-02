@@ -53,15 +53,15 @@
 
     <v-card>
       <v-card-title>
-        Contact Tracing
+        Local Contact Tracing
       </v-card-title>
       <v-card-text>
-        As an occupant, the first thing you need to do is leave your
-        connectionId with the room. During local contact tracing, the room uses
-        this connectionId to notify you of exposure to the virus.
-        <p class="red--text pt-2">
-          Your app deletes connectionIds every five days.
-        </p>
+        Stop a virus in two simple steps:
+      </v-card-text>
+      <v-card-title>Step 1</v-card-title>
+
+      <v-card-text>
+        {{ msg }}
       </v-card-text>
       <v-card-actions class="pt-0">
         <v-btn
@@ -70,22 +70,29 @@
           block
           dark
           :disabled="false"
-          >Make connections</v-btn
+          >{{ buttonLabel }}</v-btn
         >
       </v-card-actions>
       <v-text-field
         v-model="newConnectionId"
-        label="New connectionId"
+        :label="newConnectionLabel"
         class="pl-3 pr-3 pt-1"
         :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
         @click:append="show1 = !show1"
       >
       </v-text-field>
+      <v-card-text class="pt-1 red--text pt-2">
+        Your app deletes connectionIds every five days.
+      </v-card-text>
       <div v-if="show1">
         connections<small
           ><pre>{{ connections }}</pre></small
         >
       </div>
+    </v-card>
+    <v-spacer></v-spacer>
+    <v-card>
+      <v-card-title>Step 2</v-card-title>
       <v-card-text class="pt-1">
         If you show symptoms or receive a positive COVID-19 test, send a warning
         to all the connections you have made in the last five days.
@@ -114,7 +121,7 @@
           block
           :disabled="false"
         >
-          Notify Rooms</v-btn
+          Step 2) Notify Rooms</v-btn
         >
 
         <v-btn
@@ -129,7 +136,7 @@
           block
           :disabled="false"
         >
-          Alert Occupants</v-btn
+          Step 2) Alert Occupants</v-btn
         >
       </v-card-actions>
     </v-card>
@@ -147,6 +154,18 @@ axios.defaults.baseURL = config.BASEURL;
 
 export default {
   computed: {
+    buttonLabel() {
+      let x = this.isRoomRiskManager ? 'your Visitor' : 'the Room';
+      return `Connect to ${x}.`;
+    },
+    msg() {
+      let x = this.isRoomRiskManager ? 'your Visitor' : 'the Room';
+      return `Make a connection with ${x}. Then you can exchange warnings if anybody ends up exposed to the virus.`;
+    },
+    newConnectionLabel() {
+      let x = this.isRoomRiskManager ? "Visitor's" : "Room's";
+      return x + ' connections ID:';
+    },
     qrSource() {
       return `https://chart.googleapis.com/chart?cht=qr&chl=${this.connectionRequestUrl}&chs=200x200&chld=L|1`;
     },

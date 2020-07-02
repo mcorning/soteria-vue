@@ -3,6 +3,7 @@
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
     </div>
+
     <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
       <template v-slot:activator="{ on }">
         <v-layout align-center justify-center>
@@ -14,7 +15,9 @@
 
       <v-card class="card">
         <v-card-text
-          >Open your digital wallet and scan this QR code:</v-card-text
+          >We have captured your personal information in this QR code. To get
+          the data into a credential, scan the code using your digital
+          wallet.</v-card-text
         >
         <v-img
           id="qr"
@@ -73,6 +76,12 @@
                         @change="addImage"
                         accept="image/jpeg, image/png, image/gif"
                       ></picture-input>
+                    </v-col>
+                    <v-col>
+                      Your Connection ID
+                      <v-img width="120" height="120" :src="invitation" />
+                      <v-img />
+                      7d30b4a1-6750-4621-890b-85c5fe14fd42
                     </v-col>
                   </v-row>
                 </v-col>
@@ -215,6 +224,11 @@ export default {
   },
 
   computed: {
+    invitation() {
+      let invite = 'https://redir.streetcred.id/Tj5RK0FQDoTq';
+
+      return `https://chart.googleapis.com/chart?cht=qr&chl=${invite}&chs=200x200&chld=L|1`;
+    },
     qrSource() {
       return `https://chart.googleapis.com/chart?cht=qr&chl=${this.offerUrl}&chs=200x200&chld=L|1`;
     },

@@ -1,5 +1,7 @@
 <template>
   <v-container>
+    <img width="200" height="200" :src="invitation" />
+    <img />
     <v-row
       ><v-col>
         <v-card>
@@ -155,7 +157,18 @@
 </template>
 
 <script>
-export default {};
+export default {
+  computed: {
+    invitation() {
+      let invite = 'https://redir.streetcred.id/Tj5RK0FQDoTq';
+
+      return `https://chart.googleapis.com/chart?cht=qr&chl=${invite}&chs=200x200&chld=L|1`;
+    }
+  },
+  data() {
+    return {};
+  }
+};
 </script>
 
 <style lang="scss" scoped></style>
