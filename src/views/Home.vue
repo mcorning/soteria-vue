@@ -1,5 +1,5 @@
 <template>
-  <v-container justify="center" class="purple lighten-5">
+  <v-container justify="center" class="primary lighten-5">
     <v-card>
       <v-card-title class="pb-1">Steps in Local Contact Tracing</v-card-title>
       <HowTo class="pt-0"

@@ -1,15 +1,22 @@
 <template>
-  <div>
+  <v-container class="primary lighten-5">
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
     </div>
-
-    <v-container class="purple lighten-5">
-      <div class="home">
-        <ProfileCard />
-      </div>
-    </v-container>
-  </div>
+    <div v-else>
+      <v-row justify="center">
+        <v-col cols="12">
+          <ProfileCard />
+        </v-col>
+        <v-col cols="12">
+          <SymptomsCard />
+        </v-col>
+        <v-col>
+          <CovidTestResultsCardV />
+        </v-col>
+      </v-row>
+    </div>
+  </v-container>
 </template>
 
 <script>
@@ -20,6 +27,8 @@ import ProfileCard from '@/components/ProfileCard.vue';
 import DataRepository from '@/store/repository.js';
 import Member from '@/models/Member';
 import Preference from '@/models/Preference';
+import CovidTestResultsCardV from '@/components/CovidTestResultsCardV.vue';
+import SymptomsCard from '@/components/SymptomsCard.vue';
 export default {
   name: 'profile',
 
@@ -29,7 +38,9 @@ export default {
   }),
 
   components: {
-    ProfileCard
+    ProfileCard,
+    SymptomsCard,
+    CovidTestResultsCardV
   },
   computed: {
     members() {

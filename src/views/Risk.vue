@@ -1,5 +1,5 @@
 <template>
-  <v-container class="purple lighten-5 pa-2">
+  <v-container class="primary lighten-5 pa-2">
     <!-- <v-card v-if="firstTime">
       <v-card-title>Introducing Local Contact Tracing</v-card-title>
       <v-card-text class="pb-1"

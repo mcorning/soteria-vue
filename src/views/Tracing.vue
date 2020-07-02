@@ -1,5 +1,7 @@
 <template>
-  <ContactTracing />
+  <v-container class="primary lighten-5">
+    <ContactTracing />
+  </v-container>
 </template>
 
 <script>

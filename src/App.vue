@@ -9,7 +9,7 @@
           class="pa-0"
         ></v-img>
       </a> -->
-      <v-toolbar-title>Stop a virus</v-toolbar-title>
+      <v-btn text rounded to="/onboard">Stop a virus</v-btn>
 
       <v-spacer></v-spacer>
       <v-btn

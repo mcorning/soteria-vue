@@ -1,7 +1,5 @@
 <template>
-  <v-container>
-    <img width="200" height="200" :src="invitation" />
-    <img />
+  <v-container justify="center" class="primary lighten-5 pa-1">
     <v-row
       ><v-col>
         <v-card>
@@ -12,13 +10,11 @@
             community reopen its economy without reopening the Covid pandemic.
           </v-card-text>
           <v-card-text>
-            There are two reasons we believe our customers should participate in
-            this pilot with us:
+            We can do this two ways:
             <ol>
               <li>Manage the daily risk of exposure to the virus</li>
               <li>Stop the virus from spreading in our community</li>
             </ol>
-            If you only participate one way, make it the latter.
           </v-card-text>
           <v-card-text>
             Here's what you need:
@@ -158,13 +154,7 @@
 
 <script>
 export default {
-  computed: {
-    invitation() {
-      let invite = 'https://redir.streetcred.id/Tj5RK0FQDoTq';
-
-      return `https://chart.googleapis.com/chart?cht=qr&chl=${invite}&chs=200x200&chld=L|1`;
-    }
-  },
+  computed: {},
   data() {
     return {};
   }

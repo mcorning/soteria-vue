@@ -2,16 +2,25 @@
   <div>
     <v-card>
       <v-card-title>
-        My Symptoms Today
+        My PHI
       </v-card-title>
-      <v-card-subtitle
-        >Evidence you carry the virus is
-        <span class="">{{ score }}</span> decibels <br /><a
+      <v-card-subtitle>
+        My Personal Health Information:<br />
+
+        Symptoms Presented Today
+      </v-card-subtitle>
+      <v-card-text>
+        Based on
+        <a
           href="https://www.oregon.gov/oha/PH/DISEASESCONDITIONS/DISEASESAZ/Emerging%20Respitory%20Infections/COVID-19-Weekly-Report-2020-05-19-FINAL.pdf"
           target="_blank"
-          >Symptoms data from OHA</a
-        ></v-card-subtitle
-      >
+        >
+          symptoms data from Oregon Health Authority</a
+        >, there is {{ score }} decibels of evidence you carry the virus.
+      </v-card-text>
+      <v-card-text class="pt-0">
+        <stong>NOTE:</stong> Displaying your score hides your symptoms.
+      </v-card-text>
       <v-card-text style="padding:1 ">
         <v-row no-gutters>
           <v-col cols="6">

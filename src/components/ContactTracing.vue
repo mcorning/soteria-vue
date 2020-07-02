@@ -50,96 +50,97 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-container>
+      <v-card>
+        <v-card-title>
+          Local Contact Tracing
+        </v-card-title>
+        <v-card-text>
+          If we gather, we assume each of us is safe. But what if we're wrong?
+          <p>We can stop a virus in two simple steps:</p>
+        </v-card-text>
+      </v-card>
+    </v-container>
+    <v-container>
+      <v-card>
+        <v-card-title>Step 1: Get ready</v-card-title>
 
-    <v-card>
-      <v-card-title>
-        Local Contact Tracing
-      </v-card-title>
-      <v-card-text>
-        Stop a virus in two simple steps:
-      </v-card-text>
-      <v-card-title>Step 1</v-card-title>
+        <v-card-text>
+          {{ msg }}
+        </v-card-text>
+        <v-card-actions class="pt-0">
+          <v-btn
+            color="primary"
+            @click="onMakeConnections"
+            block
+            dark
+            :disabled="false"
+            >{{ buttonLabel }}</v-btn
+          >
+        </v-card-actions>
+        <v-text-field
+          v-model="newConnectionId"
+          :label="newConnectionLabel"
+          class="pl-3 pr-3 pt-1"
+          :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+          @click:append="show1 = !show1"
+        >
+        </v-text-field>
+        <v-card-text class="pt-1 red--text pt-2">
+          Your app deletes connectionIds every five days.
+        </v-card-text>
+        <div v-if="show1">
+          connections<small
+            ><pre>{{ connections }}</pre></small
+          >
+        </div>
+      </v-card>
+    </v-container>
+    <v-container>
+      <v-card>
+        <v-card-title>Step 2: Fight back</v-card-title>
+        <v-card-text class="pt-1">
+          If, in spite of our risk management steps, the virus was there and you
+          get sick, click the button below to notify all the rooms you've been
+          in for the last five days.
+        </v-card-text>
+        <v-card-text class="pt-1">
+          Each room will then alert all occupants in the last five days of their
+          possible exposure.
+        </v-card-text>
+        <v-card-text class="pt-1">
+          If we all self-isolate, this thread of the virus will die among us.
+        </v-card-text>
 
-      <v-card-text>
-        {{ msg }}
-      </v-card-text>
-      <v-card-actions class="pt-0">
-        <v-btn
-          color="primary"
-          @click="onMakeConnections"
-          block
-          dark
-          :disabled="false"
-          >{{ buttonLabel }}</v-btn
-        >
-      </v-card-actions>
-      <v-text-field
-        v-model="newConnectionId"
-        :label="newConnectionLabel"
-        class="pl-3 pr-3 pt-1"
-        :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-        @click:append="show1 = !show1"
-      >
-      </v-text-field>
-      <v-card-text class="pt-1 red--text pt-2">
-        Your app deletes connectionIds every five days.
-      </v-card-text>
-      <div v-if="show1">
-        connections<small
-          ><pre>{{ connections }}</pre></small
-        >
-      </div>
-    </v-card>
-    <v-spacer></v-spacer>
-    <v-card>
-      <v-card-title>Step 2</v-card-title>
-      <v-card-text class="pt-1">
-        If you show symptoms or receive a positive COVID-19 test, send a warning
-        to all the connections you have made in the last five days.
-      </v-card-text>
-      <v-card-text class="pt-1">
-        Otherwise, ping the network periodically to see if anyone else (you
-        contacted) has come down with the virus (in the last five days).
-      </v-card-text>
-      <!-- 
-      <v-card-actions>
-        <v-btn
-          color="primary"
-          @click="onGetLastMessage"
-          dark
-          block
-          :disabled="false"
-          >Check for exposure alerts</v-btn
-        >
-      </v-card-actions> -->
-      <v-card-actions>
-        <v-btn
-          v-if="!isRoomRiskManager"
-          color="secondary"
-          @click="onNotify('I am in quarantine.')"
-          dark
-          block
-          :disabled="false"
-        >
-          Step 2) Notify Rooms</v-btn
-        >
+        <v-card-actions>
+          <v-btn
+            v-if="!isRoomRiskManager"
+            color="primary"
+            @click="onNotify('I am in quarantine.')"
+            dark
+            block
+            :disabled="false"
+          >
+            Notify Rooms</v-btn
+          >
 
-        <v-btn
-          v-if="isRoomRiskManager"
-          color="secondary"
-          @click="
-            onNotify(
-              'You may have been exposed to Covid-19 within the last five days.'
-            )
-          "
-          dark
-          block
-          :disabled="false"
-        >
-          Step 2) Alert Occupants</v-btn
-        >
-      </v-card-actions>
-    </v-card>
+          <v-btn
+            v-if="isRoomRiskManager"
+            color="primary"
+            @click="
+              onNotify(
+                'You may have been exposed to Covid-19 within the last five days.'
+              )
+            "
+            dark
+            block
+            :disabled="false"
+          >
+            Alert Occupants</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-container>
   </div>
 </template>
 
@@ -156,7 +157,7 @@ export default {
   computed: {
     buttonLabel() {
       let x = this.isRoomRiskManager ? 'your Visitor' : 'the Room';
-      return `Connect to ${x}.`;
+      return `Get ${x}'s connection ID`;
     },
     msg() {
       let x = this.isRoomRiskManager ? 'your Visitor' : 'the Room';

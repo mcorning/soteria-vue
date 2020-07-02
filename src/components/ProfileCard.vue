@@ -4,67 +4,34 @@
       <h2>Loading Profile Card</h2>
     </div>
 
-    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
-      <template v-slot:activator="{ on }">
-        <v-layout align-center justify-center>
-          <v-btn color="primary" block dark v-on="on" class=".subtitle-2"
-            >Get Your Personal Credential</v-btn
+    <div class=" mt-0" v-else>
+      <v-row no-gutters>
+        <v-col>
+          <v-card
+            ><v-card-text v-if="help" @click="help = !help"
+              >This page is all about you. It contains your relatively static
+              personal identifying information. It contains your daily Covid
+              symptoms, as well. And at the bottom of the page you will see a
+              form that allows you to convert your Covid test results into a
+              verifiable credential.
+              <p>
+                You can use this information to stay safer in the world without
+                sacrificing your privacy.
+              </p></v-card-text
+            >
+            <v-card-text v-else @click="help = !help">
+              This page is all about you...
+            </v-card-text></v-card
           >
-        </v-layout>
-      </template>
-
-      <v-card class="card">
-        <v-card-text
-          >We have captured your personal information in this QR code. To get
-          the data into a credential, scan the code using your digital
-          wallet.</v-card-text
-        >
-        <v-img
-          id="qr"
-          class="white--text align-end"
-          :src="qrSource"
-          lazy-src="https://picsum.photos/id/11/100/60"
-          height="200"
-          width="200"
-          alt="QR code appears here"
-        >
-          <template v-slot:placeholder>
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-progress-circular
-                indeterminate
-                color="grey lighten-5"
-              ></v-progress-circular>
-            </v-row>
-          </template>
-        </v-img>
-
-        <!-- <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="openInWallet"
-            v-tooltip="{
-              content:
-                'Skip the QR code, and open the verification request in your wallet.',
-              classes: '.subtitle-2'
-            }"
-            >Open in Wallet</v-btn
-          >
-        </v-card-actions> -->
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-container class="pa-1 mt-0" v-else>
+        </v-col></v-row
+      >
       <v-row justify="center">
-        <v-card>
-          <v-card-title>My Identifying Information</v-card-title>
+        <v-container>
+          <v-card>
+            <v-card-title>My PII</v-card-title>
+            <v-card-subtitle>My Identifying Information</v-card-subtitle>
 
-          <v-card-text>
-            <v-container>
+            <v-card-text>
               <v-row no-gutters justify="center">
                 <!-- change photo and helpers-->
                 <v-col cols="6">
@@ -149,6 +116,8 @@
                   </v-row>
                 </v-col>
               </v-row>
+
+              <!-- Extra state -->
               <v-row no-gutters>
                 <v-col cols="12">
                   <v-checkbox
@@ -186,11 +155,65 @@
                   </v-btn>
                 </v-card-actions>
               </v-row>
-            </v-container>
-          </v-card-text>
-        </v-card>
+            </v-card-text>
+          </v-card>
+        </v-container>
       </v-row>
-    </v-container>
+    </div>
+    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
+      <template v-slot:activator="{ on }">
+        <v-layout align-center justify-center>
+          <v-btn color="primary" block dark v-on="on" class=".subtitle-2"
+            >Get Your Personal Credential</v-btn
+          >
+        </v-layout>
+      </template>
+
+      <v-card class="card">
+        <v-card-text
+          >We have captured your personal information in this QR code. To get
+          the data into a credential, scan the code using your digital
+          wallet.</v-card-text
+        >
+        <v-img
+          id="qr"
+          class="white--text align-end"
+          :src="qrSource"
+          lazy-src="https://picsum.photos/id/11/100/60"
+          height="200"
+          width="200"
+          alt="QR code appears here"
+        >
+          <template v-slot:placeholder>
+            <v-row class="fill-height ma-0" align="center" justify="center">
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
+            </v-row>
+          </template>
+        </v-img>
+
+        <!-- <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="openInWallet"
+            v-tooltip="{
+              content:
+                'Skip the QR code, and open the verification request in your wallet.',
+              classes: '.subtitle-2'
+            }"
+            >Open in Wallet</v-btn
+          >
+        </v-card-actions> -->
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -407,6 +430,8 @@ export default {
   },
 
   data: () => ({
+    help: false,
+    onboard: true,
     dialog: false,
     offerUrl: '',
     loader: null,
