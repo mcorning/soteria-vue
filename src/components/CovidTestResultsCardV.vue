@@ -1,8 +1,15 @@
 <template>
   <v-card>
-    <v-card-title>
+    <v-card-title>My PHI</v-card-title>
+    <v-card-subtitle>
       My Covid-19 Test Result
-    </v-card-title>
+    </v-card-subtitle>
+    <v-card-text>
+      Verifiable credentials let you share your Covid test results without
+      compromising your privacy. A Positive and two Negative test results (in
+      that order) provide the best assurance you can reengage with others in
+      relative safety.
+    </v-card-text>
     <form>
       <v-card-text>
         <v-autocomplete
@@ -53,7 +60,7 @@
           :loading="loading1"
           :disabled="loading1"
           @click="loader = 'loading1'"
-          >Get COVID Credential
+          >Get Your COVID Credential
           <template v-slot:loader>
             <span>Issuing COVID Credential...</span>
           </template></v-btn

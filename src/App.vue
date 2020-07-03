@@ -22,7 +22,8 @@
       >
 
       <v-btn v-if="image" height="0" width="0" to="/profile">
-        <v-avatar> <img :src="image" alt="Me" /> </v-avatar
+        <v-avatar min-width="36" width="36" height="36">
+          <img :src="image" alt="Me" /> </v-avatar
       ></v-btn>
 
       <v-btn v-else to="/profile" text rounded> Me</v-btn>
@@ -40,7 +41,7 @@
       <v-icon>mdi-close</v-icon>
     </v-system-bar> -->
     <v-footer color="primary lighten-1" padless>
-      <v-layout justify-center wrap>
+      <v-layout justify-center wrap align-center>
         <v-btn
           v-for="link in links"
           :key="`${link.label}-footer-link`"
@@ -52,7 +53,8 @@
           >{{ link.label }}</v-btn
         >
         <v-btn v-if="image" height="0" width="0" to="/profile">
-          <v-avatar> <img :src="image" alt="Me" /> </v-avatar
+          <v-avatar min-width="30" width="30" height="30">
+            <v-img :src="image" alt="Me"></v-img> </v-avatar
         ></v-btn>
 
         <v-btn v-else to="/profile" color="white" text rounded> Me</v-btn>

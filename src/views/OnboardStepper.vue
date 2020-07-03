@@ -1,5 +1,5 @@
 <template>
-  <v-container justify="center" class="primary lighten-5 pa-1">
+  <v-container justify="center" class="primary darken-5 pa-1">
     <div v-if="loading">
       <h2>Getting ready...</h2>
     </div>

@@ -44,11 +44,28 @@
                         accept="image/jpeg, image/png, image/gif"
                       ></picture-input>
                     </v-col>
+
+                    <!-- ConnectionID QR -->
                     <v-col>
-                      Your Connection ID
-                      <v-img width="120" height="120" :src="invitation" />
-                      <v-img />
-                      7d30b4a1-6750-4621-890b-85c5fe14fd42
+                      To participate in local contact tracing you need a
+                      Connection ID.
+                      <v-btn
+                        v-if="!inviteUrl"
+                        @click="onMakeConnection()"
+                        color="primary"
+                      >
+                        Get a QR code
+                      </v-btn>
+                      <v-img
+                        v-if="inviteUrl"
+                        @click="onMakeConnection()"
+                        width="120"
+                        height="120"
+                        :src="invitation"
+                      />
+                      <small
+                        ><pre>{{ connections }}</pre></small
+                      >
                     </v-col>
                   </v-row>
                 </v-col>
@@ -104,7 +121,7 @@
                     <v-col cols="12">
                       <v-text-field
                         label="Symptoms Score"
-                        hint="See PHI tab"
+                        hint="See My PHI below "
                         persistent-hint
                         dense
                         readonly
@@ -118,13 +135,15 @@
               </v-row>
 
               <!-- Extra state -->
-              <v-row no-gutters>
+              <v-row>
                 <v-col cols="12">
                   <v-checkbox
                     dense
                     class="caption"
                     v-model="isRoomRiskManager"
                     label="I am a room risk manager"
+                    hint="I decide who is safe enough to enter my room"
+                    persistent-hint
                   ></v-checkbox>
                 </v-col>
 
@@ -133,13 +152,17 @@
                     class="caption"
                     :disabled="!isRoomRiskManager"
                     v-model="roomRiskThreshold"
-                    hint="(in dBs of evidence)"
-                    label="Room risk threshold"
-                    dense
+                    label="Room risk threshold (in dBs of evidence)"
+                    hint="I keep the room risk to a maximum value"
+                    persistent-hint
                   ></v-text-field>
                 </v-col>
               </v-row>
               <v-row align="end" justify="center" no-gutters>
+                <v-card-text
+                  >A verifiable credential lets you share your data without
+                  sacrificing your privacy</v-card-text
+                >
                 <v-card-actions>
                   <v-btn
                     color="primary"
@@ -194,20 +217,6 @@
           </template>
         </v-img>
 
-        <!-- <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="openInWallet"
-            v-tooltip="{
-              content:
-                'Skip the QR code, and open the verification request in your wallet.',
-              classes: '.subtitle-2'
-            }"
-            >Open in Wallet</v-btn
-          >
-        </v-card-actions> -->
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="hide">Close</v-btn>
@@ -227,6 +236,7 @@ import Member from '@/models/Member';
 import Credential from '@/models/Credential';
 import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
+import Connection from '@/models/Connection';
 
 export default {
   watch: {
@@ -248,9 +258,12 @@ export default {
 
   computed: {
     invitation() {
-      let invite = 'https://redir.streetcred.id/Tj5RK0FQDoTq';
-
-      return `https://chart.googleapis.com/chart?cht=qr&chl=${invite}&chs=200x200&chld=L|1`;
+      return this.inviteUrl
+        ? `https://chart.googleapis.com/chart?cht=qr&chl=${this.inviteUrl}&chs=200x200&chld=L|1`
+        : '';
+    },
+    connections() {
+      return Connection.all();
     },
     qrSource() {
       return `https://chart.googleapis.com/chart?cht=qr&chl=${this.offerUrl}&chs=200x200&chld=L|1`;
@@ -321,6 +334,18 @@ export default {
         Preference.changeRoomRiskThreshold(this.perfID, newVal);
       }
     },
+    inviteUrl: {
+      get() {
+        return this.member
+          ? this.member.preferences
+            ? this.member.preferences.inviteUrl
+            : ''
+          : '';
+      },
+      set(newVal) {
+        Preference.changeInviteUrl(this.perfID, newVal);
+      }
+    },
     showHelpIcons: {
       get() {
         return this.member.preferences
@@ -355,18 +380,6 @@ export default {
         Member.$update({
           where: this.member.id,
           data: { lastName: newName }
-        });
-      }
-    },
-    connectionId: {
-      get() {
-        let x = this.member.connectionId;
-        return x;
-      },
-      set(newName) {
-        Member.$update({
-          where: this.member.id,
-          data: { connectionId: newName }
         });
       }
     },
@@ -430,6 +443,7 @@ export default {
   },
 
   data: () => ({
+    connectionId: '',
     help: false,
     onboard: true,
     dialog: false,
@@ -522,8 +536,8 @@ export default {
       const payload = {
         // we added this wrapper so POST could get any payload
         connection: {
-          multiparty: false,
-          name: 'Soteria.id'
+          multiParty: true,
+          name: 'somebody you care about'
         }
       };
       console.log('payload', payload);
@@ -540,21 +554,25 @@ export default {
           }
         });
 
-        console.log(
-          'Axios Response:',
-          axiosResponse.data.response.invitationUrl
-        );
+        console.log('Axios Response:', axiosResponse.data.response);
         let invitationUrl = axiosResponse.data.response.invitationUrl;
         this.deepLink += axiosResponse.data.response.invitation;
         console.log('deepLink', this.deepLink);
         if (invitationUrl) {
-          console.log(
-            'Connection ID:',
-            axiosResponse.data.response.connectionId
-          );
           this.connectionId = axiosResponse.data.response.connectionId;
-          console.log(invitationUrl);
-          window.open(invitationUrl, '_blank');
+          console.log('Connection ID:', this.connectionId);
+          this.inviteUrl = invitationUrl;
+          console.log('inviteUrl to Preferences', this.inviteUrl);
+
+          Connection.$update({
+            data: {
+              connectionId: this.connectionId,
+              date: new Date(),
+              isRoomId: !this.isRoomRiskManager,
+              inviteUrl: this.inviteUrl
+            }
+          });
+          console.log('Connections', this.connections);
         } else {
           alert('Apologies. We had trouble connecting to Azure function.');
         }

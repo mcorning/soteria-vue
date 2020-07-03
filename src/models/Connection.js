@@ -6,7 +6,8 @@ export default class Connection extends Model {
     return {
       date: this.attr(''),
       connectionId: this.attr(''),
-      isRoomId: this.attr('')
+      isRoomId: this.attr(''),
+      inviteUrl: this.attr('')
     };
   }
 }
