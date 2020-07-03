@@ -1,9 +1,9 @@
 {
-    "BASEURL": "http://localhost:7071/api/",
+    "BASEURL": "https://secoursstreetcred.azurewebsites.net/api/",
     "BASEURL_LOCAL": "http://localhost:7071/api/",
     "BASEURL_AZURE": "https://secoursstreetcred.azurewebsites.net/api/",
-    "VER": "07.02.16.32",
-    "SHIP_STRING": "Shipped July 2, 2020 at 1632 hours",
+    "VER": "07.03.13.49",
+    "SHIP_STRING": "Shipped July 3, 2020 at 1349 hours",
     "ACCESSTOK": "t2w1B4MJCJjFEWZPcw1Xsmbfca2qAQnzU-cp3_pdgZg",
     "SUBKEY": "a820c2f69495430cae43c66df163cdd1",
     "MEMBER_CRED_ID": "N4dqaFJG3qu2P5A7xKEKrB:3:CL:102081:default",
