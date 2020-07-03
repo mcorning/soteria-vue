@@ -21,9 +21,11 @@
         >{{ link.label }}</v-btn
       >
 
-      <v-btn height="0" width="0" to="/profile">
+      <v-btn v-if="image" height="0" width="0" to="/profile">
         <v-avatar> <img :src="image" alt="Me" /> </v-avatar
       ></v-btn>
+
+      <v-btn v-else to="/profile" text rounded> Me</v-btn>
     </v-app-bar>
 
     <v-content>
@@ -49,6 +51,11 @@
           :to="link.url"
           >{{ link.label }}</v-btn
         >
+        <v-btn v-if="image" height="0" width="0" to="/profile">
+          <v-avatar> <img :src="image" alt="Me" /> </v-avatar
+        ></v-btn>
+
+        <v-btn v-else to="/profile" color="white" text rounded> Me</v-btn>
         <v-flex
           prepend-icon="mdi-tm"
           primary

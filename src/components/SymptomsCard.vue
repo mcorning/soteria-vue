@@ -19,7 +19,7 @@
         >, there is {{ score }} decibels of evidence you carry the virus.
       </v-card-text>
       <v-card-text class="pt-0">
-        <stong>NOTE:</stong> Displaying your score hides your symptoms.
+        <strong>NOTE:</strong> Displaying your score hides your symptoms.
       </v-card-text>
       <v-card-text style="padding:1 ">
         <v-row no-gutters>

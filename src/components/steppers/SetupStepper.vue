@@ -18,7 +18,7 @@
           </ul>
         </v-card-text>
       </v-card>
-      <v-btn color="primary" @click="e6 = 2">Continue</v-btn>
+      <v-btn :color="btnColor" @click="e6 = 2">Continue</v-btn>
       <v-btn text>Cancel</v-btn>
     </v-stepper-content>
 
@@ -50,7 +50,7 @@
           <img />
         </v-card-text>
       </v-card>
-      <v-btn color="primary" @click="e6 = 3">Continue</v-btn>
+      <v-btn :color="btnColor" @click="e6 = 3">Continue</v-btn>
       <v-btn text>Cancel</v-btn>
     </v-stepper-content>
 
@@ -69,7 +69,7 @@
           src="https://chart.googleapis.com/chart?cht=qr&chl=https://apps.apple.com/us/app/streetcred-identity-agent/id1475160728&chs=200x200&chld=L|1"/>
         <img
       /></v-card>
-      <v-btn color="primary" @click="e6 = 4">Continue</v-btn>
+      <v-btn :color="btnColor" @click="e6 = 4">Continue</v-btn>
       <v-btn text>Cancel</v-btn>
     </v-stepper-content>
   </v-stepper>
@@ -79,7 +79,8 @@
 export default {
   data() {
     return {
-      e6: 1
+      e6: 1,
+      btnColor: 'red lighten-1'
     };
   }
 };

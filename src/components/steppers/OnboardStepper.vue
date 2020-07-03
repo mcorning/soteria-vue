@@ -12,7 +12,7 @@
       <v-card class="mb-12">
         <ProfileCard />
       </v-card>
-      <v-btn color="secondary" @click="e6 = 2">Continue</v-btn>
+      <v-btn :color="btnColor" @click="e6 = 2">Continue</v-btn>
       <v-btn text>Cancel</v-btn>
     </v-stepper-content>
 
@@ -26,7 +26,7 @@
 
     <v-stepper-content step="2">
       <v-card class="mb-12"><SymptomsCard /></v-card>
-      <v-btn color="secondary" @click="e6 = 3">Continue</v-btn>
+      <v-btn :color="btnColor" @click="e6 = 3">Continue</v-btn>
       <v-btn text>Cancel</v-btn>
     </v-stepper-content>
 
@@ -39,7 +39,7 @@
 
     <v-stepper-content step="3">
       <v-card class="mb-12"><CovidTestResultsCardV /></v-card>
-      <v-btn color="secondary" @click="e6 = 4">Continue</v-btn>
+      <v-btn :color="btnColor" @click="e6 = 4">Continue</v-btn>
       <v-btn text>Cancel</v-btn>
     </v-stepper-content>
   </v-stepper>
@@ -57,7 +57,8 @@ export default {
   },
   data() {
     return {
-      e6: 1
+      e6: 1,
+      btnColor: 'red lighten-1'
     };
   }
 };
