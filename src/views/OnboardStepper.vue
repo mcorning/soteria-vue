@@ -6,13 +6,10 @@
       :lights-out="lightsOut"
       :window="window"
     >
-      <span
-        ><small
-          >Beta software (as-is): use hard refresh to get latest build</small
-        ></span
-      >
+      <span><small>Beta testing only</small></span>
       <v-spacer></v-spacer>
-
+      <span><small>Use hard reload</small></span>
+      <v-spacer></v-spacer>
       <span
         ><small>v. {{ VER }} </small></span
       >
@@ -31,10 +28,10 @@
               community reopen its economy without reopening the Covid pandemic.
             </v-card-text>
             <v-card-text class="pt-1">
-              We can do this two ways:
+              We can beat the virus two ways:
               <ol>
-                <li>Stop the virus from spreading in our community</li>
-                <li>Manage the daily risk of exposure to the virus</li>
+                <li>Stop community spread</li>
+                <li>Manage risk with public data daily</li>
               </ol>
             </v-card-text>
           </v-card>

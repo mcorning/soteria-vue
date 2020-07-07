@@ -46,8 +46,10 @@
           <VerifyVisitor v-if="visitor" />
 
           <VerifyRoom v-if="room" />
-
-          <ContactTracing v-if="occupant" />
+          <div v-if="occupant">
+            <ContactTracing1 />
+            <ContactTracing2 />
+          </div>
         </v-col>
       </v-row>
     </v-card>
@@ -82,7 +84,8 @@
 </template>
 
 <script>
-import ContactTracing from '@/components/ContactTracing.vue';
+import ContactTracing1 from '@/components/ContactTracing1.vue';
+import ContactTracing2 from '@/components/ContactTracing2.vue';
 import VerifyVisitor from '@/components/VerifyVisitor.vue';
 import VerifyRoom from '@/components/VerifyRoom.vue';
 import Member from '@/models/Member';
@@ -91,7 +94,8 @@ import DataRepository from '@/store/repository.js';
 
 export default {
   components: {
-    ContactTracing,
+    ContactTracing1,
+    ContactTracing2,
     VerifyVisitor,
     VerifyRoom
   },

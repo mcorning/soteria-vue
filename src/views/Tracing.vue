@@ -1,15 +1,18 @@
 <template>
   <v-container class="primary lighten-5">
-    <ContactTracing />
+    <ContactTracing1 />
+    <ContactTracing2 />
   </v-container>
 </template>
 
 <script>
-import ContactTracing from '@/components/ContactTracing.vue';
+import ContactTracing1 from '@/components/ContactTracing1.vue';
+import ContactTracing2 from '@/components/ContactTracing2.vue';
 
 export default {
   components: {
-    ContactTracing
+    ContactTracing1,
+    ContactTracing2
   },
   computed: {},
   data() {

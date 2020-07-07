@@ -4,8 +4,14 @@
       <p>Maintain your personal information</p>
       <p>
         <small
-          >Your <a href=https://projects.oregonlive.com/coronavirus/cases-by-zip target=_blank>Zipcode</a> and age are useful data for measuring the risk you carry
-          the virus.</small
+          >Your
+          <a
+            href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
+            target="_blank"
+            >Zipcode</a
+          >
+          and age are useful data for measuring the risk you carry the
+          virus.</small
         >
       </p>
     </v-stepper-step>

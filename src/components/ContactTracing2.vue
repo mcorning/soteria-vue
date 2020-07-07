@@ -52,52 +52,6 @@
     </v-dialog>
     <v-container>
       <v-card>
-        <v-card-title>
-          Local Contact Tracing
-        </v-card-title>
-        <v-card-text>
-          If we gather, we assume each of us is safe. But what if we're wrong?
-          <p>We can stop a virus in two simple steps:</p>
-        </v-card-text>
-      </v-card>
-    </v-container>
-    <v-container>
-      <v-card>
-        <v-card-title>Step 1: Get ready</v-card-title>
-
-        <v-card-text>
-          {{ msg }}
-        </v-card-text>
-        <v-card-actions class="pt-0">
-          <v-btn
-            color="primary"
-            @click="onMakeConnections"
-            block
-            dark
-            :disabled="false"
-            >{{ buttonLabel }}</v-btn
-          >
-        </v-card-actions>
-        <v-text-field
-          v-model="newConnectionId"
-          :label="newConnectionLabel"
-          class="pl-3 pr-3 pt-1"
-          :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-          @click:append="show1 = !show1"
-        >
-        </v-text-field>
-        <v-card-text class="pt-1 red--text pt-2">
-          Your app deletes connectionIds every five days.
-        </v-card-text>
-        <div v-if="show1">
-          connections<small
-            ><pre>{{ connections }}</pre></small
-          >
-        </div>
-      </v-card>
-    </v-container>
-    <v-container>
-      <v-card>
         <v-card-title>Step 2: Fight back</v-card-title>
         <v-card-text class="pt-1">
           If, in spite of our risk management steps, the virus was there and you

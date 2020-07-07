@@ -84,7 +84,8 @@
       </v-card>
     </v-dialog>
     <v-card v-if="connect">
-      <ContactTracing />
+      <ContactTracing1 />
+      <ContactTracing2 />
     </v-card>
     <v-card v-else>
       <v-card-title class="pt-1">
@@ -161,14 +162,16 @@
 </template>
 
 <script>
-import ContactTracing from '@/components/ContactTracing';
+import ContactTracing1 from '@/components/ContactTracing1';
+import ContactTracing2 from '@/components/ContactTracing2';
 import config from '@/config.json';
 import axios from 'axios';
 axios.defaults.baseURL = config.BASEURL;
 
 export default {
   components: {
-    ContactTracing
+    ContactTracing1,
+    ContactTracing2
   },
   watch: {
     loader() {

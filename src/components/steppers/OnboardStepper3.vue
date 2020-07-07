@@ -3,10 +3,7 @@
     <v-stepper-step :complete="e6 > 1" step="1">
       <p>Manage Risk Explicitly</p>
       <p>
-        <small
-          >Incorporate more publicly available data to manage the risk of
-          exposure.</small
-        >
+        <small>Use public data to better control access to rooms.</small>
       </p>
     </v-stepper-step>
 
