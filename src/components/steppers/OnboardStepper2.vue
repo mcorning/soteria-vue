@@ -1,11 +1,13 @@
 <template>
   <v-stepper v-model="e6" vertical>
     <v-stepper-step :complete="e6 > 1" step="1">
-      Maintain your personal information
-      <small
-        >Your Zipcode and age are useful data for measuring the risk you carry
-        the virus.</small
-      >
+      <p>Maintain your personal information</p>
+      <p>
+        <small
+          >Your <a href=https://projects.oregonlive.com/coronavirus/cases-by-zip target=_blank>Zipcode</a> and age are useful data for measuring the risk you carry
+          the virus.</small
+        >
+      </p>
     </v-stepper-step>
 
     <v-stepper-content step="1">

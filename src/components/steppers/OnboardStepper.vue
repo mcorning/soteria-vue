@@ -1,16 +1,18 @@
 <template>
   <v-stepper v-model="e6" vertical>
     <v-stepper-step :complete="e6 > 1" step="1">
-      Stop the spread with two simple steps
-      <small
-        ><ol>
-          <li>Every time you enter a room, get the room's connectionId.</li>
-          <li>
-            If you get sick, send a message to all the rooms you have occupied
-            in the last five days.
-          </li>
-        </ol></small
-      >
+      <p>Stop the spread with two simple steps</p>
+      <p>
+        <small
+          ><ol>
+            <li>Every time you enter a room, get the room's connectionId.</li>
+            <li>
+              If you get sick, send a message to all the rooms you have occupied
+              in the last five days.
+            </li>
+          </ol></small
+        >
+      </p>
     </v-stepper-step>
 
     <v-stepper-content step="1">

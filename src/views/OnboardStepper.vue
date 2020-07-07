@@ -1,5 +1,22 @@
 <template>
   <v-container justify="center" class="primary darken-5 pa-1">
+    <v-system-bar
+      color="secondary"
+      :height="height"
+      :lights-out="lightsOut"
+      :window="window"
+    >
+      <span
+        ><small
+          >Beta software (as-is): use hard refresh to get latest build</small
+        ></span
+      >
+      <v-spacer></v-spacer>
+
+      <span
+        ><small>v. {{ VER }} </small></span
+      >
+    </v-system-bar>
     <div v-if="loading">
       <h2>Getting ready...</h2>
     </div>
@@ -24,22 +41,30 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col>
+        <v-col v-if="showHardwareSetup">
           <v-card>
             <v-card-title>To setup your hardware:</v-card-title>
-            <SetupStepper />
+            <SetupStepper
+              @cancel-hardware-setup="handleCancelHardwareSetup()"
+            />
           </v-card>
         </v-col>
         <v-col>
           <v-card>
-            <v-card-title>Local Contact Tracing stops the virus:</v-card-title>
+            <v-card-title>Local Contact Tracing = !virus:</v-card-title>
             <OnboardStepper />
           </v-card>
         </v-col>
         <v-col>
           <v-card>
-            <v-card-title>Manage exposure risk with your PHI:</v-card-title>
+            <v-card-title>Track your PHI:</v-card-title>
             <OnboardStepper2 />
+          </v-card>
+        </v-col>
+        <v-col>
+          <v-card>
+            <v-card-title>Manage exposure risk:</v-card-title>
+            <OnboardStepper3 />
           </v-card>
         </v-col>
       </v-row>
@@ -48,9 +73,12 @@
 </template>
 
 <script>
+import config from '@/config.json';
+
 import SetupStepper from '@/components/steppers/SetupStepper.vue';
 import OnboardStepper from '@/components/steppers/OnboardStepper.vue';
 import OnboardStepper2 from '@/components/steppers/OnboardStepper2.vue';
+import OnboardStepper3 from '@/components/steppers/OnboardStepper3.vue';
 import DataRepository from '@/store/repository.js';
 import Preference from '@/models/Preference';
 
@@ -58,14 +86,27 @@ export default {
   components: {
     OnboardStepper,
     OnboardStepper2,
+    OnboardStepper3,
     SetupStepper
   },
   computed: {},
   data() {
     return {
-      loading: false
+      VER: config.VER,
+      height: 24,
+      lightsOut: false,
+      window: false,
+      loading: false,
+      showHardwareSetup: true
     };
   },
+  methods: {
+    handleCancelHardwareSetup(e) {
+      console.log('e', e);
+      this.showHardwareSetup = !this.showHardwareSetup;
+    }
+  },
+
   async created() {
     this.loading = true;
     console.log(this.now, 'Entering OnboardStepper.vue created()');

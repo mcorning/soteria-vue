@@ -86,7 +86,6 @@ import ContactTracing from '@/components/ContactTracing.vue';
 import VerifyVisitor from '@/components/VerifyVisitor.vue';
 import VerifyRoom from '@/components/VerifyRoom.vue';
 import Member from '@/models/Member';
-// import Credential from '@/models/Credential';
 import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 

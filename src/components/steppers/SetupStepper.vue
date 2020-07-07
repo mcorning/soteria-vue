@@ -19,7 +19,7 @@
         </v-card-text>
       </v-card>
       <v-btn :color="btnColor" @click="e6 = 2">Continue</v-btn>
-      <v-btn text>Cancel</v-btn>
+      <v-btn @click="cancel()" text>Cancel</v-btn>
     </v-stepper-content>
 
     <v-stepper-step :complete="e6 > 2" step="2"
@@ -51,7 +51,7 @@
         </v-card-text>
       </v-card>
       <v-btn :color="btnColor" @click="e6 = 3">Continue</v-btn>
-      <v-btn text>Cancel</v-btn>
+      <v-btn @click="$emit('cancelHardwareSetup')" text>Cancel</v-btn>
     </v-stepper-content>
   </v-stepper>
 </template>
@@ -63,6 +63,11 @@ export default {
       e6: 1,
       btnColor: 'red lighten-1'
     };
+  },
+  methods: {
+    cancel(e) {
+      this.$emit('cancel-hardware-setup', e);
+    }
   }
 };
 </script>
