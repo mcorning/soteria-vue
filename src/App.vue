@@ -137,6 +137,10 @@ export default {
         //   url: '/phi'
         // },
         {
+          label: 'X',
+          url: '/x'
+        },
+        {
           label: 'Us',
           url: '/tracing'
         },

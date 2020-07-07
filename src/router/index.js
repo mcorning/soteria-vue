@@ -7,6 +7,7 @@ import Tracing from '../views/Tracing.vue';
 import Phi from '../views/Phi.vue';
 // import Onboard from '../views/Onboard.vue';
 import OnboardStepper from '../views/OnboardStepper.vue';
+import ConnectionCard from '@/components/ConnectionCard';
 
 Vue.use(VueRouter);
 
@@ -49,6 +50,11 @@ const routes = [
     path: '/onboard',
     name: 'onboard',
     component: OnboardStepper
+  },
+  {
+    path: '/x',
+    name: 'x',
+    component: ConnectionCard
   }
 ];
 

@@ -11,7 +11,6 @@ export default class Preference extends Model {
       isRoomRiskManager: this.boolean(false),
       roomRiskThreshold: this.string(''),
       symptomsScore: this.string('0'),
-      inviteUrl: this.string(''),
 
       // Profile is a child of Member, so we need an member_id here
       member_id: this.attr(''), // used in relationship below
@@ -37,12 +36,6 @@ export default class Preference extends Model {
   static async changeSymptomsScore(perfID, val) {
     let p = await this.$update({
       data: { id: perfID, symptomsScore: val }
-    });
-    return p;
-  }
-  static async changeInviteUrl(perfID, val) {
-    let p = await this.$update({
-      data: { id: perfID, inviteUrl: val }
     });
     return p;
   }

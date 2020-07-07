@@ -16,8 +16,8 @@
             <v-card-text class="pt-1">
               We can do this two ways:
               <ol>
-                <li>Manage the daily risk of exposure to the virus</li>
                 <li>Stop the virus from spreading in our community</li>
+                <li>Manage the daily risk of exposure to the virus</li>
               </ol>
             </v-card-text>
           </v-card>
@@ -32,8 +32,14 @@
         </v-col>
         <v-col>
           <v-card>
-            <v-card-title>To setup Local Contact Tracing:</v-card-title>
+            <v-card-title>Local Contact Tracing stops the virus:</v-card-title>
             <OnboardStepper />
+          </v-card>
+        </v-col>
+        <v-col>
+          <v-card>
+            <v-card-title>Manage exposure risk with your PHI:</v-card-title>
+            <OnboardStepper2 />
           </v-card>
         </v-col>
       </v-row>
@@ -44,12 +50,14 @@
 <script>
 import SetupStepper from '@/components/steppers/SetupStepper.vue';
 import OnboardStepper from '@/components/steppers/OnboardStepper.vue';
+import OnboardStepper2 from '@/components/steppers/OnboardStepper2.vue';
 import DataRepository from '@/store/repository.js';
 import Preference from '@/models/Preference';
 
 export default {
   components: {
     OnboardStepper,
+    OnboardStepper2,
     SetupStepper
   },
   computed: {},

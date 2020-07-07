@@ -5,6 +5,8 @@
     </div>
 
     <div class=" mt-0" v-else>
+      <ConnectionCard />
+
       <v-row no-gutters>
         <v-col>
           <v-card
@@ -47,8 +49,10 @@
 
                     <!-- ConnectionID QR -->
                     <v-col>
-                      To participate in local contact tracing you need a
-                      Connection ID.
+                      <v-card-subtitle @click="onDeleteAllConnections()">
+                        To participate in local contact tracing you need a
+                        Connection ID.</v-card-subtitle
+                      >
                       <v-btn
                         v-if="!inviteUrl"
                         @click="onMakeConnection()"
@@ -237,6 +241,7 @@ import Credential from '@/models/Credential';
 import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 import Connection from '@/models/Connection';
+import ConnectionCard from '@/components/ConnectionCard';
 
 export default {
   watch: {
@@ -253,6 +258,7 @@ export default {
     }
   },
   components: {
+    ConnectionCard,
     PictureInput
   },
 
@@ -334,18 +340,7 @@ export default {
         Preference.changeRoomRiskThreshold(this.perfID, newVal);
       }
     },
-    inviteUrl: {
-      get() {
-        return this.member
-          ? this.member.preferences
-            ? this.member.preferences.inviteUrl
-            : ''
-          : '';
-      },
-      set(newVal) {
-        Preference.changeInviteUrl(this.perfID, newVal);
-      }
-    },
+
     showHelpIcons: {
       get() {
         return this.member.preferences
@@ -428,6 +423,19 @@ export default {
         Member.$update({
           where: this.member.id,
           data: { zipCode: newVal }
+        });
+      }
+    },
+    inviteUrl: {
+      get() {
+        return Connection.query()
+          .where(user => user.isRoomId)
+          .get().inviteUrl;
+      },
+      set(newVal) {
+        Connection.$update({
+          where: user => user.isRoomId,
+          data: { inviteUrl: newVal }
         });
       }
     },
@@ -529,58 +537,6 @@ export default {
       axios.get('connections?state=Connected').then(response => {
         console.log(response.data);
       });
-    },
-
-    async onMakeConnection() {
-      // send connectionless credential to member
-      const payload = {
-        // we added this wrapper so POST could get any payload
-        connection: {
-          multiParty: true,
-          name: 'somebody you care about'
-        }
-      };
-      console.log('payload', payload);
-
-      // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
-      try {
-        const axiosResponse = await axios({
-          url: 'streetcred',
-          method: 'POST',
-          data: payload,
-          responseType: 'json',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        console.log('Axios Response:', axiosResponse.data.response);
-        let invitationUrl = axiosResponse.data.response.invitationUrl;
-        this.deepLink += axiosResponse.data.response.invitation;
-        console.log('deepLink', this.deepLink);
-        if (invitationUrl) {
-          this.connectionId = axiosResponse.data.response.connectionId;
-          console.log('Connection ID:', this.connectionId);
-          this.inviteUrl = invitationUrl;
-          console.log('inviteUrl to Preferences', this.inviteUrl);
-
-          Connection.$update({
-            data: {
-              connectionId: this.connectionId,
-              date: new Date(),
-              isRoomId: !this.isRoomRiskManager,
-              inviteUrl: this.inviteUrl
-            }
-          });
-          console.log('Connections', this.connections);
-        } else {
-          alert('Apologies. We had trouble connecting to Azure function.');
-        }
-      } catch (error) {
-        if (error.message == 'Network Error') {
-          console.error('Be sure Azure function is running.');
-        }
-      }
     },
 
     async onPersonalCredential() {

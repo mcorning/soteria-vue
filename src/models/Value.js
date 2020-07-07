@@ -5,6 +5,8 @@ export default class Value extends Model {
   static entity = 'values';
   static fields() {
     return {
+      id: this.uid(),
+
       testDate: this.attr(''),
       testType: this.attr(''),
       testSite: this.attr(''),
