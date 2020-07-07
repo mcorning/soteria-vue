@@ -5,8 +5,6 @@
     </div>
 
     <div class=" mt-0" v-else>
-      <ConnectionCard />
-
       <v-row no-gutters>
         <v-col>
           <v-card
@@ -48,7 +46,7 @@
                     </v-col>
 
                     <!-- ConnectionID QR -->
-                    <v-col>
+                    <!-- <v-col>
                       <v-card-subtitle @click="onDeleteAllConnections()">
                         To participate in local contact tracing you need a
                         Connection ID.</v-card-subtitle
@@ -70,7 +68,7 @@
                       <small
                         ><pre>{{ connections }}</pre></small
                       >
-                    </v-col>
+                    </v-col> -->
                   </v-row>
                 </v-col>
                 <!-- Data entry form -->
@@ -241,7 +239,6 @@ import Credential from '@/models/Credential';
 import Preference from '@/models/Preference';
 import DataRepository from '@/store/repository.js';
 import Connection from '@/models/Connection';
-import ConnectionCard from '@/components/ConnectionCard';
 
 export default {
   watch: {
@@ -258,7 +255,6 @@ export default {
     }
   },
   components: {
-    ConnectionCard,
     PictureInput
   },
 

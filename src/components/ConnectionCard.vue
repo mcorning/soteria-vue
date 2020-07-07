@@ -1,23 +1,53 @@
 <template>
   <v-card>
+    <v-system-bar
+      color="secondary"
+      :height="height"
+      :lights-out="lightsOut"
+      :window="window"
+    >
+      <v-icon small>mdi-transit-connection-variant </v-icon>
+      <span
+        ><small>{{ serverUrl }}</small></span
+      >
+      <v-spacer></v-spacer>
+      <v-checkbox v-model="isRoomRiskManager" label="RM" small>
+        {{ isRoomRiskManager }}</v-checkbox
+      >
+    </v-system-bar>
     <v-card-title>Your QR Code</v-card-title>
     <v-card-text>
-      <v-skeleton-loader
-        :loading="loading"
-        :transition="transition"
-        width="120"
-        height="120"
-        type="image"
-      >
-        <v-img
-          @click="onMakeConnection()"
-          width="120"
-          height="120"
-          :src="invitation"
-        />
-      </v-skeleton-loader>
+      <v-row>
+        <v-col>
+          <v-skeleton-loader
+            :loading="loading"
+            :transition="transition"
+            width="120"
+            height="120"
+            type="image"
+          >
+            <v-img
+              @click="onMakeConnection()"
+              width="120"
+              height="120"
+              :src="invitation"
+            /> </v-skeleton-loader
+        ></v-col>
+        <v-col>
+          <v-btn :disabled="!url" @click="sendMessage()">Send Message</v-btn>
+        </v-col>
+        <v-col>
+          <v-btn :disabled="!url" @click="warn()">Warn</v-btn>
+        </v-col>
+      </v-row>
       <v-card-subtitle class="pa-0">ID: {{ id }}</v-card-subtitle>
       <v-card-subtitle class="pa-0">URL: {{ url }}</v-card-subtitle>
+      <v-card-subtitle class="pa-0"
+        >URL:
+        <span :class="getColor()">
+          {{ isRoomId ? 'Room Connection' : 'Occupant Connection' }}
+        </span></v-card-subtitle
+      >
     </v-card-text>
     <v-card-subtitle class="pt-0 pl=2" @click="onMakeConnection()">
       <strong>{{ msg }}</strong></v-card-subtitle
@@ -83,9 +113,15 @@ export default {
     msg() {
       return this.connections.length
         ? this.selected.length
-          ? 'Share your selected connection'
-          : 'Select a connection to share'
-        : 'Create a connection';
+          ? `Share your selected ${
+              this.isRoomRiskManager ? 'a room' : 'an occupant'
+            } connection`
+          : `Select ${
+              this.isRoomRiskManager ? 'a room' : 'an occupant'
+            } connection to share`
+        : `Create a ${
+            this.isRoomRiskManager ? 'a room' : 'an occupant'
+          } connection`;
     },
     create() {
       return !this.connections.length;
@@ -124,10 +160,18 @@ export default {
     },
     id() {
       return this.selected.length ? this.selected[0].connectionId : '';
+    },
+    isRoomId() {
+      return this.selected.length ? this.selected[0].isRoomId : '';
     }
   },
 
   data: () => ({
+    isRoomRiskManager: false,
+    serverUrl: config.BASEURL,
+    height: 30,
+    lightsOut: false,
+    window: false,
     loading: false,
     transition: 'scale-transition',
     singleSelect: true,
@@ -146,6 +190,10 @@ export default {
   }),
 
   methods: {
+    getColor() {
+      let color = this.isRoomId ? 'red--text' : 'black--text';
+      return color;
+    },
     getPath(url) {
       return url.slice(-(url.length - url.lastIndexOf('/')));
     },
@@ -160,13 +208,53 @@ export default {
         console.log(response.data);
       });
     },
+
+    async warn() {
+      let url = `/verify/occupant/?connectionId=${this.id}`;
+      console.log('path', url);
+
+      await axios({
+        url: url,
+        method: 'GET',
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }).catch(e => {
+        console.log('Catch Axios - ', e);
+        return;
+      });
+    },
+
+    async sendMessage() {
+      let url = `/messages`;
+      console.log('path', url);
+      let payload = {
+        connectionId: this.id,
+        text: 'I am in quarantine'
+      };
+      console.log(payload);
+      await axios({
+        url: url,
+        method: 'POST',
+        data: payload,
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }).catch(e => {
+        console.log('Catch Axios - ', e);
+        return;
+      });
+    },
+
     async onMakeConnection() {
       this.loading = true;
       // send connectionless credential to member
       const payload = {
         // we added this wrapper so POST could get any payload
         connection: {
-          multiParty: true,
+          multiParty: false,
           name: 'somebody you care about'
         }
       };
@@ -195,7 +283,7 @@ export default {
             data: {
               connectionId: this.connectionId,
               date: new Date(),
-              isRoomId: !this.isRoomRiskManager,
+              isRoomId: this.isRoomRiskManager,
               inviteUrl: invitationUrl
             }
           });
@@ -207,7 +295,7 @@ export default {
       } catch (error) {
         this.loading = false;
         if (error.message == 'Network Error') {
-          console.error('Be sure Azure function is running.');
+          alert('Be sure Azure function is running.');
         }
       }
     }

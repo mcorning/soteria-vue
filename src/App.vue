@@ -136,16 +136,16 @@ export default {
         //   label: 'PHI',
         //   url: '/phi'
         // },
+        // {
+        //   label: 'Link',
+        //   url: '/trace'
+        // },
         {
-          label: 'X',
-          url: '/x'
-        },
-        {
-          label: 'Us',
+          label: 'Trace',
           url: '/tracing'
         },
         {
-          label: 'Them',
+          label: 'Risk',
           url: '/risk'
         }
 

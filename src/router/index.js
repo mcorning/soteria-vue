@@ -52,8 +52,8 @@ const routes = [
     component: OnboardStepper
   },
   {
-    path: '/x',
-    name: 'x',
+    path: '/trace',
+    name: 'trace',
     component: ConnectionCard
   }
 ];

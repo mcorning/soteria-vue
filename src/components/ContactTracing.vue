@@ -156,8 +156,8 @@ axios.defaults.baseURL = config.BASEURL;
 export default {
   computed: {
     buttonLabel() {
-      let x = this.isRoomRiskManager ? 'your Visitor' : 'the Room';
-      return `Get ${x}'s connection ID`;
+      let x = this.isRoomRiskManager ? 'Visitor' : 'Room';
+      return `Connect with ${x}`;
     },
     msg() {
       let x = this.isRoomRiskManager ? 'your Visitor' : 'the Room';
