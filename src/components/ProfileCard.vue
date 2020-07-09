@@ -136,30 +136,6 @@
                 </v-col>
               </v-row>
 
-              <!-- Extra state -->
-              <v-row>
-                <v-col cols="12">
-                  <v-checkbox
-                    dense
-                    class="caption"
-                    v-model="isRoomRiskManager"
-                    label="I am a room risk manager"
-                    hint="I decide who is safe enough to enter my room"
-                    persistent-hint
-                  ></v-checkbox>
-                </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    class="caption"
-                    :disabled="!isRoomRiskManager"
-                    v-model="roomRiskThreshold"
-                    label="Room risk threshold (in dBs of evidence)"
-                    hint="I keep the room risk to a maximum value"
-                    persistent-hint
-                  ></v-text-field>
-                </v-col>
-              </v-row>
               <v-row align="end" justify="center" no-gutters>
                 <v-card-text
                   >A verifiable credential lets you share your data without

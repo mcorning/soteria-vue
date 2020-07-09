@@ -7,7 +7,7 @@
       :window="window"
     >
       <span
-        ><small><v-icon>mdi-alert</v-icon>Beta testing only</small></span
+        ><small><v-icon>mdi-alert</v-icon>Alpha code R&D only</small></span
       >
       <v-spacer></v-spacer>
       <span><small>Use hard reload</small></span>
