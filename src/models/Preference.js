@@ -8,8 +8,7 @@ export default class Preference extends Model {
     return {
       id: this.uid(),
       databaseName: this.string(''),
-      isRoomRiskManager: this.boolean(false),
-      roomRiskThreshold: this.string(''),
+
       symptomsScore: this.string('0'),
 
       // Profile is a child of Member, so we need an member_id here
@@ -21,18 +20,6 @@ export default class Preference extends Model {
     };
   }
 
-  static async changeIsRoomRiskManager(perfID, val) {
-    let p = await this.$update({
-      data: { id: perfID, isRoomRiskManager: val }
-    });
-    return p;
-  }
-  static async changeRoomRiskThreshold(perfID, val) {
-    let p = await this.$update({
-      data: { id: perfID, roomRiskThreshold: val }
-    });
-    return p;
-  }
   static async changeSymptomsScore(perfID, val) {
     let p = await this.$update({
       data: { id: perfID, symptomsScore: val }

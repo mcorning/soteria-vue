@@ -9,7 +9,7 @@
           class="pa-0"
         ></v-img>
       </a> -->
-      <v-btn text rounded to="/onboard">Stop a virus</v-btn>
+      <v-btn text rounded to="/onboard">Stop it</v-btn>
 
       <v-spacer></v-spacer>
       <v-btn
@@ -26,20 +26,20 @@
           <img :src="image" alt="Me" /> </v-avatar
       ></v-btn>
 
-      <v-btn v-else to="/profile" text rounded> Me</v-btn>
+      <v-btn v-else to="/profile" text rounded> Track</v-btn>
     </v-app-bar>
 
     <v-content>
       <router-view></router-view>
     </v-content>
     <!-- <v-system-bar window dark>
-      <v-icon>mdi-message</v-icon>
-      <span>10 unread messages</span>
-      <v-spacer></v-spacer>
-      <v-icon>mdi-minus</v-icon>
-      <v-icon>mdi-checkbox-blank-outline</v-icon>
-      <v-icon>mdi-close</v-icon>
-    </v-system-bar> -->
+        <v-icon>mdi-message</v-icon>
+        <span>10 unread messages</span>
+        <v-spacer></v-spacer>
+        <v-icon>mdi-minus</v-icon>
+        <v-icon>mdi-checkbox-blank-outline</v-icon>
+        <v-icon>mdi-close</v-icon>
+      </v-system-bar> -->
     <v-footer color="primary lighten-1" padless>
       <v-layout justify-center wrap align-center>
         <v-btn
@@ -57,7 +57,7 @@
             <v-img :src="image" alt="Me"></v-img> </v-avatar
         ></v-btn>
 
-        <v-btn v-else to="/profile" color="white" text rounded> Me</v-btn>
+        <v-btn v-else to="/profile" color="white" text rounded> Track</v-btn>
         <v-flex
           prepend-icon="mdi-tm"
           primary
@@ -145,7 +145,7 @@ export default {
           url: '/tracing'
         },
         {
-          label: 'Risk',
+          label: 'Check',
           url: '/risk'
         }
 

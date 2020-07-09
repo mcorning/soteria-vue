@@ -1,4 +1,5 @@
 import Member from '@/models/Member';
+import State from '@/models/State';
 import Credential from '@/models/Credential';
 
 // using the query builder, we can easily get the specific data
@@ -27,6 +28,24 @@ export default class DataRepository {
         });
       } else {
         return all[0];
+      }
+    });
+  }
+  static async getState(targ) {
+    console.log('Getting State for', targ, '...');
+    State.$fetch().then(() => {
+      let s = State.find(0);
+      if (s) {
+        console.log('...returning existing', s);
+        return s;
+      } else {
+        console.log('Creating state object...');
+        State.$create({
+          data: { id: 0, isRoomRiskManager: false, roomRiskThreshold: 0 }
+        }).then(s => {
+          console.log('...returning new', s[0]);
+          return s[0];
+        });
       }
     });
   }

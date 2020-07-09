@@ -128,11 +128,8 @@
       <v-card-text>
         <v-text-field
           v-model="verificationResult"
-          @click="restart"
           label="Verification Result"
           readonly
-          hint="click to abandon proof"
-          persistent-hint
         >
         </v-text-field>
       </v-card-text>

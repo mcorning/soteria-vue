@@ -1,32 +1,52 @@
 <template>
-  <v-stepper v-model="e6" vertical>
-    <v-stepper-step :complete="e6 > 1" step="1">
-      <p>Manage Risk Explicitly</p>
-      <p>
-        <small>Use public data to better control access to rooms.</small>
-      </p>
-    </v-stepper-step>
+  <div>
+    <v-card class="mb-12">
+      <v-row align="center" justify="end" no-gutters>
+        <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
+        <v-spacer></v-spacer>
+        <v-col>
+          <v-chip @click="handleIsRoomRiskManager">
+            {{ role }}
+            <v-icon right>mdi-pencil</v-icon>
+          </v-chip>
+        </v-col>
+      </v-row>
+      <v-row align="center" no-gutters>
+        <v-col cols="6">
+          <v-card-subtitle
+            >Room risk threshold: {{ select.score }}</v-card-subtitle
+          >
+        </v-col>
 
-    <v-stepper-content step="1">
-      <v-card class="mb-12">
-        <v-row no-gutters>
-          <v-col dense>
-            <VerifyVisitor v-if="visitor" />
+        <v-col cols="5">
+          <v-select
+            :disabled="!isRoomRiskManager"
+            v-model="select"
+            @change="handleChangeRiskThreshold"
+            :items="risks"
+            item-text="desc"
+            item-value="score"
+            label="Select"
+            return-object
+            single-line
+          ></v-select>
+        </v-col>
+      </v-row>
+    </v-card>
+    <v-card>
+      <v-row no-gutters>
+        <v-col dense>
+          <VerifyVisitor v-if="isRoomRiskManager" />
 
-            <VerifyRoom v-if="room" />
-          </v-col>
-        </v-row>
-      </v-card>
-      <v-btn :color="btnColor" @click="e6 = 2">Continue</v-btn>
-      <v-btn text>Cancel</v-btn>
-    </v-stepper-content>
-  </v-stepper>
+          <VerifyRoom v-else />
+        </v-col>
+      </v-row>
+    </v-card>
+  </div>
 </template>
 
 <script>
-import Member from '@/models/Member';
-import Preference from '@/models/Preference';
-import DataRepository from '@/store/repository.js';
+import State from '@/models/State';
 import VerifyVisitor from '@/components/VerifyVisitor';
 import VerifyRoom from '@/components/VerifyRoom';
 
@@ -35,60 +55,87 @@ export default {
     VerifyVisitor,
     VerifyRoom
   },
+
   computed: {
-    member() {
-      console.log('Member ready?', this.m);
-      if (this.m) {
-        let m = Member.query()
-          .with('preferences')
-          .first();
-
-        console.log('returning member', m);
-
-        return m;
-      }
-      return null;
+    role() {
+      return this.state?.isRoomRiskManager ? 'Room' : 'Visitor';
     },
+
     isRoomRiskManager: {
       get() {
-        return this.member
-          ? this.member.preferences
-            ? this.member.preferences.isRoomRiskManager
-            : false
-          : false;
+        return this.state?.isRoomRiskManager;
       },
       set(newVal) {
-        Preference.changeisRoomRiskManager(this.perfID, newVal);
+        console.log(
+          'this.state.isRoomRiskManager: before:',
+          this.state.isRoomRiskManager
+        );
+        State.changeIsRoomRiskManager(newVal).then(state => {
+          // ORM returns an array of State objects
+          this.state = state[0];
+          console.log(
+            'this.state.isRoomRiskManager: after:',
+            this.state.isRoomRiskManager
+          );
+        });
       }
     },
-    role() {
-      return this.isRoomRiskManager ? 'room' : 'visitor';
-    },
-    visitor() {
-      // visitor roles verify rooms
-      return this.role === 'room';
-    },
-    room() {
-      // room roles verify visitors
-      return this.role === 'visitor';
-    },
-    occupant() {
-      return this.role === 'occupant';
+    roomRiskThreshold: {
+      get() {
+        return this.state?.roomRiskThreshold;
+      },
+      //
+      set(newVal) {
+        console.log(
+          'this.state.roomRiskThreshold: before:',
+          this.state.roomRiskThreshold
+        );
+        State.changeRoomRiskThreshold(newVal).then(state => {
+          // ORM returns an array of State objects
+          this.state = state[0];
+          console.log(
+            'this.state.roomRiskThreshold: after:',
+            this.state.roomRiskThreshold
+          );
+        });
+      }
     }
   },
   data() {
     return {
+      state: null,
+      select: {},
+      risks: [
+        { score: 3, desc: 'Acceptable' },
+        { score: 5, desc: 'Risky' },
+        { score: 7, desc: 'Dangerous' },
+        { score: 9, desc: 'Barking mad' }
+      ],
       e6: 1,
-      btnColor: 'red lighten-1'
+      btnColor: 'red lighten-2',
+      loaded: false
     };
   },
+
+  methods: {
+    handleIsRoomRiskManager() {
+      this.isRoomRiskManager = !this.isRoomRiskManager;
+    },
+    handleChangeRiskThreshold() {
+      this.roomRiskThreshold = this.select.score;
+    }
+  },
+
   async created() {
     this.loading = true;
-    this.m = await Member.$fetch();
-    await Preference.$fetch();
-    console.log('created() Fetched member', this.m);
-    this.creds = await DataRepository.verify();
+    console.log('Entering created() in OnboardStepper3: getting State');
+    await State.$fetch();
+    this.state = State.find(0);
+    this.select = { score: this.state.roomRiskThreshold, desc: '' }; //;
+
+    console.log('Leaving created() in OnboardStepper3');
     this.loading = false;
+    // });
   }
 };
 </script>

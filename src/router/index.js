@@ -5,9 +5,9 @@ import Profile from '../views/Profile.vue';
 import Risk from '../views/Risk.vue';
 import Tracing from '../views/Tracing.vue';
 // deprecated
-// import Phi from '../views/Phi.vue';
-// import Onboard from '../views/Onboard.vue';
-import OnboardStepper from '../views/OnboardStepper.vue';
+// import Phi from '../views/deprecated/Phi.vue';
+// import Onboard from '../views/deprecated/Onboard.vue';
+import Onboard from '../views/Onboard.vue';
 import ConnectionCard from '@/components/ConnectionCard';
 
 Vue.use(VueRouter);
@@ -16,7 +16,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: OnboardStepper
+    component: Onboard
   },
   {
     path: '/about',
@@ -51,7 +51,7 @@ const routes = [
   {
     path: '/onboard',
     name: 'onboard',
-    component: OnboardStepper
+    component: Onboard
   },
   {
     path: '/trace',

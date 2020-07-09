@@ -6,7 +6,9 @@
       :lights-out="lightsOut"
       :window="window"
     >
-      <span><small>Beta testing only</small></span>
+      <span
+        ><small><v-icon>mdi-alert</v-icon>Beta testing only</small></span
+      >
       <v-spacer></v-spacer>
       <span><small>Use hard reload</small></span>
       <v-spacer></v-spacer>
@@ -31,7 +33,7 @@
               We can beat the virus two ways:
               <ol>
                 <li>Stop community spread</li>
-                <li>Manage risk with public data daily</li>
+                <li>Manage risk daily using public data</li>
               </ol>
             </v-card-text>
           </v-card>
@@ -40,7 +42,8 @@
       <v-row>
         <v-col v-if="showHardwareSetup">
           <v-card>
-            <v-card-title>To setup your hardware:</v-card-title>
+            <v-card-title>Once: Setup your hardware...</v-card-title>
+            <v-card-subtitle>In two steps:</v-card-subtitle>
             <SetupStepper
               @cancel-hardware-setup="handleCancelHardwareSetup()"
             />
@@ -48,19 +51,21 @@
         </v-col>
         <v-col>
           <v-card>
-            <v-card-title>Local Contact Tracing = !virus:</v-card-title>
-            <OnboardStepper />
+            <v-card-title>First: Local Contact Tracing...</v-card-title>
+            <v-card-subtitle>In two steps:</v-card-subtitle>
+            <ContactTracing />
           </v-card>
         </v-col>
         <v-col>
           <v-card>
-            <v-card-title>Track your PHI:</v-card-title>
+            <v-card-title>Also: Track your PHI:</v-card-title>
+            <v-card-subtitle>In three steps:</v-card-subtitle>
             <OnboardStepper2 />
           </v-card>
         </v-col>
         <v-col>
           <v-card>
-            <v-card-title>Manage exposure risk:</v-card-title>
+            <v-card-title>Last: Check exposure risk:</v-card-title>
             <OnboardStepper3 />
           </v-card>
         </v-col>
@@ -73,15 +78,17 @@
 import config from '@/config.json';
 
 import SetupStepper from '@/components/steppers/SetupStepper.vue';
-import OnboardStepper from '@/components/steppers/OnboardStepper.vue';
+import ContactTracing from '@/components/ContactTracing.vue';
+// import OnboardStepper from '@/components/steppers/OnboardStepper.vue';
 import OnboardStepper2 from '@/components/steppers/OnboardStepper2.vue';
 import OnboardStepper3 from '@/components/steppers/OnboardStepper3.vue';
 import DataRepository from '@/store/repository.js';
-import Preference from '@/models/Preference';
+import State from '@/models/State.js';
 
 export default {
   components: {
-    OnboardStepper,
+    // OnboardStepper,
+    ContactTracing,
     OnboardStepper2,
     OnboardStepper3,
     SetupStepper
@@ -98,20 +105,20 @@ export default {
     };
   },
   methods: {
-    handleCancelHardwareSetup(e) {
-      console.log('e', e);
+    handleCancelHardwareSetup() {
       this.showHardwareSetup = !this.showHardwareSetup;
+      State.changeShowHardwareSetup(this.showHardwareSetup);
     }
   },
 
   async created() {
     this.loading = true;
     console.log(this.now, 'Entering OnboardStepper.vue created()');
-    console.log('Fetching Member and Preference models');
 
-    await DataRepository.getMember();
+    this.showHardwareSetup = await DataRepository.getState('obstep')
+      .showHardwareSetup;
+    console.log('showHardwareSetup', this.showHardwareSetup);
 
-    await Preference.$fetch();
     console.log(this.now, 'Leaving OnboardStepper created()');
     this.loading = false;
   }

@@ -19,7 +19,7 @@
         </v-card-text>
       </v-card>
       <v-btn :color="btnColor" @click="e6 = 2">Continue</v-btn>
-      <v-btn @click="cancel()" text>Cancel</v-btn>
+      <v-btn @click="cancel()" text>Skip </v-btn>
     </v-stepper-content>
 
     <v-stepper-step :complete="e6 > 2" step="2"

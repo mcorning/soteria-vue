@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!--Room Assessment dialog -->
     <v-dialog v-if="ask" v-model="ask" persistent max-width="300px">
       <template v-slot:activator="{ on }">
         <v-layout align-center justify-center>
@@ -26,7 +25,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <!-- Visitor Assessment dialog -->
     <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
       <template v-slot:activator="{ on }">
         <v-layout align-center justify-center>
@@ -85,88 +83,80 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
     <v-card v-if="connect">
       <ContactTracing1 />
       <ContactTracing2 />
     </v-card>
     <v-card v-else>
-      <v-stepper v-model="e6" vertical>
-        <v-stepper-step :complete="e6 > 1" step="1">
-          <p>Checkout the room</p>
-          <p>
-            <small>Room Risk Managers set risk policy for their rooms.</small>
-          </p>
-        </v-stepper-step>
-        <v-stepper-content step="1">
-          <!-- Don't use dark prop if you want to use the loader template -->
-          <v-btn
-            color="primary"
-            block
-            @click="loader = 'loading1'"
-            :loading="loading1"
-            :disabled="loading1"
-            >Get Room policy
-            <template v-slot:loader>
-              <span>Getting Room policy...</span>
-            </template></v-btn
-          >
-        </v-stepper-content>
+      <v-card-title class="pt-1">
+        Verify Room
+      </v-card-title>
+      <v-card-text>
+        If you, the visitor, are safe for the room, the second step enables you
+        to assess the risk of the room.
+      </v-card-text>
+      <v-card-text class="pt-0">
+        If you enter the room, you will take the final step to enable full local
+        contact tracing.
+      </v-card-text>
+      <v-card-actions>
+        <v-btn
+          color="primary"
+          block
+          @click="loader = 'loading1'"
+          :loading="loading1"
+          :disabled="loading1"
+          >Checkout the room
+          <template v-slot:loader>
+            <span>Verifying Room...</span>
+          </template></v-btn
+        >
+      </v-card-actions>
 
-        <v-stepper-step :complete="e6 > 2" step="2">
-          <p>Assess Room Risk</p>
-          <p>
-            <small>Check whether the room is safe enough for you.</small>
-          </p>
-        </v-stepper-step>
+      <v-card-text class="pt-0">
+        <v-text-field
+          v-model="verificationId"
+          @click="redirect"
+          hint="click to go to QR code"
+          persistent-hint
+          readonly
+          label="Verification ID"
+        >
+        </v-text-field>
+      </v-card-text>
 
-        <v-stepper-content step="2">
-          <!-- Don't use dark prop if you want to use the loader template -->
-          <v-btn
-            color="primary"
-            block
-            @click="startTest"
-            :loading="loading2"
-            :disabled="!verificationId"
-            >Assess room's credentials
-            <template v-slot:loader>
-              <span>Assessing room...</span>
-            </template></v-btn
-          >
-        </v-stepper-content>
+      <v-card-actions>
+        <v-btn
+          color="primary"
+          block
+          @click="startTest"
+          :loading="loading2"
+          :disabled="!verificationId"
+          >Assess room's credentials
+          <template v-slot:loader>
+            <span>Assessing room...</span>
+          </template></v-btn
+        >
+      </v-card-actions>
 
-        <v-card-text class="pt-0">
-          <v-text-field
-            v-model="verificationId"
-            @click="redirect"
-            hint="click to go to QR code"
-            persistent-hint
-            readonly
-            label="Verification ID"
-          >
-          </v-text-field>
-        </v-card-text>
-
-        <v-card-text class="pt-0">
-          <v-text-field
-            v-model="verificationResult"
-            label="Verification Result"
-            readonly
-          >
-          </v-text-field>
-          <v-card-subtitle dense>
-            <v-row align="center" justify="center">
-              <v-col cols="12">
-                <a
-                  href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
-                  target="_blank"
-                  >Need to check this zip code?</a
-                >
-              </v-col>
-            </v-row>
-          </v-card-subtitle>
-        </v-card-text>
-      </v-stepper>
+      <v-card-text class="pt-0">
+        <v-text-field
+          v-model="verificationResult"
+          @click="restart"
+          label="Verification Result"
+          readonly
+          hint="click to abandon proof"
+          persistent-hint
+        >
+        </v-text-field>
+        <v-card-subtitle dense>
+          <a
+            href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
+            target="_blank"
+            >Need to check this zip code?</a
+          ></v-card-subtitle
+        >
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -189,8 +179,6 @@ export default {
       console.log('loader', l);
       this[l] = !this[l];
       if (l == 'loading1') {
-        this.e6 = 2;
-
         this.verify('verify/room').then(() => {
           this[l] = false;
           this.loader = null;
@@ -198,8 +186,6 @@ export default {
       } else if (l == 'loading2') {
         console.time('getting proof results');
         this.assess('verify/room/assess').then(() => {
-          this.e6 = 3;
-
           this[l] = false;
           this.loader = null;
           console.timeEnd('getting proof results');
@@ -215,7 +201,6 @@ export default {
   },
 
   data: () => ({
-    e6: 1,
     dialog: false,
     ask: false,
     connect: false,

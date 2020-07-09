@@ -1,74 +1,22 @@
 <template>
   <div>
-    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
-      <template v-slot:activator="{ on }">
-        <v-layout align-center justify-center>
-          <v-btn
-            color="primary"
-            block
-            dark
-            v-on="on"
-            class=".subtitle-2"
-            v-tooltip="{
-              content: 'See if visitor is safe to enter the room.',
-              classes: '.subtitle-2'
-            }"
-            >Visitor Assessment</v-btn
-          >
-        </v-layout>
-      </template>
-
-      <v-card class="card">
-        <v-img
-          id="qr"
-          class="white--text align-end"
-          :src="qrSource"
-          lazy-src="https://picsum.photos/id/11/100/60"
-          height="200"
-          width="200"
-          alt="QR code appears here"
-        >
-          <template v-slot:placeholder>
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-progress-circular
-                indeterminate
-                color="grey lighten-5"
-              ></v-progress-circular>
-            </v-row>
-          </template>
-        </v-img>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="green darken-1"
-            text
-            @click="openInWallet"
-            v-tooltip="{
-              content:
-                'Skip the QR code, and open the verification request in your wallet.',
-              classes: '.subtitle-2'
-            }"
-            >Open in Wallet</v-btn
-          >
-        </v-card-actions>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-stepper v-model="e6" vertical>
-      <v-stepper-step :complete="e6 > 1" step="1">
-        <p>Verify Visitor</p>
-        <p>
-          <small
-            >Room risk managers assess the risk a visitor presents to the
-            room.</small
-          >
-        </p>
-      </v-stepper-step>
-      <v-stepper-content step="1">
+    <v-card>
+      <v-card-title>
+        Verify Visitor
+      </v-card-title>
+      <v-card-text class="pt-1">
+        As a room risk manager, the first step in local contact tracing is for
+        the room to assess the risk of a visitor.
+      </v-card-text>
+      <v-card-text class="pt-1">
+        If the visitor is safe for the room, the second step enables the visitor
+        to assess the risk of the room.
+      </v-card-text>
+      <v-card-text class="pt-1">
+        The room and the visitor exchange connections only after they have a
+        meeting of minds and only if the visitor wants contact tracing.
+      </v-card-text>
+      <v-card-actions>
         <!-- Don't use dark prop if you want to use the loader template -->
         <v-btn
           color="primary"
@@ -81,20 +29,79 @@
             <span>Verifying visitor...</span>
           </template></v-btn
         >
-      </v-stepper-content>
+      </v-card-actions>
 
-      <v-stepper-step :complete="e6 > 2" step="2">
-        <p>Verify Visitor</p>
-        <p>
-          <small
-            >Room risk managers assess the risk a visitor presents to the
-            room.</small
+      <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
+        <template v-slot:activator="{ on }">
+          <v-layout align-center justify-center>
+            <v-btn
+              color="primary"
+              block
+              dark
+              v-on="on"
+              class=".subtitle-2"
+              v-tooltip="{
+                content: 'See if visitor is safe to enter the room.',
+                classes: '.subtitle-2'
+              }"
+              >Visitor Assessment</v-btn
+            >
+          </v-layout>
+        </template>
+
+        <v-card class="card">
+          <v-img
+            id="qr"
+            class="white--text align-end"
+            :src="qrSource"
+            lazy-src="https://picsum.photos/id/11/100/60"
+            height="200"
+            width="200"
+            alt="QR code appears here"
           >
-        </p>
-      </v-stepper-step>
+            <template v-slot:placeholder>
+              <v-row class="fill-height ma-0" align="center" justify="center">
+                <v-progress-circular
+                  indeterminate
+                  color="grey lighten-5"
+                ></v-progress-circular>
+              </v-row>
+            </template>
+          </v-img>
 
-      <v-stepper-content step="2">
-        <!-- Don't use dark prop if you want to use the loader template -->
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="green darken-1"
+              text
+              @click="openInWallet"
+              v-tooltip="{
+                content:
+                  'Skip the QR code, and open the verification request in your wallet.',
+                classes: '.subtitle-2'
+              }"
+              >Open in Wallet</v-btn
+            >
+          </v-card-actions>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="green darken-1" text @click="hide">Close</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-card-text>
+        <v-text-field
+          v-model="verificationId"
+          @click="redirect"
+          hint="click to go to QR code"
+          persistent-hint
+          label="Verification ID"
+        >
+        </v-text-field>
+      </v-card-text>
+
+      <v-card-actions>
         <v-btn
           color="primary"
           block
@@ -106,8 +113,27 @@
             <span>Assessing visitor...</span>
           </template></v-btn
         >
-      </v-stepper-content>
-    </v-stepper>
+      </v-card-actions>
+
+      <v-card-text>
+        <v-text-field
+          v-model="verificationResult"
+          @click="restart"
+          label="Verification Result"
+          readonly
+          hint="click to abandon proof"
+          persistent-hint
+        >
+        </v-text-field>
+        <v-card-subtitle dense>
+          <a
+            href="https://projects.oregonlive.com/coronavirus/cases-by-zip"
+            target="_blank"
+            >Need to check their zip code?</a
+          ></v-card-subtitle
+        >
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 
@@ -126,13 +152,11 @@ export default {
       console.log('loader', l);
       this[l] = !this[l];
       if (l == 'loading1') {
-        this.e6 = 2;
         this.verify('verify/visitor').then(() => {
           this[l] = false;
           this.loader = null;
         });
       } else if (l == 'loading2') {
-        this.e6 = 3;
         console.time('getting proof results');
         this.assess('verify/visitor/assess').then(() => {
           this[l] = false;
@@ -149,8 +173,6 @@ export default {
   },
 
   data: () => ({
-    e6: 1,
-
     domAttrs: null,
     isMobile: false,
     qrCode: null,
