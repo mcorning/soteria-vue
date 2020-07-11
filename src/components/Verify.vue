@@ -1,66 +1,40 @@
 <template>
-  <v-container class="primary lighten-5 pa-2">
+  <div>
     <RoleCard
       @changed-is-room-risk-manager="onChangedIsRoomRiskManager"
       @changed-room-risk-threshold="onChangedRoomRiskThreshold"
     />
+
     <v-card>
       <v-row no-gutters>
         <v-col dense>
-          <VerifyVisitor v-if="visitor" />
+          <VerifyVisitor v-if="isRoomRiskManager" />
 
-          <VerifyRoom v-if="room" />
-          <div v-if="occupant">
-            <ContactTracing />
-          </div>
+          <VerifyRoom v-else />
         </v-col>
       </v-row>
     </v-card>
-    <v-row dense>
-      <v-col>Need a digital wallet?</v-col>
-    </v-row>
-    <v-row dense justify="center">
-      <v-col md="4">
-        <a
-          href="https://apps.apple.com/us/app/streetcred-identity-agent/id1475160728"
-        >
-          <v-img
-            src="../assets/AppStore.png"
-            max-height="4.5em"
-            max-width="4.5em"
-          ></v-img>
-        </a>
-      </v-col>
-      <v-col md="4">
-        <a
-          href="https://play.google.com/store/apps/details?id=id.streetcred.apps.mobile"
-        >
-          <v-img
-            src="../assets/GooglePlay.png"
-            max-height="4.5em"
-            max-width="4.5em"
-          ></v-img>
-        </a>
-      </v-col>
-    </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script>
-import ContactTracing from '@/components/ContactTracing.vue';
-import VerifyVisitor from '@/components/VerifyVisitor.vue';
-import VerifyRoom from '@/components/VerifyRoom.vue';
 import State from '@/models/State';
+import VerifyVisitor from '@/components/VerifyVisitor';
+import VerifyRoom from '@/components/VerifyRoom';
 import RoleCard from '@/components/RoleCard';
 
 export default {
   components: {
-    ContactTracing,
     VerifyVisitor,
     VerifyRoom,
     RoleCard
   },
+
   computed: {
+    role() {
+      return this.state?.isRoomRiskManager ? 'Room' : 'Visitor';
+    },
+
     isRoomRiskManager: {
       get() {
         return this.state?.isRoomRiskManager;
@@ -99,20 +73,6 @@ export default {
           );
         });
       }
-    },
-    role() {
-      return this.isRoomRiskManager ? 'room' : 'visitor';
-    },
-    visitor() {
-      // visitor roles verify rooms
-      return this.role === 'room';
-    },
-    room() {
-      // room roles verify visitors
-      return this.role === 'visitor';
-    },
-    occupant() {
-      return this.role === 'occupant';
     }
   },
   data() {
@@ -124,35 +84,38 @@ export default {
         { score: 5, desc: 'Risky' },
         { score: 7, desc: 'Dangerous' },
         { score: 9, desc: 'Barking mad' }
-      ]
+      ],
+      e6: 1,
+      btnColor: 'red lighten-2',
+      loaded: false
     };
   },
+
   methods: {
     onChangedRoomRiskThreshold(val) {
       this.roomRiskThreshold = val;
     },
     onChangedIsRoomRiskManager(val) {
       this.isRoomRiskManager = val;
-    },
-
-    close() {
-      this.firstTime = false;
     }
+    // handleIsRoomRiskManager() {
+    //   this.isRoomRiskManager = !this.isRoomRiskManager;
+    // },
+    // handleChangeRiskThreshold() {
+    //   this.roomRiskThreshold = this.select.score;
+    // }
   },
-
-  mounted() {},
 
   async created() {
     this.loading = true;
-
-    console.log('Entering created() in Risk: getting State');
+    console.log('Entering created() in Verify: getting State');
     await State.$fetch();
     this.state = State.find(0);
-    console.log('Leaving created() in Risk');
+    this.select = { score: this.state.roomRiskThreshold, desc: '' }; //;
 
+    console.log('Leaving created() in Verigy');
     this.loading = false;
+    // });
   }
 };
 </script>
-
-<style lang="scss" scoped></style>

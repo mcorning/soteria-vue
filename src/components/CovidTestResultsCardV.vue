@@ -242,7 +242,10 @@ export default {
 
   async mounted() {
     this.loading = true;
-    console.log('Using:', axios.defaults.baseURL);
+    console.log(
+      'CovidTestResultsCardV-mounted() using:',
+      axios.defaults.baseURL
+    );
     let url = `Streetcred?name=credDefList`;
     console.log('url:', url);
     let axiosResponse = await axios({

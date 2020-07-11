@@ -4,7 +4,7 @@
       <h2>Loading Profile Card</h2>
     </div>
 
-    <div class=" mt-0" v-else>
+    <div class=" mt-0 ml-0" v-else>
       <v-row no-gutters>
         <v-col>
           <v-card
@@ -25,28 +25,26 @@
           >
         </v-col></v-row
       >
-      <v-row justify="center">
-        <v-container>
-          <v-card>
-            <v-card-title>My PII</v-card-title>
-            <v-card-subtitle>My Identifying Information</v-card-subtitle>
+      <v-card>
+        <v-card-title>My PII</v-card-title>
+        <v-card-subtitle>My Personal Identifying Information</v-card-subtitle>
 
-            <v-card-text>
-              <v-row no-gutters justify="center">
-                <!-- change photo and helpers-->
-                <v-col cols="6">
-                  <v-row justify="space-between">
-                    <v-col v-if="changePhoto" cols="6">
-                      <picture-input
-                        :prefill="image"
-                        :prefillOptions="{ mediaType: 'image/png' }"
-                        @change="addImage"
-                        accept="image/jpeg, image/png, image/gif"
-                      ></picture-input>
-                    </v-col>
+        <v-card-text>
+          <v-row no-gutters justify="center">
+            <!-- change photo and helpers-->
+            <v-col cols="6">
+              <v-row justify="space-between">
+                <v-col v-if="changePhoto" cols="6">
+                  <picture-input
+                    :prefill="image"
+                    :prefillOptions="{ mediaType: 'image/png' }"
+                    @change="addImage"
+                    accept="image/jpeg, image/png, image/gif"
+                  ></picture-input>
+                </v-col>
 
-                    <!-- ConnectionID QR -->
-                    <!-- <v-col>
+                <!-- ConnectionID QR -->
+                <!-- <v-col>
                       <v-card-subtitle @click="onDeleteAllConnections()">
                         To participate in local contact tracing you need a
                         Connection ID.</v-card-subtitle
@@ -69,97 +67,95 @@
                         ><pre>{{ connections }}</pre></small
                       >
                     </v-col> -->
-                  </v-row>
+              </v-row>
+            </v-col>
+            <!-- Data entry form -->
+            <v-col>
+              <v-row justify="center" no-gutters>
+                <v-col cols="12">
+                  <v-text-field
+                    label="First name*"
+                    required
+                    dense
+                    :rules="[rules.required]"
+                    v-model="firstName"
+                  ></v-text-field>
                 </v-col>
-                <!-- Data entry form -->
-                <v-col>
-                  <v-row justify="center" no-gutters>
-                    <v-col cols="12">
-                      <v-text-field
-                        label="First name*"
-                        required
-                        dense
-                        :rules="[rules.required]"
-                        v-model="firstName"
-                      ></v-text-field>
-                    </v-col>
 
-                    <v-col cols="12">
-                      <v-text-field
-                        label="Last name*"
-                        required
-                        :rules="[rules.required]"
-                        dense
-                        v-model="lastName"
-                      ></v-text-field>
-                    </v-col>
+                <v-col cols="12">
+                  <v-text-field
+                    label="Last name*"
+                    required
+                    :rules="[rules.required]"
+                    dense
+                    v-model="lastName"
+                  ></v-text-field>
+                </v-col>
 
-                    <v-col cols="12">
-                      <v-text-field
-                        label="ZipCode*"
-                        required
-                        :rules="[rules.required, rules.zipCode]"
-                        dense
-                        v-model="zipCode"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-select
-                        :items="['0-17', '18-29', '30-54', '54+']"
-                        label="Age*"
-                        required
-                        dense
-                        v-model="age"
-                      ></v-select>
-                    </v-col>
-                    <v-col cols="12">
-                      <v-autocomplete
-                        v-model="gender"
-                        label="Gender"
-                        :items="['Male', 'Female', 'NA']"
-                      ></v-autocomplete>
-                    </v-col>
+                <v-col cols="12">
+                  <v-text-field
+                    label="ZipCode*"
+                    required
+                    :rules="[rules.required, rules.zipCode]"
+                    dense
+                    v-model="zipCode"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-select
+                    :items="['0-17', '18-29', '30-54', '54+']"
+                    label="Age*"
+                    required
+                    dense
+                    v-model="age"
+                  ></v-select>
+                </v-col>
+                <v-col cols="12">
+                  <v-autocomplete
+                    v-model="gender"
+                    label="Gender"
+                    :items="['Male', 'Female', 'NA']"
+                  ></v-autocomplete>
+                </v-col>
 
-                    <v-col cols="12">
-                      <v-text-field
-                        label="Symptoms Score"
-                        hint="See My PHI below "
-                        persistent-hint
-                        dense
-                        readonly
-                        required
-                        :rules="[rules.required]"
-                        v-model="symptomsScore"
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    label="Symptoms Score"
+                    hint="See My PHI below "
+                    persistent-hint
+                    dense
+                    readonly
+                    required
+                    :rules="[rules.required]"
+                    v-model="symptomsScore"
+                  ></v-text-field>
                 </v-col>
               </v-row>
+            </v-col>
+          </v-row>
 
-              <v-row align="end" justify="center" no-gutters>
-                <v-card-text
-                  >A verifiable credential lets you share your data without
-                  sacrificing your privacy</v-card-text
-                >
-                <v-card-actions>
-                  <v-btn
-                    color="primary"
-                    block
-                    :loading="loading1"
-                    :disabled="loading1"
-                    @click="loader = 'loading1'"
-                  >
-                    Get Your Personal Credential
-                    <template v-slot:loader>
-                      <span>Issuing Personal Credential...</span>
-                    </template>
-                  </v-btn>
-                </v-card-actions>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-container>
-      </v-row>
+          <v-row align="end" justify="center" no-gutters>
+            <v-card-text
+              >A verifiable credential lets you share your data without
+              sacrificing your privacy</v-card-text
+            >
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                block
+                :loading="loading1"
+                :disabled="loading1"
+                @click="loader = 'loading1'"
+              >
+                Get Your Credential
+                <template v-slot:loader>
+                  <span>Issuing Personal Credential...</span>
+                </template>
+              </v-btn>
+            </v-card-actions>
+          </v-row>
+        </v-card-text>
+      </v-card>
     </div>
     <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
       <template v-slot:activator="{ on }">
@@ -590,7 +586,7 @@ export default {
     console.log('created() Fetched member', m);
     // await this.addCredentials();
     this.creds = await DataRepository.verify();
-    console.log('Using:', axios.defaults.baseURL);
+    console.log('ProfileCard-created() using:', axios.defaults.baseURL);
     this.loading = false;
   }
 };

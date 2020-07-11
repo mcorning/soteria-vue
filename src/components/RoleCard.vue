@@ -5,7 +5,7 @@
         <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
         <v-spacer></v-spacer>
         <v-col>
-          <v-chip @click="handleIsRoomRiskManager">
+          <v-chip large @click="isRoomRiskManager = !isRoomRiskManager">
             {{ role }}
             <v-icon right>mdi-pencil</v-icon>
           </v-chip>
@@ -13,16 +13,14 @@
       </v-row>
       <v-row align="center" no-gutters>
         <v-col cols="6">
-          <v-card-subtitle
-            >Room risk threshold: {{ select.score }}</v-card-subtitle
-          >
+          <v-card-subtitle>Room risk (max): {{ select.score }}</v-card-subtitle>
         </v-col>
 
         <v-col cols="5">
           <v-select
             :disabled="!isRoomRiskManager"
             v-model="select"
-            @change="handleChangeRiskThreshold"
+            @change="roomRiskThreshold = select.score"
             :items="risks"
             item-text="desc"
             item-value="score"
@@ -33,29 +31,13 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-card>
-      <v-row no-gutters>
-        <v-col dense>
-          <VerifyVisitor v-if="isRoomRiskManager" />
-
-          <VerifyRoom v-else />
-        </v-col>
-      </v-row>
-    </v-card>
   </div>
 </template>
 
 <script>
 import State from '@/models/State';
-import VerifyVisitor from '@/components/VerifyVisitor';
-import VerifyRoom from '@/components/VerifyRoom';
 
 export default {
-  components: {
-    VerifyVisitor,
-    VerifyRoom
-  },
-
   computed: {
     role() {
       return this.state?.isRoomRiskManager ? 'Room' : 'Visitor';
@@ -66,17 +48,10 @@ export default {
         return this.state?.isRoomRiskManager;
       },
       set(newVal) {
-        console.log(
-          'this.state.isRoomRiskManager: before:',
-          this.state.isRoomRiskManager
-        );
         State.changeIsRoomRiskManager(newVal).then(state => {
           // ORM returns an array of State objects
           this.state = state[0];
-          console.log(
-            'this.state.isRoomRiskManager: after:',
-            this.state.isRoomRiskManager
-          );
+          this.$emit('changed-is-room-risk-manager', this.isRoomRiskManager);
         });
       }
     },
@@ -86,17 +61,10 @@ export default {
       },
       //
       set(newVal) {
-        console.log(
-          'this.state.roomRiskThreshold: before:',
-          this.state.roomRiskThreshold
-        );
         State.changeRoomRiskThreshold(newVal).then(state => {
           // ORM returns an array of State objects
           this.state = state[0];
-          console.log(
-            'this.state.roomRiskThreshold: after:',
-            this.state.roomRiskThreshold
-          );
+          this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
         });
       }
     }
@@ -118,24 +86,24 @@ export default {
   },
 
   methods: {
-    handleIsRoomRiskManager() {
-      this.isRoomRiskManager = !this.isRoomRiskManager;
-    },
-    handleChangeRiskThreshold() {
+    onChangeRiskThreshold() {
       this.roomRiskThreshold = this.select.score;
+      this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
     }
   },
 
   async created() {
     this.loading = true;
-    console.log('Entering created() in OnboardStepper3: getting State');
+    console.log('Entering created() in RoleCard: getting State');
     await State.$fetch();
     this.state = State.find(0);
     this.select = { score: this.state.roomRiskThreshold, desc: '' }; //;
-
-    console.log('Leaving created() in OnboardStepper3');
+    this.$emit('changed-is-room-risk-manager', this.state.isRoomRiskManager);
+    console.log('Leaving created() in RoleCard');
     this.loading = false;
     // });
   }
 };
 </script>
+
+<style lang="scss" scoped></style>

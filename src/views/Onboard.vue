@@ -43,7 +43,7 @@
         <v-col v-if="showHardwareSetup">
           <v-card>
             <v-card-title>Once: Setup your hardware...</v-card-title>
-            <v-card-subtitle>In two steps:</v-card-subtitle>
+            <v-card-subtitle>In three steps:</v-card-subtitle>
             <SetupStepper
               @cancel-hardware-setup="handleCancelHardwareSetup()"
             />
@@ -66,7 +66,7 @@
         <v-col>
           <v-card>
             <v-card-title>Last: Check exposure risk:</v-card-title>
-            <OnboardStepper3 />
+            <Verify />
           </v-card>
         </v-col>
       </v-row>
@@ -79,29 +79,32 @@ import config from '@/config.json';
 
 import SetupStepper from '@/components/steppers/SetupStepper.vue';
 import ContactTracing from '@/components/ContactTracing.vue';
-// import OnboardStepper from '@/components/steppers/OnboardStepper.vue';
 import OnboardStepper2 from '@/components/steppers/OnboardStepper2.vue';
-import OnboardStepper3 from '@/components/steppers/OnboardStepper3.vue';
+import Verify from '@/components/Verify.vue';
 import DataRepository from '@/store/repository.js';
 import State from '@/models/State.js';
 
 export default {
   components: {
-    // OnboardStepper,
     ContactTracing,
     OnboardStepper2,
-    OnboardStepper3,
+    Verify,
     SetupStepper
   },
-  computed: {},
+  computed: {
+    showHardwareSetup() {
+      return this.state.showHardwareSetup;
+    }
+  },
   data() {
     return {
+      state: null,
       VER: config.VER,
       height: 24,
       lightsOut: false,
       window: false,
       loading: false,
-      showHardwareSetup: true
+      now: new Date()
     };
   },
   methods: {
@@ -113,11 +116,10 @@ export default {
 
   async created() {
     this.loading = true;
-    console.log(this.now, 'Entering OnboardStepper.vue created()');
+    console.log(`[${this.now}] Entering OnboardStepper.vue created()`);
 
-    this.showHardwareSetup = await DataRepository.getState('obstep')
-      .showHardwareSetup;
-    console.log('showHardwareSetup', this.showHardwareSetup);
+    this.state = await DataRepository.getState();
+    console.log('showHardwareSetup', this.state.showHardwareSetup);
 
     console.log(this.now, 'Leaving OnboardStepper created()');
     this.loading = false;

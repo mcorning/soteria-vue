@@ -31,23 +31,20 @@ export default class DataRepository {
       }
     });
   }
-  static async getState(targ) {
-    console.log('Getting State for', targ, '...');
-    State.$fetch().then(() => {
-      let s = State.find(0);
-      if (s) {
-        console.log('...returning existing', s);
-        return s;
-      } else {
-        console.log('Creating state object...');
-        State.$create({
-          data: { id: 0, isRoomRiskManager: false, roomRiskThreshold: 0 }
-        }).then(s => {
-          console.log('...returning new', s[0]);
-          return s[0];
-        });
-      }
-    });
+
+  static async getState() {
+    let fetched = await State.$fetch();
+    if (fetched.state.length) {
+      return fetched.state[0];
+    } else {
+      console.log('Creating state object...');
+      State.$create({
+        data: { id: 0, isRoomRiskManager: false, roomRiskThreshold: 0 }
+      }).then(s => {
+        console.log('...returning new', s[0]);
+        return s[0];
+      });
+    }
   }
 
   static async verify() {

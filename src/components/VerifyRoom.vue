@@ -87,8 +87,9 @@
     </v-dialog>
 
     <v-card v-if="connect">
-      <ContactTracing1 />
-      <ContactTracing2 />
+      <!-- <ContactTracing1 />
+      <ContactTracing2 /> -->
+      <ContactTracing />
     </v-card>
     <v-card v-else>
       <v-stepper v-model="e6" vertical>
@@ -172,16 +173,18 @@
 </template>
 
 <script>
-import ContactTracing1 from '@/components/ContactTracing1';
-import ContactTracing2 from '@/components/ContactTracing2';
+// import ContactTracing1 from '@/components/ContactTracing1';
+// import ContactTracing2 from '@/components/ContactTracing2';
+import ContactTracing from '@/components/ContactTracing';
 import config from '@/config.json';
 import axios from 'axios';
 axios.defaults.baseURL = config.BASEURL;
 
 export default {
   components: {
-    ContactTracing1,
-    ContactTracing2
+    // ContactTracing1,
+    // ContactTracing2
+    ContactTracing
   },
   watch: {
     loader() {
@@ -312,7 +315,7 @@ export default {
     }
   },
   mounted() {
-    console.log('Using:', axios.defaults.baseURL);
+    console.log('VerifyRoom-mounted() using:', axios.defaults.baseURL);
   }
 };
 </script>

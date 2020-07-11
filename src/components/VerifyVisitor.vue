@@ -519,7 +519,7 @@ export default {
   },
 
   mounted() {
-    console.log('Using:', axios.defaults.baseURL);
+    console.log('VerifyVisitor-mounted() using:', axios.defaults.baseURL);
   }
 };
 </script>
