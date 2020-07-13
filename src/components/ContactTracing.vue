@@ -43,9 +43,9 @@
           block
           @click="loader = 'loading2'"
           :loading="loading2"
-          >Alert {{ role }}s
+          >Alert {{ buttonLabelAlert }}s
           <template v-slot:loader>
-            <span>Alerting {{ role }}s...</span>
+            <span>Alerting {{ buttonLabelAlert }}s...</span>
           </template></v-btn
         >
         <v-text-field
@@ -167,6 +167,10 @@ export default {
     buttonLabel() {
       let x = this.isRoomRiskManager ? 'Visitor' : 'Room';
       return `Connect with ${x}`;
+    },
+    buttonLabelAlert() {
+      let x = this.isRoomRiskManager ? 'Visitor' : 'Room';
+      return x;
     },
 
     msg() {

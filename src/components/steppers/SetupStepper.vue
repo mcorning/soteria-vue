@@ -45,7 +45,7 @@
           </v-card-text>
         </v-card>
         <v-btn :color="btnColor" @click="e6 = 3">Continue</v-btn>
-        <v-btn @click="$emit('cancelHardwareSetup')" text>Cancel</v-btn>
+        <v-btn @click="cancel()" text>Cancel</v-btn>
       </v-stepper-content>
 
       <v-stepper-step :complete="e6 > 3" step="3"
@@ -77,7 +77,7 @@
           </v-card-text>
         </v-card>
         <v-btn :color="btnColor" @click="e6 = 4">Continue</v-btn>
-        <v-btn @click="$emit('cancelHardwareSetup')" text>Cancel</v-btn>
+        <v-btn @click="cancel()" text>Cancel</v-btn>
       </v-stepper-content>
     </v-stepper>
   </div>

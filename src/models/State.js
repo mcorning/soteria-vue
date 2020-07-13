@@ -24,7 +24,7 @@ export default class State extends Model {
     });
     return p;
   }
-  static async changeShowHardwareSetup(val) {
+  static async toggleShowHardwareSetup(val) {
     let p = await this.$update({
       data: { id: 0, showHardwareSetup: val }
     });

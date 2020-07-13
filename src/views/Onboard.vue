@@ -44,9 +44,7 @@
           <v-card>
             <v-card-title>Once: Setup your hardware...</v-card-title>
             <v-card-subtitle>In three steps:</v-card-subtitle>
-            <SetupStepper
-              @cancel-hardware-setup="handleCancelHardwareSetup()"
-            />
+            <SetupStepper @cancel-hardware-setup="onCancelHardwareSetup()" />
           </v-card>
         </v-col>
         <v-col>
@@ -108,9 +106,8 @@ export default {
     };
   },
   methods: {
-    handleCancelHardwareSetup() {
-      this.showHardwareSetup = !this.showHardwareSetup;
-      State.changeShowHardwareSetup(this.showHardwareSetup);
+    onCancelHardwareSetup() {
+      State.toggleShowHardwareSetup(!this.showHardwareSetup);
     }
   },
 
