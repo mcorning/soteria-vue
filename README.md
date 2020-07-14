@@ -1,21 +1,21 @@
-# secours-vue
+# Soteria-vue
 
-Secours-vue uses VueJs on the front end, Trinsic server on the backend, and Azure functions in the middle.
+Soteria-vue uses VueJs on the front end, Trinsic server on the backend, and Azure functions in the middle.
 
 For local development:
-  1. use the `serve` script for secours-vue
+  1. use the `serve` script for Soteria-vue
   2. use the `start` script for streetcred
 
 > NOTE: to enable local development and debugging we updated the start script by adding the cors argument:
 >
 >     "start": "func host start --cors *",
 
-## To debug secours-vue:
+## To debug Soteria-vue:
 
 1. run the `serve` script
 2. Press F5
 
-You should see:
+You should see (Network IP may differ):
 >App running at:
 >
 >- Local:   http://localhost:8080/
@@ -24,7 +24,7 @@ You should see:
 >   Note that the development build is not optimized.
 >   To create a production build, run npm run build.
 
-## To debug secoursStreetcred:
+## To debug SoteriaStreetcred:
 
 1. be sure you close any session in the terminal with a `ctrl-c` 
 2. Press F5
