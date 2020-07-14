@@ -136,7 +136,6 @@ export default {
           .get().inviteUrl;
       },
       set(newVal) {
-        // this.selected = newVal;
         Connection.$update({
           where: user => user.isRoomId,
           data: { inviteUrl: newVal }
@@ -202,8 +201,6 @@ export default {
       Connection.$delete(id);
     },
     onListConns() {
-      // curl -X GET "https://api.streetcred.id/agency/v1/connections?state=Connected" -H "accept: application/json" -H "Authorization: t2w1B4MJCJjFEWZPcw1Xsmbfca2qAQnzU-cp3_pdgZg" -H "X-Streetcred-Subscription-Key: a820c2f69495430cae43c66df163cdd1"
-
       axios.get('connections?state=Connected').then(response => {
         console.log(response.data);
       });
@@ -260,7 +257,7 @@ export default {
       };
       console.log('payload', payload);
 
-      // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
+      // warning: if you forget the await, you will get a pending promise, and the response will be undefined
       try {
         const axiosResponse = await axios({
           url: 'streetcred',

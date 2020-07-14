@@ -268,15 +268,15 @@ export default {
       }
 
       /****************************************************************************
-    Parse the DID Document
-  ****************************************************************************/
+      Parse the DID Document
+      ****************************************************************************/
       let didDoc = JSON.parse(atob(d_m));
       console.log(didDoc);
       let type = didDoc['@type'];
 
       /****************************************************************************
-    If type is Connection Invitation
-  ****************************************************************************/
+      If type is Connection Invitation
+      ****************************************************************************/
       if (type.includes('invitation')) {
         //   document.getElementById('root').innerHTML = `
         //   <div class="container p-md-5 p-3 shadow-sm bg-white rounded">
@@ -304,8 +304,8 @@ export default {
         // `;
       } else if (type.includes('request-presentation')) {
         /****************************************************************************
-    If type is Connectionless Verification
-  ****************************************************************************/
+        If type is Connectionless Verification
+        ****************************************************************************/
         let data = JSON.parse(
           atob(didDoc['request_presentations~attach'][0].data.base64)
         );
@@ -380,8 +380,8 @@ export default {
         // });
       } else if (type.includes('offer-credential')) {
         /****************************************************************************
-    If type is Connectionless Credential Offer
-  ****************************************************************************/
+        If type is Connectionless Credential Offer
+        ****************************************************************************/
         let data = JSON.parse(atob(didDoc['offers~attach'][0].data.base64));
         let schemaId = data.schema_id;
         let credentialTitle = schemaId.substring(schemaId.indexOf(':') + 1);
@@ -496,8 +496,8 @@ export default {
       }
 
       /****************************************************************************
-    QR Code and Wallet Link
-  ****************************************************************************/
+      QR Code and Wallet Link
+      ****************************************************************************/
       if (isMobile === false) {
         // var qr = new QRious({
         // new QRious({

@@ -59,7 +59,6 @@ export default {
       get() {
         return this.state?.roomRiskThreshold;
       },
-      //
       set(newVal) {
         State.changeRoomRiskThreshold(newVal).then(state => {
           // ORM returns an array of State objects
@@ -97,11 +96,10 @@ export default {
     console.log('Entering created() in RoleCard: getting State');
     await State.$fetch();
     this.state = State.find(0);
-    this.select = { score: this.state.roomRiskThreshold, desc: '' }; //;
+    this.select = { score: this.state.roomRiskThreshold, desc: '' };
     this.$emit('changed-is-room-risk-manager', this.state.isRoomRiskManager);
     console.log('Leaving created() in RoleCard');
     this.loading = false;
-    // });
   }
 };
 </script>

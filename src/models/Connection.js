@@ -1,3 +1,4 @@
+// @ts-check
 import { Model } from '@vuex-orm/core';
 
 export default class Connection extends Model {

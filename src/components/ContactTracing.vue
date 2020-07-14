@@ -285,9 +285,6 @@ export default {
     },
 
     async onNotify(msg) {
-      // let x = Connection.query().first();
-      // console.log('warning', x);
-      // this.warn(msg, x.connectionId);
       Connection.all().forEach(conn => {
         this.warn(msg, conn.connectionId);
       });

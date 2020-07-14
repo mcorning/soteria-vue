@@ -98,12 +98,6 @@ export default {
     onChangedIsRoomRiskManager(val) {
       this.isRoomRiskManager = val;
     }
-    // handleIsRoomRiskManager() {
-    //   this.isRoomRiskManager = !this.isRoomRiskManager;
-    // },
-    // handleChangeRiskThreshold() {
-    //   this.roomRiskThreshold = this.select.score;
-    // }
   },
 
   async created() {
@@ -111,11 +105,10 @@ export default {
     console.log('Entering created() in Verify: getting State');
     await State.$fetch();
     this.state = State.find(0);
-    this.select = { score: this.state.roomRiskThreshold, desc: '' }; //;
+    this.select = { score: this.state.roomRiskThreshold, desc: '' };
 
-    console.log('Leaving created() in Verigy');
+    console.log('Leaving created() in Verify');
     this.loading = false;
-    // });
   }
 };
 </script>
