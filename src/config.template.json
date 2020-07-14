@@ -1,0 +1,10 @@
+{
+    "BASEURL": "[Azure Function URL used in code]",
+    "BASEURL_LOCAL": "[Local Azure Function URL]",
+    "BASEURL_AZURE": "[Azure URL for Azure Function]",
+    "VER": "07.13.10.47",
+    "SHIP_STRING": "Shipped July 13, 2020 at 1047",
+    "ACCESSTOK": "[Trinsic Access token for your org]",
+    "SUBKEY": "[Trinsic Subscription Key for your org]",
+    "PERS_CRED_ID": "N4dqaFJG3qu2P5A7xKEKrB:3:CL:111281:string"
+}
