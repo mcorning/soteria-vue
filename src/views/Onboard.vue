@@ -58,7 +58,7 @@
           <v-card>
             <v-card-title>Also: Track your PHI:</v-card-title>
             <v-card-subtitle>In three steps:</v-card-subtitle>
-            <OnboardStepper2 />
+            <PhiStepper />
           </v-card>
         </v-col>
         <v-col>
@@ -76,18 +76,20 @@
 import config from '@/config.json';
 
 import SetupStepper from '@/components/steppers/SetupStepper.vue';
+import PhiStepper from '@/components/steppers/PhiStepper.vue';
+
 import ContactTracing from '@/components/ContactTracing.vue';
-import OnboardStepper2 from '@/components/steppers/OnboardStepper2.vue';
 import Verify from '@/components/Verify.vue';
-import DataRepository from '@/store/repository.js';
+
 import State from '@/models/State.js';
+import DataRepository from '@/store/repository.js';
 
 export default {
   components: {
+    SetupStepper,
+    PhiStepper,
     ContactTracing,
-    OnboardStepper2,
-    Verify,
-    SetupStepper
+    Verify
   },
   computed: {
     showHardwareSetup() {
@@ -116,7 +118,7 @@ export default {
     console.log(`[${this.now}] Entering OnboardStepper.vue created()`);
 
     this.state = await DataRepository.getState();
-    console.log('showHardwareSetup', this.state.showHardwareSetup);
+    console.log('showHardwareSetup', this.state?.showHardwareSetup);
 
     console.log(this.now, 'Leaving OnboardStepper created()');
     this.loading = false;

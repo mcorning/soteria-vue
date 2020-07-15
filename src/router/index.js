@@ -1,12 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-// import Home from '../views/Home.vue';
 import Profile from '../views/Profile.vue';
 import Risk from '../views/Risk.vue';
 import Tracing from '../views/Tracing.vue';
-// deprecated
-// import Phi from '../views/deprecated/Phi.vue';
-// import Onboard from '../views/deprecated/Onboard.vue';
 import Onboard from '../views/Onboard.vue';
 import ConnectionCard from '@/components/ConnectionCard';
 
@@ -32,12 +28,6 @@ const routes = [
     name: 'profile',
     component: Profile
   },
-  // deprecated
-  // {
-  //   path: '/phi',
-  //   name: 'phi',
-  //   component: Phi
-  // },
   {
     path: '/risk',
     name: 'risk',

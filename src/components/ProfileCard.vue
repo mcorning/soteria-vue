@@ -206,11 +206,13 @@ import axios from 'axios';
 axios.defaults.baseURL = config.BASEURL;
 
 import PictureInput from 'vue-picture-input';
+
 import Member from '@/models/Member';
 import Credential from '@/models/Credential';
 import Preference from '@/models/Preference';
-import DataRepository from '@/store/repository.js';
 import Connection from '@/models/Connection';
+
+import DataRepository from '@/store/repository.js';
 
 export default {
   watch: {

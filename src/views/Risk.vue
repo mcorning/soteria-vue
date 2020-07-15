@@ -47,11 +47,12 @@
 </template>
 
 <script>
-import ContactTracing from '@/components/ContactTracing.vue';
-import VerifyVisitor from '@/components/VerifyVisitor.vue';
-import VerifyRoom from '@/components/VerifyRoom.vue';
-import State from '@/models/State';
-import RoleCard from '@/components/RoleCard';
+import ContactTracing from '@/components/ContactTracing.vue'; // makes connections
+import VerifyVisitor from '@/components/VerifyVisitor.vue'; // sends the appropriate exposure alert to Visitors
+import VerifyRoom from '@/components/VerifyRoom.vue'; // sends the appropriate exposure message to Rooms
+import RoleCard from '@/components/RoleCard.vue'; // used in any component that controls the role of the user at any time
+
+import State from '@/models/State.js'; // Object definition for application State
 
 export default {
   components: {

@@ -23,12 +23,15 @@
 import moment from 'moment';
 
 // @ is an alias to /src
-import ProfileCard from '@/components/ProfileCard.vue';
-import DataRepository from '@/store/repository.js';
-import Member from '@/models/Member';
-import Preference from '@/models/Preference';
-import CovidTestResultsCardV from '@/components/CovidTestResultsCardV.vue';
-import SymptomsCard from '@/components/SymptomsCard.vue';
+import ProfileCard from '@/components/ProfileCard.vue'; // contains PII
+import SymptomsCard from '@/components/SymptomsCard.vue'; // permits user to track the risk of exposing others based on data realted to symptoms presented
+import CovidTestResultsCardV from '@/components/CovidTestResultsCardV.vue'; // enables user to convert their covid test results into verifiable credential
+
+import Member from '@/models/Member.js'; // a nested object of personal data. this is a vestige of this app's reliance on the original Secours.io. we should reconsider the name. also, some data used to be tracked by Preference, now is held in State.
+import Preference from '@/models/Preference.js'; // nesting in json can be problematic. vues-orm normalizes nested data. Preference stores non-permanent personal data. Preference should not store app state.
+
+import DataRepository from '@/store/repository.js'; // static API for member model
+
 export default {
   name: 'profile',
 

@@ -34,7 +34,7 @@ export default class DataRepository {
 
   static async getState() {
     let fetched = await State.$fetch();
-    if (fetched.state.length) {
+    if (fetched.state?.length) {
       return fetched.state[0];
     } else {
       console.log('Creating state object...');
