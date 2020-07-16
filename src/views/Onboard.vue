@@ -93,7 +93,7 @@ export default {
   },
   computed: {
     showHardwareSetup() {
-      return this.state.showHardwareSetup;
+      return this.state?.showHardwareSetup;
     }
   },
   data() {
@@ -110,17 +110,26 @@ export default {
   methods: {
     onCancelHardwareSetup() {
       State.toggleShowHardwareSetup(!this.showHardwareSetup);
+    },
+
+    async getState() {
+      console.log('in Onboard.getState()');
+      let s = await DataRepository.getState();
+      // console.log('state:', s);
+      this.state = s;
+      console.log('in Onboard this.state:', this.state);
     }
   },
 
   async created() {
     this.loading = true;
-    console.log(`[${this.now}] Entering OnboardStepper.vue created()`);
+    console.log(`[${this.now}] Entering Onboard.vue created()`);
 
-    this.state = await DataRepository.getState();
+    await this.getState();
+
     console.log('showHardwareSetup', this.state?.showHardwareSetup);
 
-    console.log(this.now, 'Leaving OnboardStepper created()');
+    console.log(this.now, 'Leaving Onboard created()');
     this.loading = false;
   }
 };

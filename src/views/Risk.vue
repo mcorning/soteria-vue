@@ -53,6 +53,7 @@ import VerifyRoom from '@/components/VerifyRoom.vue'; // sends the appropriate e
 import RoleCard from '@/components/RoleCard.vue'; // used in any component that controls the role of the user at any time
 
 import State from '@/models/State.js'; // Object definition for application State
+import DataRepository from '@/store/repository.js';
 
 export default {
   components: {
@@ -138,6 +139,14 @@ export default {
 
     close() {
       this.firstTime = false;
+    },
+
+    async getState() {
+      console.log('in Risk.getState()');
+      let s = await DataRepository.getState();
+      // console.log('state:', s);
+      this.state = s;
+      console.log('in Risk this.state:', this.state);
     }
   },
 
@@ -147,8 +156,7 @@ export default {
     this.loading = true;
 
     console.log('Entering created() in Risk: getting State');
-    await State.$fetch();
-    this.state = State.find(0);
+    await this.getState();
     console.log('Leaving created() in Risk');
 
     this.loading = false;

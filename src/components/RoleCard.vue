@@ -36,6 +36,7 @@
 
 <script>
 import State from '@/models/State';
+import DataRepository from '@/store/repository.js';
 
 export default {
   computed: {
@@ -88,16 +89,23 @@ export default {
     onChangeRiskThreshold() {
       this.roomRiskThreshold = this.select.score;
       this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
+    },
+
+    async getState() {
+      console.log('in RoleCard.getState()');
+      let s = await DataRepository.getState();
+      // console.log('state:', s);
+      this.state = s;
+      console.log('in RoleCard this.state:', this.state);
+      this.select = { score: s.roomRiskThreshold, desc: '' };
+      this.$emit('changed-is-room-risk-manager', s.isRoomRiskManager);
     }
   },
 
   async created() {
     this.loading = true;
     console.log('Entering created() in RoleCard: getting State');
-    await State.$fetch();
-    this.state = State.find(0);
-    this.select = { score: this.state.roomRiskThreshold, desc: '' };
-    this.$emit('changed-is-room-risk-manager', this.state.isRoomRiskManager);
+    await this.getState();
     console.log('Leaving created() in RoleCard');
     this.loading = false;
   }

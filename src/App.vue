@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark dense>
-      <v-btn text rounded to="/onboard">Stop it</v-btn>
+      <v-btn text rounded to="/onboard">Onboard</v-btn>
 
       <v-spacer></v-spacer>
       <v-btn
@@ -13,12 +13,12 @@
         >{{ link.label }}</v-btn
       >
 
-      <v-btn v-if="image" height="0" width="0" to="/profile">
+      <!-- <v-btn v-if="image" height="0" width="0" to="/profile">
         <v-avatar min-width="36" width="36" height="36">
           <img :src="image" alt="Me" /> </v-avatar
-      ></v-btn>
+      ></v-btn> -->
 
-      <v-btn v-else to="/profile" text rounded> Track</v-btn>
+      <!-- <v-btn v-else to="/profile" text rounded> Track</v-btn> -->
     </v-app-bar>
 
     <v-content>
@@ -37,12 +37,12 @@
           :to="link.url"
           >{{ link.label }}</v-btn
         >
-        <v-btn v-if="image" height="0" width="0" to="/profile">
+        <!-- <v-btn v-if="image" height="0" width="0" to="/profile">
           <v-avatar min-width="30" width="30" height="30">
             <v-img :src="image" alt="Me"></v-img> </v-avatar
-        ></v-btn>
+        ></v-btn> -->
 
-        <v-btn v-else to="/profile" color="white" text rounded> Track</v-btn>
+        <!-- <v-btn to="/profile" color="white" text rounded> Track</v-btn> -->
         <v-flex
           prepend-icon="mdi-tm"
           primary
@@ -120,6 +120,10 @@ export default {
         {
           label: 'Trace',
           url: '/tracing'
+        },
+        {
+          label: 'Track',
+          url: '/profile'
         },
         {
           label: 'Check',

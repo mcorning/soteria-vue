@@ -38,12 +38,10 @@ export default class DataRepository {
       return fetched.state[0];
     } else {
       console.log('Creating state object...');
-      State.$create({
+      let states = await State.$create({
         data: { id: 0, isRoomRiskManager: false, roomRiskThreshold: 0 }
-      }).then(s => {
-        console.log('...returning new', s[0]);
-        return s[0];
       });
+      return states[0];
     }
   }
 
