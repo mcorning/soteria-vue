@@ -42,6 +42,30 @@
               src="https://chart.googleapis.com/chart?cht=qr&chl=https://soteriacovid2.z22.web.core.windows.net/&chs=200x200&chld=L|1"
             />
             <img />
+            <p>
+              You can add the app to your Home screen.
+            </p>
+            <v-card-subtitle class="pb-0 pt-0 ">iPhone users</v-card-subtitle>
+            If this is the first time you've added an app to your iPhone Home
+            screen,
+            <ol>
+              <li>
+                Look for the share icon at the bottom of the phone
+                <v-img src="../../assets/iPhoneAddToHomeScreen2.png" />
+              </li>
+              <li>Scroll down until you see "Add to Home Screen"</li>
+              <li>Click</li>
+            </ol>
+            <v-card-subtitle class="pb-0">Android users</v-card-subtitle>
+            If this is the first time you've added an app to your Android Home
+            screen,
+            <ol>
+              <li>
+                You should see this at the bottom of the app:
+                <v-img src="../../assets/AndroidAddToHomeScreen.png" />
+              </li>
+              <li>Adding is a two step process"</li>
+            </ol>
           </v-card-text>
         </v-card>
         <v-btn :color="btnColor" @click="e6 = 3">Continue</v-btn>
