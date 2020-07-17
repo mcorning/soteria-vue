@@ -11,7 +11,7 @@
           </v-chip>
         </v-col>
       </v-row>
-      <v-row align="center" no-gutters>
+      <v-row align="center" no-gutters v-if="isRoomRiskManager">
         <v-col cols="6">
           <v-card-subtitle>Room risk (max): {{ select.score }}</v-card-subtitle>
         </v-col>

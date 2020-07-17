@@ -1,12 +1,12 @@
 <template>
   <v-row>
-    <v-col>
+    <v-col cols="12">
       <RoleCard
         @changed-is-room-risk-manager="onChangedIsRoomRiskManager"
         @changed-room-risk-threshold="onChangedRoomRiskThreshold"
     /></v-col>
 
-    <v-col>
+    <v-col cols="12">
       <v-card>
         <v-stepper v-model="e1" vertical>
           <v-stepper-step :complete="e1 > 1" step="1">
@@ -34,7 +34,7 @@
         </v-stepper> </v-card
     ></v-col>
 
-    <v-col>
+    <v-col cols="12">
       <v-card>
         <v-stepper v-model="e2" vertical>
           <v-stepper-step :complete="e2 > 2" step="2">
