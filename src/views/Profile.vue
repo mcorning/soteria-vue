@@ -1,5 +1,21 @@
 <template>
-  <v-container class="primary lighten-5">
+  <v-container class="primary lighten-5 px-0 pt-0">
+    <v-system-bar
+      color="secondary"
+      :height="height"
+      :lights-out="lightsOut"
+      :window="window"
+    >
+      <span
+        ><small><v-icon>mdi-alert</v-icon>Alpha code R&D only</small></span
+      >
+      <v-spacer></v-spacer>
+      <span><small>Use hard reload</small></span>
+      <v-spacer></v-spacer>
+      <span
+        ><small>v. {{ VER }} </small></span
+      >
+    </v-system-bar>
     <div v-if="loading">
       <h2>Loading Profile Card</h2>
     </div>
@@ -31,11 +47,17 @@ import Member from '@/models/Member.js'; // a nested object of personal data. th
 import Preference from '@/models/Preference.js'; // nesting in json can be problematic. vues-orm normalizes nested data. Preference stores non-permanent personal data. Preference should not store app state.
 
 import DataRepository from '@/store/repository.js'; // static API for member model
+import lctVer from '@/lct.ver.json';
 
 export default {
   name: 'profile',
 
   data: () => ({
+    VER: lctVer.VER,
+
+    height: 24,
+    lightsOut: false,
+    window: false,
     TIME: 'hh:mm',
     loading: false
   }),

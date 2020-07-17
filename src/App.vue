@@ -73,7 +73,8 @@
 
 <script>
 require('dotenv').config();
-import config from '@/config.json';
+import lctVer from '@/lct.ver.json';
+
 import moment from 'moment';
 
 import Member from '@/models/Member';
@@ -106,8 +107,8 @@ export default {
 
   data() {
     return {
-      ver: config.VER,
-      shipString: config.SHIP_STRING,
+      ver: lctVer.VER,
+      shipString: lctVer.SHIP_STRING,
       prefs: null,
 
       homeRoute: '',

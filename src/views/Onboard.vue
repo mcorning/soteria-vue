@@ -1,5 +1,5 @@
 <template>
-  <v-container justify="center" class="primary darken-5 pa-1">
+  <v-container justify="center" class="primary darken-5 px-0 pt-0">
     <v-system-bar
       color="secondary"
       :height="height"
@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import config from '@/config.json';
+import lctVer from '@/lct.ver.json';
 
 import SetupStepper from '@/components/steppers/SetupStepper.vue';
 import PhiStepper from '@/components/steppers/PhiStepper.vue';
@@ -99,7 +99,7 @@ export default {
   data() {
     return {
       state: null,
-      VER: config.VER,
+      VER: lctVer.VER,
       height: 24,
       lightsOut: false,
       window: false,

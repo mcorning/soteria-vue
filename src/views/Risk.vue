@@ -1,5 +1,21 @@
 <template>
-  <v-container class="primary lighten-5 pa-2">
+  <v-container class="primary lighten-5 px-0 pt-0">
+    <v-system-bar
+      color="secondary"
+      :height="height"
+      :lights-out="lightsOut"
+      :window="window"
+    >
+      <span
+        ><small><v-icon>mdi-alert</v-icon>Alpha code R&D only</small></span
+      >
+      <v-spacer></v-spacer>
+      <span><small>Use hard reload</small></span>
+      <v-spacer></v-spacer>
+      <span
+        ><small>v. {{ VER }} </small></span
+      >
+    </v-system-bar>
     <RoleCard
       @changed-is-room-risk-manager="onChangedIsRoomRiskManager"
       @changed-room-risk-threshold="onChangedRoomRiskThreshold"
@@ -54,6 +70,7 @@ import RoleCard from '@/components/RoleCard.vue'; // used in any component that 
 
 import State from '@/models/State.js'; // Object definition for application State
 import DataRepository from '@/store/repository.js';
+import lctVer from '@/lct.ver.json';
 
 export default {
   components: {
@@ -119,6 +136,11 @@ export default {
   },
   data() {
     return {
+      VER: lctVer.VER,
+
+      height: 24,
+      lightsOut: false,
+      window: false,
       state: null,
       select: {},
       risks: [
