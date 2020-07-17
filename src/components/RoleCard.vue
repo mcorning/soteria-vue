@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="mb-12">
+    <v-card class="mb-3">
       <v-row align="center" justify="end" no-gutters>
         <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
         <v-spacer></v-spacer>

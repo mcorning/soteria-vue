@@ -56,7 +56,7 @@
         </v-col>
         <v-col>
           <v-card>
-            <v-card-title>Also: Track your PHI:</v-card-title>
+            <v-card-title>Next: Track your PHI:</v-card-title>
             <v-card-subtitle>In three steps:</v-card-subtitle>
             <PhiStepper />
           </v-card>

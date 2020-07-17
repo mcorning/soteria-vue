@@ -9,6 +9,7 @@ export default class State extends Model {
       isRoomRiskManager: this.boolean(false),
       // must be number (not string) for v-select to work
       roomRiskThreshold: this.number(0),
+      incubationPeriod: this.number(14),
       showHardwareSetup: this.boolean(true)
     };
   }
