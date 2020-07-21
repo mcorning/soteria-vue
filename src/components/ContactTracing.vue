@@ -30,9 +30,13 @@
             >
             <v-text-field v-model="newConnectionId" :label="newConnectionLabel">
             </v-text-field>
+            <v-btn @click="notify('I am sick', newConnectionLabel)"
+              >Send Message</v-btn
+            >
           </v-stepper-content>
-        </v-stepper> </v-card
-    ></v-col>
+        </v-stepper>
+      </v-card></v-col
+    >
 
     <v-col cols="12">
       <v-card>
@@ -238,7 +242,7 @@ export default {
 
     buttonLabel() {
       let x = this.isRoomRiskManager ? 'Visitor' : 'Room';
-      return `Connect with ${x}`;
+      return `Get ${x}'s Connection ID`;
     },
     buttonLabelAlert() {
       let x = this.isRoomRiskManager ? 'Visitor' : 'Room';
