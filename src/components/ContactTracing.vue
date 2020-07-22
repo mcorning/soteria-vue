@@ -4,19 +4,26 @@
       <RoleCard
         @changed-is-room-risk-manager="onChangedIsRoomRiskManager"
         @changed-room-risk-threshold="onChangedRoomRiskThreshold"
+        @changed-room-id="onChangedRoomId"
     /></v-col>
 
-    <v-col cols="12">
+    <!-- <v-col cols="12">
       <v-card>
         <v-stepper v-model="e1" vertical>
           <v-stepper-step :complete="e1 > 1" step="1">
             <p>Get connected</p>
-            <p>
-              <small>Visitor and Room exchange connection IDs.</small>
-            </p>
           </v-stepper-step>
           <v-stepper-content step="1">
-            <!-- Don't use dark prop if you want to use the loader template -->
+            <div v-if="role == 'Room'">
+              <v-img
+                id="qrRoom"
+                class="white--text align-end"
+                :src="qrSourceRoom"
+                height="200"
+                width="200"
+              >
+              </v-img>
+            </div>
             <v-btn
               color="primary"
               block
@@ -36,9 +43,9 @@
           </v-stepper-content>
         </v-stepper>
       </v-card></v-col
-    >
-
-    <v-col cols="12">
+    > -->
+    <!-- 
+    <v-col cols="12"> 
       <v-card>
         <v-stepper v-model="e2" vertical>
           <v-stepper-step :complete="e2 > 2" step="2">
@@ -52,7 +59,6 @@
           </v-stepper-step>
 
           <v-stepper-content step="2">
-            <!-- Don't use dark prop if you want to use the loader template -->
             <v-btn
               color="primary"
               block
@@ -63,6 +69,7 @@
                 <span>Alerting {{ buttonLabelAlert }}s...</span>
               </template></v-btn
             >
+
             <v-card-text>
               <v-row no-gutters justify="end">
                 <v-col cols="6">
@@ -121,14 +128,6 @@
                 </v-data-table>
               </template>
             </v-card-text>
-            <!-- <ConnectionCard /> -->
-            <!-- <v-text-field
-              v-model="newConnectionId"
-              :label="newConnectionLabel"
-              :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-              @click:append="show1 = !show1"
-            >
-            </v-text-field> -->
             <v-card-text class=" red--text pt-0">
               Connections active for {{ incubationPeriod }} days.
             </v-card-text>
@@ -140,7 +139,7 @@
           </v-stepper-content>
         </v-stepper>
       </v-card></v-col
-    >
+    >-->
     <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
       <template v-slot:activator="{ on }">
         <v-layout align-center justify-center>
@@ -150,7 +149,7 @@
         </v-layout>
       </template>
 
-      <v-card class="card">
+      <v-card v-if="role == 'Visitor'" class="card">
         <v-card-text
           >Switch to your digital wallet, press the Scan Code button, and point
           your camera to this QR code.</v-card-text
@@ -203,6 +202,7 @@ import config from '@/config.json';
 import axios from 'axios';
 axios.defaults.baseURL = config.BASEURL;
 
+import State from '@/models/State';
 import Connection from '@/models/Connection';
 import RoleCard from '@/components/RoleCard';
 // import ConnectionCard from '@/components/ConnectionCard';
@@ -216,22 +216,22 @@ export default {
   },
   watch: {
     loader() {
-      const l = this.loader;
-      console.log('loader', l);
-      this[l] = !this[l];
-      if (l == 'loading1') {
-        this.onMakeConnections().then(() => {
-          this[l] = false;
-          this.loader = null;
-        });
-      } else if (l == 'loading2') {
-        console.time('notifying...');
-        this.onNotify("I'm in quarantine.").then(() => {
-          this[l] = false;
-          this.loader = null;
-          console.timeEnd('notifying...');
-        });
-      }
+      //   const l = this.loader;
+      //   console.log('loader', l);
+      //   this[l] = !this[l];
+      //   if (l == 'loading1') {
+      //     this.onGetMultiPartyQR(this.newConnectionId).then(() => {
+      //       this[l] = false;
+      //       this.loader = null;
+      //     });
+      //   } else if (l == 'loading2') {
+      //     console.time('notifying...');
+      //     this.onNotify("I'm in quarantine.").then(() => {
+      //       this[l] = false;
+      //       this.loader = null;
+      //       console.timeEnd('notifying...');
+      //     });
+      //   }
     }
   },
   computed: {
@@ -255,10 +255,15 @@ export default {
     },
     newConnectionLabel() {
       let x = this.isRoomRiskManager ? "Visitor's" : "Room's";
-      return x + ' connections ID:';
+      return x + ' connection ID:';
     },
     qrSource() {
       return `https://chart.googleapis.com/chart?cht=qr&chl=${this.connectionRequestUrl}&chs=200x200&chld=L|1`;
+    },
+    qrSourceRoom() {
+      console.warn('Room url', this.roomConnectionRequestUrl);
+
+      return `https://chart.googleapis.com/chart?cht=qr&chl=${this.roomConnectionRequestUrl}&chs=200x200&chld=L|1`;
     },
 
     connections() {
@@ -289,10 +294,21 @@ export default {
     dialog: false,
     confirm: false,
     connectionRequestUrl: '',
+    roomConnectionRequestUrl: '',
     newConnectionId: '',
     m: null
   }),
   methods: {
+    onDeleteAll() {
+      console.log('Deleting all connections...');
+      Connection.deleteAll();
+    },
+
+    async onChangedRoomId(val) {
+      this.roomId = val;
+      await this.onGetMultiPartyQR();
+    },
+
     onChangedRoomRiskThreshold(val) {
       this.roomRiskThreshold = val;
     },
@@ -300,6 +316,35 @@ export default {
       this.isRoomRiskManager = val;
     },
 
+    async onGetMultiPartyQR() {
+      this.dialog = true;
+      let url = '/connections/room/?id=' + this.roomId;
+      console.log('url', url);
+      let axiosResponse = await axios({
+        url: url,
+        method: 'GET',
+        responseType: 'json',
+        headers: {
+          'Content-Type': 'text/html'
+        }
+      }).catch(e => {
+        console.log('Catch Axios - ', e);
+        return;
+      });
+
+      if (axiosResponse) {
+        console.log('Axios Response:', axiosResponse);
+        console.log('New connectionId', axiosResponse.data.connectionId);
+        this.newConnectionId = axiosResponse.data.connectionId;
+        this.roomConnectionRequestUrl = axiosResponse.data.url;
+        console.log('this.roomId', this.roomId);
+        State.changeRoomId(this.newConnectionId);
+        console.log('NEW URL:', this.roomConnectionRequestUrl);
+        State.changeRoomInvitationUrl(this.roomConnectionRequestUrl);
+      } else {
+        alert('Apologies. Try again with a unique name.');
+      }
+    },
     async onMakeConnections() {
       this.dialog = true;
       let url = '/connections';
@@ -336,6 +381,7 @@ export default {
       this.checkConnection();
     },
 
+    // called when dialog disappears
     async checkConnection() {
       // confirm invitation's Connected state
       let url = `/connection/?connectionId=${this.newConnectionId}`;
@@ -445,11 +491,13 @@ export default {
     },
 
     async getState() {
-      console.log('in RoleCard.getState()');
+      console.log('in ContactTracing.getState()');
       let s = await DataRepository.getState();
       this.state = s;
-      console.log('in RoleCard this.state:', this.state);
+      console.log('in ContactTracing this.state:', this.state);
       this.incubationPeriod = s.incubationPeriod;
+      this.roomConnectionRequestUrl = s.roomInvitationUrl;
+      this.roomId = s.roomId;
       this.$emit('changed-is-room-risk-manager', s.isRoomRiskManager);
     }
   },

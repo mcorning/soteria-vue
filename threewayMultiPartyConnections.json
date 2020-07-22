@@ -1,0 +1,48 @@
+[
+    {
+        "connectionId": "careCenter1",
+        "state": "Invited",
+        "invitation": "eyJsYWJlbCI6IkNhcmUgQ2VudGVyIDEiLCJpbWFnZVVybCI6Imh0dHBzOi8vdHJpbnNpY2FwaWFzc2V0cy5henVyZWVkZ2UubmV0L2ZpbGVzL2NiOGZhZWJhLTM3OTktNGY5NC05OWE0LWNkZDk0ZGE1MDcyYl8xMWVkZTUzYS1mZDgzLTQ0YzUtODBmZi0zNGI3NTc5NTZmODEucG5nIiwic2VydmljZUVuZHBvaW50IjoiaHR0cHM6Ly9hcGkucG9ydGFsLnN0cmVldGNyZWQuaWQvYWdlbnQvYmp1VkxzYkZqd0lEZkdPUEpuNFFjVzNJcTFoYXZrVnYiLCJyb3V0aW5nS2V5cyI6WyJEOGVYUmpkejlja3dEa3N1RVE1ZnBwOEpuMWhCUERHVWFpbmd0bm9vOHBXUSJdLCJyZWNpcGllbnRLZXlzIjpbIjNzVHJ0WUVzQXVZVFBvTTVQMUt6M2NSS3VZNnZGc1JNZXF6czNRUFc4WHVaIl0sIkBpZCI6IjU4OWU3MjdkLWQ2MDgtNGQwZi05MTVmLWFjMzg1ZDQ1ZGMwZCIsIkB0eXBlIjoiZGlkOnNvdjpCekNic05ZaE1yakhpcVpEVFVBU0hnO3NwZWMvY29ubmVjdGlvbnMvMS4wL2ludml0YXRpb24ifQ%3D%3D",
+        "invitationUrl": "https://redir.streetcred.id/SUmeEhM2M6kW",
+        "createdAtUtc": "2020-07-21T19:13:50Z",
+        "multiParty": true
+    },
+    {
+        "connectionId": "016482e9-cb81-4af3-9741-0b57dc77ea13",
+        "name": "Tao Corning ",
+        "myDid": "8743aSJnqDRutD2d642ihZ",
+        "theirDid": "97CP21UyVRkY6vWU2XbPhX",
+        "myKey": "4sanugzsdcmcsreE2tcCxdS8wUoU5siyXjxEa7WD98CF",
+        "theirKey": "4sanugzsdcmcsreE2tcCxdS8wUoU5siyXjxEa7WD98CF",
+        "state": "Connected",
+        "invitation": "eyJsYWJlbCI6IkNhcmUgQ2VudGVyIDEiLCJpbWFnZVVybCI6Imh0dHBzOi8vdHJpbnNpY2FwaWFzc2V0cy5henVyZWVkZ2UubmV0L2ZpbGVzL2NiOGZhZWJhLTM3OTktNGY5NC05OWE0LWNkZDk0ZGE1MDcyYl8xMWVkZTUzYS1mZDgzLTQ0YzUtODBmZi0zNGI3NTc5NTZmODEucG5nIiwic2VydmljZUVuZHBvaW50IjoiaHR0cHM6Ly9hcGkucG9ydGFsLnN0cmVldGNyZWQuaWQvYWdlbnQvYmp1VkxzYkZqd0lEZkdPUEpuNFFjVzNJcTFoYXZrVnYiLCJyb3V0aW5nS2V5cyI6WyJEOGVYUmpkejlja3dEa3N1RVE1ZnBwOEpuMWhCUERHVWFpbmd0bm9vOHBXUSJdLCJyZWNpcGllbnRLZXlzIjpbIjNzVHJ0WUVzQXVZVFBvTTVQMUt6M2NSS3VZNnZGc1JNZXF6czNRUFc4WHVaIl0sIkBpZCI6IjU4OWU3MjdkLWQ2MDgtNGQwZi05MTVmLWFjMzg1ZDQ1ZGMwZCIsIkB0eXBlIjoiZGlkOnNvdjpCekNic05ZaE1yakhpcVpEVFVBU0hnO3NwZWMvY29ubmVjdGlvbnMvMS4wL2ludml0YXRpb24ifQ%3D%3D",
+        "invitationUrl": "https://redir.streetcred.id/SUmeEhM2M6kW",
+        "endpoint": {
+            "verkey": [
+                "CLPfsxUh3L9dvShn64fbFJdLko6GneaBCDZBP66iYUwD"
+            ],
+            "uri": "https://streetcred-mediator-agent.azurewebsites.net/"
+        },
+        "createdAtUtc": "2020-07-21T19:17:22Z",
+        "multiParty": false
+    },
+    {
+        "connectionId": "85b70390-f85f-46c6-8489-83cf8ca26533",
+        "name": "Mpc iPhone",
+        "myDid": "UXawhAZmXnC9M9La6EZ5G9",
+        "theirDid": "TWh7hrjACe6ctZ8qbptubT",
+        "myKey": "G1CCyMbZqx3AoKq5o1LUwEhF4ALLNeQKZpcB3gkAWvE8",
+        "theirKey": "G1CCyMbZqx3AoKq5o1LUwEhF4ALLNeQKZpcB3gkAWvE8",
+        "state": "Connected",
+        "invitation": "eyJsYWJlbCI6IkNhcmUgQ2VudGVyIDEiLCJpbWFnZVVybCI6Imh0dHBzOi8vdHJpbnNpY2FwaWFzc2V0cy5henVyZWVkZ2UubmV0L2ZpbGVzL2NiOGZhZWJhLTM3OTktNGY5NC05OWE0LWNkZDk0ZGE1MDcyYl8xMWVkZTUzYS1mZDgzLTQ0YzUtODBmZi0zNGI3NTc5NTZmODEucG5nIiwic2VydmljZUVuZHBvaW50IjoiaHR0cHM6Ly9hcGkucG9ydGFsLnN0cmVldGNyZWQuaWQvYWdlbnQvYmp1VkxzYkZqd0lEZkdPUEpuNFFjVzNJcTFoYXZrVnYiLCJyb3V0aW5nS2V5cyI6WyJEOGVYUmpkejlja3dEa3N1RVE1ZnBwOEpuMWhCUERHVWFpbmd0bm9vOHBXUSJdLCJyZWNpcGllbnRLZXlzIjpbIjNzVHJ0WUVzQXVZVFBvTTVQMUt6M2NSS3VZNnZGc1JNZXF6czNRUFc4WHVaIl0sIkBpZCI6IjU4OWU3MjdkLWQ2MDgtNGQwZi05MTVmLWFjMzg1ZDQ1ZGMwZCIsIkB0eXBlIjoiZGlkOnNvdjpCekNic05ZaE1yakhpcVpEVFVBU0hnO3NwZWMvY29ubmVjdGlvbnMvMS4wL2ludml0YXRpb24ifQ%3D%3D",
+        "invitationUrl": "https://redir.streetcred.id/SUmeEhM2M6kW",
+        "endpoint": {
+            "verkey": [
+                "CLPfsxUh3L9dvShn64fbFJdLko6GneaBCDZBP66iYUwD"
+            ],
+            "uri": "https://streetcred-mediator-agent.azurewebsites.net/"
+        },
+        "createdAtUtc": "2020-07-21T19:19:54Z",
+        "multiParty": false
+    }
+]

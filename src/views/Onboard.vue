@@ -51,7 +51,7 @@
           <v-card>
             <v-card-title>First: Local Contact Tracing...</v-card-title>
             <v-card-subtitle>In two steps:</v-card-subtitle>
-            <ContactTracing />
+            <RoleCard />
           </v-card>
         </v-col>
         <v-col>
@@ -78,7 +78,7 @@ import lctVer from '@/lct.ver.json';
 import SetupStepper from '@/components/steppers/SetupStepper.vue';
 import PhiStepper from '@/components/steppers/PhiStepper.vue';
 
-import ContactTracing from '@/components/ContactTracing.vue';
+import RoleCard from '@/components/RoleCard.vue';
 import Verify from '@/components/Verify.vue';
 
 import State from '@/models/State.js';
@@ -88,7 +88,7 @@ export default {
   components: {
     SetupStepper,
     PhiStepper,
-    ContactTracing,
+    RoleCard,
     Verify
   },
   computed: {

@@ -17,17 +17,17 @@
         ><small>v. {{ VER }} </small></span
       >
     </v-system-bar>
-    <ContactTracing />
+    <RoleCard />
   </v-container>
 </template>
 
 <script>
-import ContactTracing from '@/components/ContactTracing.vue';
+import RoleCard from '@/components/RoleCard.vue';
 import lctVer from '@/lct.ver.json';
 
 export default {
   components: {
-    ContactTracing
+    RoleCard
   },
   computed: {},
   data() {
