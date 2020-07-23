@@ -1,72 +1,88 @@
 <template>
   <div>
     <v-card class="mb-3">
-      <v-row align="center" justify="end" no-gutters>
-        <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
-        <v-spacer></v-spacer>
-        <v-col>
-          <v-chip large @click="isRoomRiskManager = !isRoomRiskManager">
-            {{ role }}
-            <v-icon right>mdi-pencil</v-icon>
-          </v-chip>
-        </v-col>
-      </v-row>
-      <v-row v-if="isRoomRiskManager" align="center" no-gutters>
-        <v-col cols="12">
-          <v-card-text>
-            <v-text-field
-              dense
-              v-model="roomId"
-              @change="onGetNewRoomQr"
-              label="Room ID:"
-              hint="This ID must be unique"
+      <v-card-text>
+        <v-row align="center" justify="end" no-gutters>
+          <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
+          <v-spacer></v-spacer>
+          <v-col>
+            <v-chip large @click="isRoomRiskManager = !isRoomRiskManager">
+              {{ role }}
+              <v-icon right>mdi-pencil</v-icon>
+            </v-chip>
+          </v-col>
+        </v-row>
+        <v-row v-if="isRoomRiskManager" align="center" no-gutters>
+          <v-col cols="12">
+            <v-card-text>
+              <v-text-field
+                dense
+                v-model="roomId"
+                @change="onGetNewRoomQr"
+                label="Room ID:"
+                hint="This ID must be unique"
+              >
+                <template v-slot:loader>
+                  <span>Getting QR code...</span>
+                </template>
+              </v-text-field>
+            </v-card-text>
+          </v-col>
+          <v-col cols="6">
+            <v-card-subtitle
+              >You can scan this QR code to make a connection with the Room in
+              your digital wallet. You would do this is you want to exchange
+              credentials with the Room.</v-card-subtitle
             >
-              <template v-slot:loader>
-                <span>Getting QR code...</span>
-              </template>
-            </v-text-field>
-          </v-card-text>
-        </v-col>
-        <v-col cols="6">
-          <v-card-subtitle
-            >If room is safe enough for the visitor, they may enter after they
-            scan the room's QR code</v-card-subtitle
-          >
-        </v-col>
-        <v-col cols="6">
-          <v-img
-            id="qrRoom"
-            class="white--text align-end"
-            :src="qrSourceRoom"
-            height="200"
-            width="200"
-          >
-          </v-img>
-        </v-col>
+          </v-col>
+          <v-col cols="6">
+            <v-img
+              id="qrRoom"
+              class="white--text align-end"
+              :src="qrSourceRoom"
+              height="200"
+              width="200"
+            >
+            </v-img>
+          </v-col>
 
-        <v-col cols="6">
-          <v-card-text>
-            <v-select
-              :disabled="!isRoomRiskManager"
-              v-model="select"
-              @change="roomRiskThreshold = select.score"
-              :items="risks"
-              item-text="desc"
-              item-value="score"
-              label="Select"
-              return-object
-              single-line
-              dense
-            ></v-select
-          ></v-card-text>
-        </v-col>
-        <v-col cols="6">
-          <v-card-subtitle>Room risk (max): {{ select.score }}</v-card-subtitle>
-        </v-col>
-      </v-row>
-      <v-row v-else align="center" no-gutters>
-        <v-col cols="12">
-          <v-card-text>
+          <v-col cols="12">
+            <v-card-title class="pa-0"
+              >Stipulate Room's risk tolerance:</v-card-title
+            >
+          </v-col>
+
+          <v-col cols="6">
+            <v-card-text class="pt-0">
+              <v-select
+                :disabled="!isRoomRiskManager"
+                v-model="select"
+                @change="roomRiskThreshold = select.score"
+                :items="risks"
+                item-text="desc"
+                item-value="score"
+                label="Select"
+                return-object
+                single-line
+                dense
+              ></v-select
+            ></v-card-text>
+          </v-col>
+          <v-col cols="6">
+            <v-card-subtitle
+              >Room risk (max): {{ select.score }}</v-card-subtitle
+            >
+          </v-col>
+          <v-col cols="12">
+            <v-card-subtitle class="pa-0"
+              >Visitors can enter based on the Room's riskiness.
+            </v-card-subtitle>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-text>
+        <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
+          <v-col cols="12">
             <v-text-field
               dense
               v-model="connectionId"
@@ -79,7 +95,11 @@
                 <span>Getting QR code...</span>
               </template>
             </v-text-field>
-
+          </v-col>
+          <v-col cols="6">
+            <v-card-subtitle
+              >Connection Invitation for {{ connectionId }}</v-card-subtitle
+            >
             <v-img
               id="qrRoom"
               class="white--text align-end"
@@ -88,72 +108,100 @@
               width="200"
             >
             </v-img>
+          </v-col>
+          <v-col cols="6">
             <v-card-subtitle
-              >Connection Invitation for {{ connectionId }}</v-card-subtitle
+              >Rooms can scan this QR code to make a connection (as secure
+              communication channel) with your digital wallet. You would do this
+              is you want to exchange credentials with the
+              Room.</v-card-subtitle
             >
-          </v-card-text>
-        </v-col>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+    <v-card>
+      <v-row>
+        <v-card-title>Available Rooms</v-card-title>
+        <v-card-text>
+          <v-list shaped>
+            <v-list-item-group v-model="room" color="primary">
+              <v-list-item v-for="(room, i) in rooms" :key="i">
+                <v-list-item-icon>
+                  <v-icon color="red">{{
+                    'mdi-account-multiple-check'
+                  }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="room"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-card-text>
       </v-row>
     </v-card>
     <v-card>
-      <v-list shaped>
-        <v-subheader>ROOMS</v-subheader>
-        <v-list-item-group v-model="room" color="primary">
-          <v-list-item v-for="(room, i) in rooms" :key="i">
-            <v-list-item-icon>
-              <v-icon color="red">{{ 'mdi-account-multiple-check' }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title v-text="room"></v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-      <v-btn color="primary" block @click="onRoomSignIn"
-        >Sign the Visitor Book for {{ rooms[room] }}
-      </v-btn>
-      <template>
-        <v-data-table
-          v-model="selected"
-          :headers="headers"
-          :items="connections"
-          :items-per-page="1"
-          item-key="connectionId"
-          show-select
-          class="elevation-1"
-          :footer-props="{
-            showFirstLastPage: true,
-            firstIcon: 'mdi-arrow-collapse-left',
-            lastIcon: 'mdi-arrow-collapse-right',
-            prevIcon: 'mdi-minus',
-            nextIcon: 'mdi-plus',
-            itemsPerPageOptions: [1, 5, 10, -1]
-          }"
+      <v-container
+        justify="center"
+        class="primary lighten-5"
+        v-if="role == 'Visitor'"
+      >
+        <v-btn color="primary" block @click="onRoomSignIn"
+          >Sign the Visitor Book for {{ rooms[room] }}
+        </v-btn>
+        <v-card-subtitle
+          >These are the rooms you occupied in the last
+          {{ incubationPeriod }} days</v-card-subtitle
         >
-          <template v-slot:item.connectionId="{ item }">
-            {{ item.connectionId.substr(0, 8) }}...
-          </template>
-          <template v-slot:item.date="{ item }">
-            {{
-              item.date.toLocaleDateString('en-US', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              })
-            }}
-          </template>
-          <template v-slot:item.types="{ item }">
-            <v-icon :color="item.isRoomId ? 'red' : 'black'">{{
-              item.isRoomId ? 'mdi-account-multiple-check' : 'mdi-account-check'
-            }}</v-icon>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon @click="deleteConnection(item.connectionId)">
-              mdi-delete
-            </v-icon>
-          </template>
-        </v-data-table>
-      </template>
+        <template>
+          <v-data-table
+            v-model="selected"
+            :headers="headers"
+            :items="connections"
+            :items-per-page="3"
+            item-key="id"
+            show-select
+            class="elevation-1"
+            :footer-props="{
+              showFirstLastPage: true,
+              firstIcon: 'mdi-arrow-collapse-left',
+              lastIcon: 'mdi-arrow-collapse-right',
+              prevIcon: 'mdi-minus',
+              nextIcon: 'mdi-plus',
+              itemsPerPageOptions: [1, 5, 10, -1]
+            }"
+          >
+            <template v-slot:item.connectionId="{ item }">
+              {{ item.connectionId }}
+            </template>
+            <template v-slot:item.date="{ item }">
+              {{
+                item.date.toLocaleDateString('en-US', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                })
+              }}
+            </template>
+            <template v-slot:item.types="{ item }">
+              <v-icon :color="item.isRoomId ? 'red' : 'black'">{{
+                item.isRoomId
+                  ? 'mdi-account-multiple-check'
+                  : 'mdi-account-check'
+              }}</v-icon>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <v-icon @click="deleteConnection(item.id)">
+                mdi-delete
+              </v-icon>
+              <v-icon @click="alertOccupants(item.connectionId)">
+                mdi-alert
+              </v-icon>
+            </template>
+          </v-data-table>
+        </template>
+      </v-container>
     </v-card>
   </div>
 </template>
@@ -250,11 +298,12 @@ export default {
   },
   data() {
     return {
+      incubationPeriod: 14,
       transition: 'scale-transition',
       singleSelect: true,
       selected: [],
       headers: [
-        { text: 'ID', value: 'connectionId' },
+        { text: 'Room ID', value: 'connectionId' },
         { text: 'Connected', value: 'date' },
         { text: 'Type', value: 'types' },
         { text: 'Delete', value: 'actions' }
@@ -280,6 +329,21 @@ export default {
   },
 
   methods: {
+    deleteConnection(id) {
+      if (this.selected.length) {
+        alert(`Deleting ${this.selected.length} occupancies`);
+      } else {
+        alert('Deleting ' + id);
+      }
+    },
+    alertOccupants(id) {
+      if (this.selected.length) {
+        alert(`Alerting ${this.selected.length} Rooms`);
+      } else {
+        alert('Alerting occupants of room ' + id);
+      }
+    },
+
     onRoomSignIn() {
       let payload = {
         connectionId: this.roomName,
@@ -336,6 +400,8 @@ export default {
       this.roomInvitationUrl = s.roomInvitationUrl;
       this.roomId = s.roomId;
       this.connectionId = s.connectionId;
+      this.incubationPeriod = s.incubationPeriod;
+
       this.select = { score: s.roomRiskThreshold, desc: '' };
       this.$emit('changed-is-room-risk-manager', s.isRoomRiskManager);
     }
