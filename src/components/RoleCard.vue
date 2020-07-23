@@ -17,9 +17,9 @@
             <v-text-field
               dense
               v-model="roomId"
-              @change="onGetNewQr"
+              @change="onGetNewRoomQr"
               label="Room ID:"
-              hint="This ID must be unique and have no spaces"
+              hint="This ID must be unique"
             >
             </v-text-field>
           </v-card-text>
@@ -67,11 +67,45 @@
             <v-text-field
               dense
               v-model="connectionId"
+              @change="onGetNewVisitorQr"
               hint="Get your connectionId from the name in your Phone settings"
               label="Phone ID:"
             >
             </v-text-field
           ></v-card-text>
+          <v-btn
+            color="primary"
+            block
+            @click="loader = 'loading1'"
+            :loading="loading1"
+            >Connect with a Room
+            <template v-slot:loader>
+              <span>Getting QR code...</span>
+            </template></v-btn
+          >
+          <v-img
+            id="qrRoom"
+            class="white--text align-end"
+            :src="qrSourceRoom"
+            height="200"
+            width="200"
+          >
+          </v-img>
+          <v-list shaped>
+            <v-subheader>ROOMS</v-subheader>
+            <v-list-item-group v-model="room" color="primary">
+              <v-list-item v-for="(room, i) in rooms" :key="i">
+                <v-list-item-icon>
+                  <v-icon color="red">{{
+                    'mdi-account-multiple-check'
+                  }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="room"></v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
         </v-col>
       </v-row>
     </v-card>
@@ -81,7 +115,9 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
+axios.defaults.baseURL = config.DEBUG
+  ? config.BASEURL_LOCAL
+  : config.BASEURL_AZURE;
 
 import State from '@/models/State';
 import DataRepository from '@/store/repository.js';
@@ -145,8 +181,26 @@ export default {
       }
     }
   },
+  watch: {
+    loader() {
+      const l = this.loader;
+      console.log('loader', l);
+      this[l] = !this[l];
+      if (l == 'loading1') {
+        this.onGetNewVisitorQr().then(() => {
+          this[l] = false;
+          this.loader = null;
+        });
+      }
+    }
+  },
   data() {
     return {
+      loader: null,
+      loading: false,
+      loading1: false,
+      rooms: [],
+      room: '',
       roomInvitationUrl: '',
       state: null,
       select: {},
@@ -163,12 +217,31 @@ export default {
   },
 
   methods: {
-    onGetNewQr() {
-      axios('/connections/room/?id=' + this.roomId).then(s => {
-        'axios result:', console.log(s);
-        this.roomInvitationUrl = s.data.url;
+    onGetRooms() {
+      axios('/connections/list/?state=Invited').then(s => {
+        console.log('Invited connections:', s);
+        this.rooms = s.data.connections.map(v => v.connectionId);
       });
     },
+    onGetNewRoomQr() {
+      console.log(`getting QR code for room ${this.roomId}`);
+
+      axios('/invitations/?id=' + this.roomId).then(s => {
+        console.log('New Room QR:', s);
+        this.roomInvitationUrl = s.data.url;
+      });
+      console.log('Room connection invitation url', this.roomInvitationUrl);
+    },
+
+    async onGetNewVisitorQr() {
+      console.log(`getting QR code for ${this.connectionId}`);
+      axios('/connections/?name=' + this.connectionId).then(s => {
+        console.log('New Visitor QR:', s);
+        this.roomInvitationUrl = s.data.url;
+      });
+      console.log('Visitor connection invitation url', this.roomInvitationUrl);
+    },
+
     onChangeRiskThreshold() {
       this.roomRiskThreshold = this.select.score;
       this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
@@ -182,7 +255,7 @@ export default {
       console.log('in RoleCard this.state:', this.state);
       this.roomInvitationUrl = s.roomInvitationUrl;
       this.roomId = s.roomId;
-
+      this.connectionId = s.connectionId;
       this.select = { score: s.roomRiskThreshold, desc: '' };
       this.$emit('changed-is-room-risk-manager', s.isRoomRiskManager);
     }
@@ -192,7 +265,9 @@ export default {
     this.loading = true;
     console.log('Entering created() in RoleCard: getting State');
     await this.getState();
+    console.log(axios.defaults.baseURL);
     console.log('Leaving created() in RoleCard');
+    this.onGetRooms();
     this.loading = false;
   }
 };

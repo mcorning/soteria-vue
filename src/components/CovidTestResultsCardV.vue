@@ -76,7 +76,9 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
+axios.defaults.baseURL = config.DEBUG
+  ? config.BASEURL_LOCAL
+  : config.BASEURL_AZURE;
 
 import { validationMixin } from 'vuelidate';
 import { required } from 'vuelidate/lib/validators';

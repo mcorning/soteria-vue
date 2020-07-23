@@ -166,7 +166,9 @@ import ContactTracing1 from '@/components/ContactTracing1';
 import ContactTracing2 from '@/components/ContactTracing2';
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
+axios.defaults.baseURL = config.DEBUG
+  ? config.BASEURL_LOCAL
+  : config.BASEURL_AZURE;
 
 export default {
   components: {

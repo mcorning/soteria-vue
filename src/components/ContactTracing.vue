@@ -200,7 +200,9 @@
 <script>
 import config from '@/config.json';
 import axios from 'axios';
-axios.defaults.baseURL = config.BASEURL;
+axios.defaults.baseURL = config.DEBUG
+  ? config.BASEURL_LOCAL
+  : config.BASEURL_AZURE;
 
 import State from '@/models/State';
 import Connection from '@/models/Connection';
