@@ -21,6 +21,9 @@
               label="Room ID:"
               hint="This ID must be unique"
             >
+              <template v-slot:loader>
+                <span>Getting QR code...</span>
+              </template>
             </v-text-field>
           </v-card-text>
         </v-col>
@@ -70,44 +73,87 @@
               @change="onGetNewVisitorQr"
               hint="Get your connectionId from the name in your Phone settings"
               label="Phone ID:"
+              :loading="loading1"
             >
-            </v-text-field
-          ></v-card-text>
-          <v-btn
-            color="primary"
-            block
-            @click="loader = 'loading1'"
-            :loading="loading1"
-            >Connect with a Room
-            <template v-slot:loader>
-              <span>Getting QR code...</span>
-            </template></v-btn
-          >
-          <v-img
-            id="qrRoom"
-            class="white--text align-end"
-            :src="qrSourceRoom"
-            height="200"
-            width="200"
-          >
-          </v-img>
-          <v-list shaped>
-            <v-subheader>ROOMS</v-subheader>
-            <v-list-item-group v-model="room" color="primary">
-              <v-list-item v-for="(room, i) in rooms" :key="i">
-                <v-list-item-icon>
-                  <v-icon color="red">{{
-                    'mdi-account-multiple-check'
-                  }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title v-text="room"></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
+              <template v-slot:loader>
+                <span>Getting QR code...</span>
+              </template>
+            </v-text-field>
+
+            <v-img
+              id="qrRoom"
+              class="white--text align-end"
+              :src="qrSourceRoom"
+              height="200"
+              width="200"
+            >
+            </v-img>
+            <v-card-subtitle
+              >Connection Invitation for {{ connectionId }}</v-card-subtitle
+            >
+          </v-card-text>
         </v-col>
       </v-row>
+    </v-card>
+    <v-card>
+      <v-list shaped>
+        <v-subheader>ROOMS</v-subheader>
+        <v-list-item-group v-model="room" color="primary">
+          <v-list-item v-for="(room, i) in rooms" :key="i">
+            <v-list-item-icon>
+              <v-icon color="red">{{ 'mdi-account-multiple-check' }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title v-text="room"></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+      <v-btn color="primary" block @click="onRoomSignIn"
+        >Sign the Visitor Book for {{ rooms[room] }}
+      </v-btn>
+      <template>
+        <v-data-table
+          v-model="selected"
+          :headers="headers"
+          :items="connections"
+          :items-per-page="1"
+          item-key="connectionId"
+          show-select
+          class="elevation-1"
+          :footer-props="{
+            showFirstLastPage: true,
+            firstIcon: 'mdi-arrow-collapse-left',
+            lastIcon: 'mdi-arrow-collapse-right',
+            prevIcon: 'mdi-minus',
+            nextIcon: 'mdi-plus',
+            itemsPerPageOptions: [1, 5, 10, -1]
+          }"
+        >
+          <template v-slot:item.connectionId="{ item }">
+            {{ item.connectionId.substr(0, 8) }}...
+          </template>
+          <template v-slot:item.date="{ item }">
+            {{
+              item.date.toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              })
+            }}
+          </template>
+          <template v-slot:item.types="{ item }">
+            <v-icon :color="item.isRoomId ? 'red' : 'black'">{{
+              item.isRoomId ? 'mdi-account-multiple-check' : 'mdi-account-check'
+            }}</v-icon>
+          </template>
+          <template v-slot:item.actions="{ item }">
+            <v-icon @click="deleteConnection(item.connectionId)">
+              mdi-delete
+            </v-icon>
+          </template>
+        </v-data-table>
+      </template>
     </v-card>
   </div>
 </template>
@@ -120,10 +166,18 @@ axios.defaults.baseURL = config.DEBUG
   : config.BASEURL_AZURE;
 
 import State from '@/models/State';
+import Connection from '@/models/Connection';
 import DataRepository from '@/store/repository.js';
 
 export default {
   computed: {
+    connections() {
+      return Connection.all();
+    },
+    roomName() {
+      return this.rooms[this.room];
+    },
+
     qrSourceRoom() {
       console.log('Room url', this.roomInvitationUrl);
 
@@ -196,11 +250,20 @@ export default {
   },
   data() {
     return {
+      transition: 'scale-transition',
+      singleSelect: true,
+      selected: [],
+      headers: [
+        { text: 'ID', value: 'connectionId' },
+        { text: 'Connected', value: 'date' },
+        { text: 'Type', value: 'types' },
+        { text: 'Delete', value: 'actions' }
+      ],
       loader: null,
       loading: false,
       loading1: false,
       rooms: [],
-      room: '',
+      room: 0,
       roomInvitationUrl: '',
       state: null,
       select: {},
@@ -217,6 +280,21 @@ export default {
   },
 
   methods: {
+    onRoomSignIn() {
+      let payload = {
+        connectionId: this.roomName,
+        text: `${this.connectionId} signed into ${this.roomName}.`
+      };
+      console.log('Signing in with payload:', payload);
+      axios({ url: '/messages', data: payload, method: 'POST' })
+        .then(() => {
+          console.log(`Signed into: ${this.roomName}`);
+          DataRepository.connect(this.roomName);
+          Connection.$fetch();
+        })
+        .catch(e => console.error(e));
+    },
+
     onGetRooms() {
       axios('/connections/list/?state=Invited').then(s => {
         console.log('Invited connections:', s);
@@ -265,6 +343,8 @@ export default {
 
   async created() {
     this.loading = true;
+    await Connection.$fetch();
+
     console.log('Entering created() in RoleCard: getting State');
     await this.getState();
     console.log(axios.defaults.baseURL);

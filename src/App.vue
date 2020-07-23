@@ -86,6 +86,10 @@ export default {
   components: {},
 
   computed: {
+    shipString() {
+      return moment(lctVer.VER, 'MM.DD.hh.mm');
+    },
+
     member() {
       let m = Member.query().first();
 
@@ -108,7 +112,6 @@ export default {
   data() {
     return {
       ver: lctVer.VER,
-      shipString: lctVer.SHIP_STRING,
       prefs: null,
 
       homeRoute: '',

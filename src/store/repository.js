@@ -1,6 +1,7 @@
 import Member from '@/models/Member';
 import State from '@/models/State';
 import Credential from '@/models/Credential';
+import Connection from '@/models/Connection';
 
 // using the query builder, we can easily get the specific data
 // we need in our components
@@ -39,7 +40,11 @@ export default class DataRepository {
     } else {
       console.log('Creating state object...');
       let states = await State.$create({
-        data: { id: 0, isRoomRiskManager: false, roomRiskThreshold: 0 }
+        data: {
+          id: 0,
+          isRoomRiskManager: false,
+          roomRiskThreshold: 0
+        }
       });
       return states[0];
     }
@@ -57,5 +62,19 @@ export default class DataRepository {
       .get();
     console.log('Credentials', x);
     return x;
+  }
+
+  static async getConnections() {
+    return Connection.all();
+  }
+
+  static async connect(connectionId) {
+    console.log('Repository updating', connectionId);
+    Connection.$update({
+      data: {
+        connectionId: connectionId,
+        date: new Date()
+      }
+    });
   }
 }
