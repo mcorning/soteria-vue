@@ -220,7 +220,9 @@ export default {
     onGetRooms() {
       axios('/connections/list/?state=Invited').then(s => {
         console.log('Invited connections:', s);
-        this.rooms = s.data.connections.map(v => v.connectionId);
+        this.rooms = s.data.connections
+          .filter(v => v.multiParty)
+          .map(v => v.connectionId);
       });
     },
     onGetNewRoomQr() {
