@@ -195,7 +195,7 @@
               <v-icon @click="deleteConnection(item.id)">
                 mdi-delete
               </v-icon>
-              <v-icon @click="alertOccupants(item.connectionId)">
+              <v-icon @click="alertRooms(item.connectionId)">
                 mdi-alert
               </v-icon>
             </template>
@@ -331,16 +331,40 @@ export default {
   methods: {
     deleteConnection(id) {
       if (this.selected.length) {
-        alert(`Deleting ${this.selected.length} occupancies`);
+        if (confirm(`Deleting ${this.selected.length} occupancies`)) {
+          this.selected.forEach(key => {
+            console.log(key.id, 'deleted');
+            Connection.$delete(key.id);
+          });
+        }
       } else {
-        alert('Deleting ' + id);
+        if (confirm('Deleting ' + id)) {
+          Connection.$delete(id);
+        }
       }
+      Connection.$fetch();
     },
-    alertOccupants(id) {
+
+    alertRooms(id) {
       if (this.selected.length) {
-        alert(`Alerting ${this.selected.length} Rooms`);
+        if (confirm(`Alerting ${this.selected.length} rooms`)) {
+          new Set(this.selected.map(v => v.connectionId)).forEach(v => {
+            let payload = {
+              connectionId: v,
+              text: `ALERT: ${this.connectionId} is in quarantine.`
+            };
+            console.log('Alerting:', payload);
+            axios({
+              url: '/messages',
+              data: payload,
+              method: 'POST'
+            }).catch(e => console.error(e));
+          });
+        }
       } else {
-        alert('Alerting occupants of room ' + id);
+        if (confirm('Alerting room ' + id)) {
+          console.log(id, 'alerted');
+        }
       }
     },
 
