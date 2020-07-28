@@ -32,10 +32,35 @@
         </v-row>
         <v-row v-if="isRoomRiskManager" align="center" no-gutters>
           <v-col cols="12">
+            <v-btn @click="onGetRoomWarnings" color="primary" block>
+              Check logins, warnings, or alerts
+            </v-btn>
             <v-card-text>
-              <v-btn @click="onGetRoomWarnings">
-                Check for exposure warnings
-              </v-btn>
+              <!-- <ul>
+                <li v-for="{ item, key, index } in mappedMsgs" :key="index">
+                  {{ item.sender }}
+                </li>
+              </ul> -->
+              <v-simple-table fixed-header height="300px">
+                <template v-slot:default>
+                  <thead>
+                    <tr>
+                      <th class="text-left">Sent</th>
+                      <th class="text-left">Occupant</th>
+                      <th class="text-left">Message</th>
+                      <th class="text-left">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in messages" :key="item.date">
+                      <td>{{ item.date }}</td>
+                      <td>{{ item.sender }}</td>
+                      <td>{{ item.text }}</td>
+                      <td>{{ item.type }}</td>
+                    </tr>
+                  </tbody>
+                </template>
+              </v-simple-table>
             </v-card-text>
           </v-col>
         </v-row>
@@ -93,6 +118,8 @@
           </v-col>
         </v-row>
       </v-card-text>
+
+      <!-- Available Rooms -->
       <v-card-text>
         <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
           <v-col cols="12">
@@ -109,32 +136,33 @@
               </template>
             </v-text-field>
           </v-col>
-          <v-col cols="6">
-            <v-card-subtitle
-              >Connection Invitation for {{ connectionId }}</v-card-subtitle
-            >
-            <v-img
-              id="qrRoom"
-              class="white--text align-end"
-              :src="qrSourceRoom"
-              height="200"
-              width="200"
-            >
-            </v-img>
-          </v-col>
-          <v-col cols="6">
-            <v-card-subtitle
-              >Rooms can scan this QR code to make a connection (as secure
-              communication channel) with your digital wallet. You would do this
-              is you want to exchange credentials with the
-              Room.</v-card-subtitle
-            >
-          </v-col>
+          <div v-if="showDetail">
+            <v-col cols="6">
+              <v-card-subtitle
+                >Connection Invitation for {{ connectionId }}</v-card-subtitle
+              >
+              <v-img
+                id="qrRoom"
+                class="white--text align-end"
+                :src="qrSourceRoom"
+                height="200"
+                width="200"
+              >
+              </v-img>
+            </v-col>
+            <v-col cols="6">
+              <v-card-subtitle
+                >Rooms can scan this QR code to make a connection (as secure
+                communication channel) with your digital wallet. You would do
+                this is you want to exchange credentials with the
+                Room.</v-card-subtitle
+              >
+            </v-col>
+          </div>
         </v-row>
       </v-card-text>
     </v-card>
 
-    <!-- Available Rooms -->
     <v-card>
       <v-row>
         <v-card-title>Available Rooms</v-card-title>
@@ -156,6 +184,7 @@
         </v-card-text>
       </v-row>
     </v-card>
+
     <v-card>
       <v-container
         justify="center"
@@ -209,7 +238,7 @@
               <v-icon @click="deleteConnection(item.id)">
                 mdi-delete
               </v-icon>
-              <v-icon @click="onWarnRooms(item.connectionId)">
+              <v-icon @click="onWarnRooms()">
                 mdi-alert
               </v-icon>
             </template>
@@ -221,6 +250,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import config from '@/config.json';
 import axios from 'axios';
 axios.defaults.baseURL = config.DEBUG
@@ -312,6 +342,16 @@ export default {
   },
   data() {
     return {
+      objectItems: { key1: 'item1', key2: 'item2' },
+      mappedMsgs: [],
+      message: '',
+      messages: [],
+      messageHeaders: [
+        { text: 'Occupant', value: 'sender' },
+        { text: 'Message', value: 'text' },
+        { text: 'Type', value: 'type' },
+        { text: 'Sent', value: 'sentTime' }
+      ],
       showDetail: false,
       incubationPeriod: 14,
       transition: 'scale-transition',
@@ -344,24 +384,81 @@ export default {
   },
 
   methods: {
-    onWarnRooms(connectionId) {
+    onGetRoomWarnings() {
+      axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
+        // console.log('Messages from server:', s);
+        // this.mappedMsgs = new Map(
+        //   s.data.map(v => [v.sentTime, this.tryParse(v.text)])
+        // );
+
+        let m = s.data.map(v => {
+          let t = v.sentTime;
+          let x = this.tryParse(v.text);
+          if (x) {
+            x.sentTime = t;
+          }
+          return x;
+        });
+        console.dir('m:', m, { depth: 3 });
+        this.messages = m;
+        console.log();
+      });
+    },
+
+    onRoomSignIn() {
       let text = JSON.stringify({
-        sender: this.connectionID,
-        text: 'exposure alert',
-        type: 'presumptive'
+        sender: this.connectionId,
+        text: 'signed in',
+        type: 'log',
+        id: Date.now(),
+        date: moment()
       });
       let payload = {
-        connectionId: connectionId,
+        connectionId: this.roomName,
+        text: text
+      };
+      console.log('Signing in with payload:', payload);
+      axios({ url: '/messages', data: payload, method: 'POST' })
+        .then(() => {
+          console.log(`Signed into: ${this.roomName}`);
+          DataRepository.connect(this.roomName);
+          Connection.$fetch();
+        })
+        .catch(e => console.error(e));
+    },
+
+    onWarnRooms() {
+      console.warn(this.connectionId, this.roomName);
+      let id = this.connectionId;
+
+      let text = JSON.stringify({
+        sender: id,
+        text: 'exposure alert',
+        type: 'presumptive',
+        id: Date.now(),
+        date: moment()
+      });
+      console.warn(text);
+      let payload = {
+        connectionId: this.roomName,
         text: text
       };
 
       axios({ url: '/messages', data: payload, method: 'POST' });
     },
-    onGetRoomWarnings() {
-      axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
-        console.log('Messages:', s);
-        console.dir(JSON.parse(s.data[s.data.length - 1].text).type);
-      });
+
+    tryParse(str) {
+      console.log(str);
+      let json = {};
+      try {
+        json = JSON.parse(str);
+      } catch (error) {
+        {
+          console.error(error);
+        }
+      }
+      console.log(json);
+      return json;
     },
 
     onGetRooms() {
@@ -421,21 +518,6 @@ export default {
           console.log(id, 'alerted');
         }
       }
-    },
-
-    onRoomSignIn() {
-      let payload = {
-        connectionId: this.roomName,
-        text: `${this.connectionId} signed into ${this.roomName}.`
-      };
-      console.log('Signing in with payload:', payload);
-      axios({ url: '/messages', data: payload, method: 'POST' })
-        .then(() => {
-          console.log(`Signed into: ${this.roomName}`);
-          DataRepository.connect(this.roomName);
-          Connection.$fetch();
-        })
-        .catch(e => console.error(e));
     },
 
     onGetNewRoomQr() {
