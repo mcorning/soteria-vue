@@ -302,8 +302,7 @@ export default {
   }),
   methods: {
     onDeleteAll() {
-      console.log('Deleting all connections...');
-      Connection.deleteAll();
+      console.log('Disabled deleting all connections...');
     },
 
     async onChangedRoomId(val) {

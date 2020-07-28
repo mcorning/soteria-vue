@@ -36,11 +36,6 @@
               Check logins, warnings, or alerts
             </v-btn>
             <v-card-text>
-              <!-- <ul>
-                <li v-for="{ item, key, index } in mappedMsgs" :key="index">
-                  {{ item.sender }}
-                </li>
-              </ul> -->
               <v-simple-table fixed-header height="300px">
                 <template v-slot:default>
                   <thead>
@@ -192,7 +187,7 @@
         v-if="role == 'Visitor'"
       >
         <v-btn color="primary" block @click="onRoomSignIn"
-          >Sign the Visitor Book for {{ rooms[room] }}
+          >Sign the {{ rooms[room] }} Visitor log
         </v-btn>
         <v-card-subtitle
           >These are the rooms you occupied in the last
@@ -250,7 +245,7 @@
 </template>
 
 <script>
-import moment from 'moment';
+// import moment from 'moment';
 import config from '@/config.json';
 import axios from 'axios';
 axios.defaults.baseURL = config.DEBUG
@@ -264,7 +259,8 @@ import DataRepository from '@/store/repository.js';
 export default {
   computed: {
     connections() {
-      return Connection.all();
+      let c = Connection.all();
+      return c;
     },
     roomName() {
       return this.rooms[this.room];
@@ -343,7 +339,6 @@ export default {
   data() {
     return {
       objectItems: { key1: 'item1', key2: 'item2' },
-      mappedMsgs: [],
       message: '',
       messages: [],
       messageHeaders: [
@@ -387,7 +382,7 @@ export default {
     onGetRoomWarnings() {
       axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
         // console.log('Messages from server:', s);
-        // this.mappedMsgs = new Map(
+        // let mappedMsgs = new Map(
         //   s.data.map(v => [v.sentTime, this.tryParse(v.text)])
         // );
 
@@ -410,8 +405,7 @@ export default {
         sender: this.connectionId,
         text: 'signed in',
         type: 'log',
-        id: Date.now(),
-        date: moment()
+        id: Date.now()
       });
       let payload = {
         connectionId: this.roomName,
@@ -435,8 +429,7 @@ export default {
         sender: id,
         text: 'exposure alert',
         type: 'presumptive',
-        id: Date.now(),
-        date: moment()
+        id: Date.now()
       });
       console.warn(text);
       let payload = {
@@ -481,20 +474,29 @@ export default {
       });
     },
 
-    deleteConnection(id) {
-      if (this.selected.length) {
-        if (confirm(`Deleting ${this.selected.length} occupancies`)) {
-          this.selected.forEach(key => {
-            console.log(key.id, 'deleted');
-            Connection.$delete(key.id);
-          });
-        }
+    async connectionDelete(id) {
+      let c = await Connection.$delete(id);
+      console.log('result of Connection.$delete()', c);
+    },
+
+    async deleteConnection(id) {
+      if (
+        this.selected.length &&
+        confirm(`Deleting ${this.selected.length} occupancies`)
+      ) {
+        this.selected.forEach(async key => {
+          console.log(key.id, 'deleted');
+          await this.connectionDelete(key.id);
+          await Connection.$fetch();
+          console.log('this.connections:', this.connections);
+        });
       } else {
         if (confirm('Deleting ' + id)) {
-          Connection.$delete(id);
+          await this.connectionDelete(id);
+          await Connection.$fetch();
+          console.log('this.connections:', this.connections);
         }
       }
-      Connection.$fetch();
     },
 
     alertRooms(id) {

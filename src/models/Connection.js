@@ -14,8 +14,4 @@ export default class Connection extends Model {
       inviteUrl: this.attr('')
     };
   }
-  static async deleteAll() {
-    let p = await this.deleteAll();
-    return p;
-  }
 }
