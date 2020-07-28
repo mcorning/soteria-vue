@@ -4,6 +4,7 @@ import Profile from '../views/Profile.vue';
 import Risk from '../views/Risk.vue';
 import Tracing from '../views/Tracing.vue';
 import Onboard from '../views/Onboard.vue';
+import Utils from '../views/Utils.vue';
 import ConnectionCard from '@/components/ConnectionCard';
 
 Vue.use(VueRouter);
@@ -12,8 +13,13 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Onboard
+    component: Utils
   },
+  // {
+  //   path: '/',
+  //   name: 'home',
+  //   component: Onboard
+  // },
   {
     path: '/about',
     name: 'about',

@@ -193,6 +193,7 @@
           >These are the rooms you occupied in the last
           {{ incubationPeriod }} days</v-card-subtitle
         >
+
         <template>
           <v-data-table
             v-model="selected"
@@ -239,6 +240,13 @@
             </template>
           </v-data-table>
         </template>
+        <v-text-field
+          v-model="connectionCt"
+          label="Connection ct"
+        ></v-text-field>
+        <v-btn color="primary" @click="deleteObjectStore"
+          >Delete Connections
+        </v-btn>
       </v-container>
     </v-card>
   </div>
@@ -338,7 +346,7 @@ export default {
   },
   data() {
     return {
-      objectItems: { key1: 'item1', key2: 'item2' },
+      connectionCt: 0,
       message: '',
       messages: [],
       messageHeaders: [
@@ -379,6 +387,12 @@ export default {
   },
 
   methods: {
+    deleteObjectStore() {
+      this.connectionCt = Connection.all().forEach(async c => {
+        this.connectionCt = c.id;
+      });
+    },
+
     onGetRoomWarnings() {
       axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
         // console.log('Messages from server:', s);
