@@ -35,28 +35,53 @@
             <v-btn @click="onGetRoomWarnings" color="primary" block>
               Check logins, warnings, or alerts
             </v-btn>
-            <v-card-text>
-              <v-simple-table fixed-header height="300px">
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th class="text-left">Sent</th>
-                      <th class="text-left">Occupant</th>
-                      <th class="text-left">Message</th>
-                      <th class="text-left">Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="item in messages" :key="item.date">
-                      <td>{{ item.date }}</td>
-                      <td>{{ item.sender }}</td>
-                      <td>{{ item.text }}</td>
-                      <td>{{ item.type }}</td>
-                    </tr>
-                  </tbody>
+
+            <template>
+              <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+              <v-data-table
+                v-model="selected"
+                :headers="messageHeaders"
+                :items="messages"
+                item-key="id"
+                show-select
+                dense
+                class="elevation-1"
+                :search="search"
+                :footer-props="{
+                  showFirstLastPage: true,
+                  firstIcon: 'mdi-arrow-collapse-left',
+                  lastIcon: 'mdi-arrow-collapse-right',
+                  prevIcon: 'mdi-minus',
+                  nextIcon: 'mdi-plus',
+                  itemsPerPageOptions: [1, 5, 10, -1]
+                }"
+              >
+                <template v-slot:item.sender="{ item }">
+                  {{ item.sender }}
                 </template>
-              </v-simple-table>
-            </v-card-text>
+                <template v-slot:item.text="{ item }">
+                  {{ item.text }}
+                </template>
+                <template v-slot:item.type="{ item }">
+                  {{ item.type }}
+                </template>
+                <!-- <template v-slot:item.sentTime="{ item }">
+                  {{
+                    item.sentTime.toLocaleDateString('en-US', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    })
+                  }}
+                </template> -->
+              </v-data-table>
+            </template>
           </v-col>
         </v-row>
 
@@ -240,20 +265,13 @@
             </template>
           </v-data-table>
         </template>
-        <v-text-field
-          v-model="connectionCt"
-          label="Connection ct"
-        ></v-text-field>
-        <v-btn color="primary" @click="deleteObjectStore"
-          >Delete Connections
-        </v-btn>
       </v-container>
     </v-card>
   </div>
 </template>
 
 <script>
-// import moment from 'moment';
+import moment from 'moment';
 import config from '@/config.json';
 import axios from 'axios';
 axios.defaults.baseURL = config.DEBUG
@@ -346,6 +364,8 @@ export default {
   },
   data() {
     return {
+      search: '',
+
       connectionCt: 0,
       message: '',
       messages: [],
@@ -393,21 +413,30 @@ export default {
       });
     },
 
+    filterDate(t) {
+      let z = moment().add(-6, 'hour');
+      let tm = moment(t);
+      console.log('tm', tm);
+      return tm.isAfter(z);
+    },
+
     onGetRoomWarnings() {
       axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
         // console.log('Messages from server:', s);
         // let mappedMsgs = new Map(
         //   s.data.map(v => [v.sentTime, this.tryParse(v.text)])
         // );
+        let m = s.data
+          .map(v => {
+            let t = v.sentTime;
 
-        let m = s.data.map(v => {
-          let t = v.sentTime;
-          let x = this.tryParse(v.text);
-          if (x) {
-            x.sentTime = t;
-          }
-          return x;
-        });
+            let x = this.tryParse(v.text);
+            if (x) {
+              x.sentTime = t;
+            }
+            return x;
+          })
+          .filter(v => this.filterDate(v.sentTime));
         console.dir('m:', m, { depth: 3 });
         this.messages = m;
         console.log();

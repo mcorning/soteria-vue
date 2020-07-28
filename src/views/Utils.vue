@@ -3,11 +3,9 @@
     <ul v-for="item in cs" :key="item.id">
       <li>{{ item.id }}</li>
     </ul>
-    <pre>
-    Ct: {{ ct }}
     <v-btn @click="next">Delete Next</v-btn>
-    ID: {{ id }}</pre>
     <v-btn @click="deleteAll">Delete All</v-btn>
+    <v-btn @click="deleteDB">Delete DB</v-btn>
   </div>
 </template>
 
@@ -23,6 +21,21 @@ export default {
     };
   },
   methods: {
+    deleteDB() {
+      const dbname = 'MyDatabase';
+      var DBDeleteRequest = window.indexedDB.deleteDatabase(dbname);
+      DBDeleteRequest.onerror = function(event) {
+        console.log('Error deleting database', dbname);
+        console.log(event.result); // should be undefined
+      };
+
+      DBDeleteRequest.onsuccess = function(event) {
+        console.log(dbname, 'Database deleted successfully');
+
+        console.log(event.result); // should be undefined
+      };
+    },
+
     async next() {
       if (this.id) {
         await Connection.$delete(this.id);
