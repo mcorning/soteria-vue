@@ -47,14 +47,8 @@ export default class DataRepository {
           roomRiskThreshold: 0
         }
       });
-      fetched = await Member.$fetch();
 
-      let state = {
-        state: states[0],
-        connectionId: fetched.members[0].connectionId
-      };
-
-      return state;
+      return states[0];
     }
   }
 

@@ -5,7 +5,7 @@
         <v-row align="center" justify="end" no-gutters>
           <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
           <v-col>
-            <v-list shaped>
+            <v-list shaped dense>
               <v-list-item-group v-model="roleIndex" color="primary">
                 <v-list-item v-for="(role, i) in roles" :key="i">
                   <v-list-item-content>
@@ -196,23 +196,27 @@
     <!-- Available Rooms -->
     <v-card>
       <v-row>
-        <v-card-title>Available Rooms</v-card-title>
-        <v-card-text>
-          <v-list shaped>
-            <v-list-item-group v-model="room" color="primary">
-              <v-list-item v-for="(room, i) in rooms" :key="i">
-                <v-list-item-content>
-                  <v-list-item-title v-text="room"></v-list-item-title>
-                </v-list-item-content>
-                <v-list-item-icon>
-                  <v-icon @click="onDeleteRoom" color="red">
-                    mdi-delete</v-icon
-                  ></v-list-item-icon
-                >
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-card-text>
+        <v-col>
+          <v-card>
+            <v-card-title>Available Rooms</v-card-title>
+            <v-card-text>
+              <v-list shaped dense>
+                <v-list-item-group v-model="room" color="primary">
+                  <v-list-item v-for="(room, i) in rooms" :key="i">
+                    <v-list-item-content>
+                      <v-list-item-title v-text="room"></v-list-item-title>
+                    </v-list-item-content>
+                    <v-list-item-icon>
+                      <v-icon @click="onDeleteRoom" color="red">
+                        mdi-delete</v-icon
+                      ></v-list-item-icon
+                    >
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-card-text></v-card
+          ></v-col
+        >
       </v-row>
     </v-card>
 
