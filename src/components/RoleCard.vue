@@ -198,7 +198,7 @@
       <v-row>
         <v-col>
           <v-card>
-            <v-card-title>Available Rooms</v-card-title>
+            <v-card-title>Rooms using Local Contact Tracing</v-card-title>
             <v-card-text>
               <v-list shaped dense>
                 <v-list-item-group v-model="room" color="primary">
@@ -206,7 +206,17 @@
                     <v-list-item-content>
                       <v-list-item-title v-text="room"></v-list-item-title>
                     </v-list-item-content>
+                    <v-list-item-icon v-if="isVisitor">
+                      <v-icon @click="onRoomSignIn()">
+                        mdi-account-plus
+                      </v-icon></v-list-item-icon
+                    >
                     <v-list-item-icon>
+                      <v-icon @click="onWarnRooms()">
+                        mdi-alert
+                      </v-icon></v-list-item-icon
+                    >
+                    <v-list-item-icon v-if="!isVisitor">
                       <v-icon @click="onDeleteRoom" color="red">
                         mdi-delete</v-icon
                       ></v-list-item-icon
@@ -226,9 +236,6 @@
         class="primary lighten-5"
         v-if="role == 'Visitor'"
       >
-        <v-btn color="primary" block @click="onRoomSignIn"
-          >Sign the {{ rooms[room] }} Visitor log
-        </v-btn>
         <v-card-subtitle
           >These are the rooms you occupied in the last
           {{ incubationPeriod }} days</v-card-subtitle
@@ -315,6 +322,10 @@ export default {
     role() {
       // return this.state?.isRoomRiskManager ? 'Room' : 'Visitor';
       return this.roles[this.roleIndex];
+    },
+
+    isVisitor() {
+      return this.role == 'Visitor';
     },
 
     roomId: {
