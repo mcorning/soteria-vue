@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark dense>
-      <v-btn text rounded to="/onboard">Onboard</v-btn>
+      <v-btn text rounded to="/">BLUF</v-btn>
 
       <v-spacer></v-spacer>
       <v-btn
@@ -122,17 +122,18 @@ export default {
 
       links: [
         {
-          label: 'Trace',
-          url: '/tracing'
-        },
-        {
           label: 'Track',
           url: '/profile'
         },
         {
-          label: 'Check',
-          url: '/risk'
+          label: 'Trace',
+          url: '/tracing'
         }
+
+        // {
+        //   label: 'Check',
+        //   url: '/risk'
+        // }
 
         // {
         //   label: 'About',

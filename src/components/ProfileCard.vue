@@ -5,26 +5,6 @@
     </div>
 
     <div class=" mt-0 ml-0" v-else>
-      <v-row no-gutters>
-        <v-col>
-          <v-card
-            ><v-card-text v-if="help" @click="help = !help"
-              >This page is all about you. It contains your relatively static
-              personal identifying information. It contains your daily Covid
-              symptoms, as well. And at the bottom of the page you will see a
-              form that allows you to convert your Covid test results into a
-              verifiable credential.
-              <p>
-                You can use this information to stay safer in the world without
-                sacrificing your privacy.
-              </p></v-card-text
-            >
-            <v-card-text v-else @click="help = !help">
-              This page is all about you...
-            </v-card-text></v-card
-          >
-        </v-col></v-row
-      >
       <v-card>
         <v-card-title>My PII</v-card-title>
         <v-card-subtitle>My Personal Identifying Information</v-card-subtitle>
@@ -94,6 +74,17 @@
 
                 <v-col cols="12">
                   <v-text-field
+                    label="Phone name*"
+                    required
+                    :rules="[rules.required]"
+                    dense
+                    v-model="connectionId"
+                    @blur="onGetNewQr"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-text-field
                     label="ZipCode*"
                     required
                     :rules="[rules.required, rules.zipCode]"
@@ -117,86 +108,12 @@
                     :items="['Male', 'Female', 'NA']"
                   ></v-autocomplete>
                 </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    label="Symptoms Score"
-                    hint="See My PHI below "
-                    persistent-hint
-                    dense
-                    readonly
-                    required
-                    :rules="[rules.required]"
-                    v-model="symptomsScore"
-                  ></v-text-field>
-                </v-col>
               </v-row>
             </v-col>
-          </v-row>
-
-          <v-row align="end" justify="center" no-gutters>
-            <v-card-text
-              >A verifiable credential lets you share your data without
-              sacrificing your privacy</v-card-text
-            >
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                block
-                :loading="loading1"
-                :disabled="loading1"
-                @click="loader = 'loading1'"
-              >
-                Get Your Credential
-                <template v-slot:loader>
-                  <span>Issuing Personal Credential...</span>
-                </template>
-              </v-btn>
-            </v-card-actions>
           </v-row>
         </v-card-text>
       </v-card>
     </div>
-    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
-      <template v-slot:activator="{ on }">
-        <v-layout align-center justify-center>
-          <v-btn color="primary" block dark v-on="on" class=".subtitle-2"
-            >Get Your Personal Credential</v-btn
-          >
-        </v-layout>
-      </template>
-
-      <v-card class="card">
-        <v-card-text
-          >We have captured your personal information in this QR code. To get
-          the data into a credential, scan the code using your digital
-          wallet.</v-card-text
-        >
-        <v-img
-          id="qr"
-          class="white--text align-end"
-          :src="qrSource"
-          lazy-src="https://picsum.photos/id/11/100/60"
-          height="200"
-          width="200"
-          alt="QR code appears here"
-        >
-          <template v-slot:placeholder>
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-progress-circular
-                indeterminate
-                color="grey lighten-5"
-              ></v-progress-circular>
-            </v-row>
-          </template>
-        </v-img>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -210,10 +127,8 @@ axios.defaults.baseURL = config.DEBUG
 import PictureInput from 'vue-picture-input';
 
 import Member from '@/models/Member';
-import Credential from '@/models/Credential';
-import Preference from '@/models/Preference';
+import State from '@/models/State';
 import Connection from '@/models/Connection';
-
 import DataRepository from '@/store/repository.js';
 
 export default {
@@ -261,6 +176,12 @@ export default {
       console.log('returning member', m);
       return m;
     },
+    state() {
+      let s = State.query().first();
+
+      console.log('returning state', s);
+      return s;
+    },
 
     image() {
       let image = this.isReady ? this.member.image : '';
@@ -276,53 +197,6 @@ export default {
       return !this.member;
     },
 
-    symptomsScore: {
-      get() {
-        return this.member
-          ? this.member.preferences
-            ? this.member.preferences.symptomsScore
-            : 0
-          : 0;
-      },
-      set(newVal) {
-        Preference.changeSymptomsScore(this.perfID, newVal);
-      }
-    },
-    isRoomRiskManager: {
-      get() {
-        return this.member
-          ? this.member.preferences
-            ? this.member.preferences.isRoomRiskManager
-            : false
-          : false;
-      },
-      set(newVal) {
-        Preference.changeIsRoomRiskManager(this.perfID, newVal);
-      }
-    },
-    roomRiskThreshold: {
-      get() {
-        return this.member
-          ? this.member.preferences
-            ? this.member.preferences.roomRiskThreshold
-            : 0
-          : 0;
-      },
-      set(newVal) {
-        Preference.changeRoomRiskThreshold(this.perfID, newVal);
-      }
-    },
-
-    showHelpIcons: {
-      get() {
-        return this.member.preferences
-          ? this.member.preferences.showHelpIcons
-          : false;
-      },
-      set(newVal) {
-        Preference.changeHelpIcons(this.perfID, newVal);
-      }
-    },
     firstName: {
       get() {
         if (this.member == '') {
@@ -348,6 +222,15 @@ export default {
           where: this.member.id,
           data: { lastName: newName }
         });
+      }
+    },
+    connectionId: {
+      get() {
+        let x = this.state ? this.state.connectionId : '';
+        return x;
+      },
+      set(newName) {
+        State.changeConnectionId(newName);
       }
     },
     email: {
@@ -398,19 +281,6 @@ export default {
         });
       }
     },
-    inviteUrl: {
-      get() {
-        return Connection.query()
-          .where(user => user.isRoomId)
-          .get().inviteUrl;
-      },
-      set(newVal) {
-        Connection.$update({
-          where: user => user.isRoomId,
-          data: { inviteUrl: newVal }
-        });
-      }
-    },
 
     showImage() {
       console.log('show image?', this.image.length > 0);
@@ -423,8 +293,6 @@ export default {
   },
 
   data: () => ({
-    connectionId: '',
-    help: false,
     onboard: true,
     dialog: false,
     offerUrl: '',
@@ -442,12 +310,7 @@ export default {
     ],
     showPictureInput: false,
     changePhoto: true,
-    agreeToTerms: false,
-    agreeToTermsRules: [
-      value =>
-        !!value ||
-        'You must agree to the terms and conditions to sign up for an account.'
-    ],
+
     emailRules: [
       value => !!value || 'Email is required.',
       value => value.indexOf('@') !== 0 || 'Email should have a username.',
@@ -475,6 +338,16 @@ export default {
   }),
 
   methods: {
+    async onGetNewQr() {
+      console.log(`getting QR code for ${this.connectionId}`);
+      axios('/connections/?name=' + this.connectionId).then(s => {
+        console.log('New Visitor QR:', s);
+        this.roomInvitationUrl = s.data.url;
+        // this.invitationSetup(s.data.invite);
+      });
+      console.log('Visitor connection invitation url', this.roomInvitationUrl);
+    },
+
     hide() {
       this.dialog = !this.dialog;
     },
@@ -485,9 +358,6 @@ export default {
       console.log(x);
     },
 
-    fixPrefs() {
-      Preference.isRoomRiskManager(this.member.id);
-    },
     addImage(val) {
       Member.$update({
         where: this.member.id,
@@ -511,55 +381,56 @@ export default {
       });
     },
 
-    async onPersonalCredential() {
-      // send connectionless credential to member
-      const payload = {
-        // we added this wrapper so POST could get any payload
-        credential: {
-          definitionId: config.PERS_CRED_ID,
-          automaticIssuance: true,
-          credentialValues: {
-            name: `${this.firstName} ${this.lastName}`,
-            gender: this.gender,
-            age: this.age,
-            zipCode: this.zipCode,
-            symptomsScore: this.symptomsScore
-          }
-        }
-      };
-      console.log('payload', payload);
+    // ** Move this function to component that handles Level 2 capabilities
+    // async onPersonalCredential() {
+    //   // send connectionless credential to member
+    //   const payload = {
+    //     // we added this wrapper so POST could get any payload
+    //     credential: {
+    //       definitionId: config.PERS_CRED_ID,
+    //       automaticIssuance: true,
+    //       credentialValues: {
+    //         name: `${this.firstName} ${this.lastName}`,
+    //         gender: this.gender,
+    //         age: this.age,
+    //         zipCode: this.zipCode,
+    //         symptomsScore: this.symptomsScore
+    //       }
+    //     }
+    //   };
+    //   console.log('payload', payload);
 
-      // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
-      try {
-        const axiosResponse = await axios({
-          url: 'streetcred',
-          method: 'POST',
-          data: payload,
-          responseType: 'json',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+    //   // warning: if youy forget the await, you will get a pending promise, and the response will be undefined
+    //   try {
+    //     const axiosResponse = await axios({
+    //       url: 'streetcred',
+    //       method: 'POST',
+    //       data: payload,
+    //       responseType: 'json',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       }
+    //     });
 
-        console.log('Axios Response:', axiosResponse);
-        this.offerUrl = axiosResponse.data.response.offerUrl;
-        if (this.offerUrl) {
-          console.log(this.offerUrl);
-          // window.open(offerUrl, '_blank');
-          this.dialog = true;
-        } else {
-          // this path with double response is awkward and belies fuzzy thinking...
-          const msg = `Apologies. We had trouble creating your credential
-          ${axiosResponse.data.response.response.body}`;
-          //...plus we should parse the inner message json
-          alert(msg);
-        }
-      } catch (error) {
-        if (error.message == 'Network Error') {
-          console.error('Be sure Azure function is running.');
-        }
-      }
-    },
+    //     console.log('Axios Response:', axiosResponse);
+    //     this.offerUrl = axiosResponse.data.response.offerUrl;
+    //     if (this.offerUrl) {
+    //       console.log(this.offerUrl);
+    //       // window.open(offerUrl, '_blank');
+    //       this.dialog = true;
+    //     } else {
+    //       // this path with double response is awkward and belies fuzzy thinking...
+    //       const msg = `Apologies. We had trouble creating your credential
+    //       ${axiosResponse.data.response.response.body}`;
+    //       //...plus we should parse the inner message json
+    //       alert(msg);
+    //     }
+    //   } catch (error) {
+    //     if (error.message == 'Network Error') {
+    //       console.error('Be sure Azure function is running.');
+    //     }
+    //   }
+    // },
 
     onClear() {
       console.log('Deleting all entities');
@@ -572,12 +443,8 @@ export default {
           age: '',
           gender: '',
           image: '',
-          updated: new Date().toISOString(),
-          preferences: {
-            databaseName: '',
-            isRoomRiskManager: true,
-            showHelpIcons: true
-          }
+          connectionId: '',
+          updated: new Date().toISOString()
         }
       });
     }
@@ -586,10 +453,9 @@ export default {
   async created() {
     this.loading = true;
     let m = await Member.$fetch();
-    await Preference.$fetch();
+    let s = await DataRepository.getState();
     console.log('created() Fetched member', m);
-    // await this.addCredentials();
-    this.creds = await DataRepository.verify();
+    console.log('created() Fetched state', s);
     console.log('ProfileCard-created() using:', axios.defaults.baseURL);
     this.loading = false;
   }

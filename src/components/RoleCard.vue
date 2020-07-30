@@ -4,6 +4,23 @@
       <v-card-text>
         <v-row align="center" justify="end" no-gutters>
           <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
+          <v-col>
+            <v-list shaped>
+              <v-list-item-group v-model="roleIndex" color="primary">
+                <v-list-item v-for="(role, i) in roles" :key="i">
+                  <v-list-item-content>
+                    <v-list-item-title v-text="role"></v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-icon>
+                    <v-icon color="red"> mdi-delete</v-icon></v-list-item-icon
+                  >
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-col>
+        </v-row>
+        <!-- <v-row align="center" justify="end" no-gutters>
+          <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
           <v-spacer></v-spacer>
           <v-col>
             <v-chip large @click="isRoomRiskManager = !isRoomRiskManager">
@@ -11,7 +28,7 @@
               <v-icon right>mdi-pencil</v-icon>
             </v-chip>
           </v-col>
-        </v-row>
+        </v-row> -->
         <v-row v-if="isRoomRiskManager" align="center" no-gutters>
           <v-col cols="12">
             <v-card-text>
@@ -139,23 +156,16 @@
         </v-row>
       </v-card-text>
 
-      <!-- Available Rooms -->
       <v-card-text>
         <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
-          <v-col cols="12">
+          <!-- <v-col cols="12">
             <v-text-field
               dense
-              v-model="connectionId"
-              @change="onGetNewVisitorQr"
-              hint="Get your connectionId from the name in your Phone settings"
               label="Phone ID:"
               :loading="loading1"
-            >
-              <template v-slot:loader>
-                <span>Getting QR code...</span>
-              </template>
+              >{{ connectionId }}
             </v-text-field>
-          </v-col>
+          </v-col> -->
           <div v-if="showDetail">
             <v-col cols="6">
               <v-card-subtitle
@@ -183,6 +193,7 @@
       </v-card-text>
     </v-card>
 
+    <!-- Available Rooms -->
     <v-card>
       <v-row>
         <v-card-title>Available Rooms</v-card-title>
@@ -298,7 +309,8 @@ export default {
       return `https://chart.googleapis.com/chart?cht=qr&chl=${this.roomInvitationUrl}&chs=200x200&chld=L|1`;
     },
     role() {
-      return this.state?.isRoomRiskManager ? 'Room' : 'Visitor';
+      // return this.state?.isRoomRiskManager ? 'Room' : 'Visitor';
+      return this.roles[this.roleIndex];
     },
 
     roomId: {
@@ -307,17 +319,6 @@ export default {
       },
       set(newVal) {
         State.changeRoomId(newVal).then(state => {
-          // ORM returns an array of State objects
-          this.state = state[0];
-        });
-      }
-    },
-    connectionId: {
-      get() {
-        return this.state?.connectionId;
-      },
-      set(newVal) {
-        State.changeConnectionId(newVal).then(state => {
           // ORM returns an array of State objects
           this.state = state[0];
         });
@@ -347,6 +348,17 @@ export default {
           this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
         });
       }
+    },
+    connectionId: {
+      get() {
+        return this.state?.connectionId;
+      },
+      set(newVal) {
+        State.changeConnectionId(newVal).then(state => {
+          // ORM returns an array of State objects
+          this.state = state[0];
+        });
+      }
     }
   },
   watch: {
@@ -364,9 +376,9 @@ export default {
   },
   data() {
     return {
+      roles: ['Room', 'Visitor'],
+      roleIndex: 1,
       search: '',
-
-      connectionCt: 0,
       message: '',
       messages: [],
       messageHeaders: [
@@ -407,6 +419,11 @@ export default {
   },
 
   methods: {
+    async onGetConnectionId() {
+      let m = await DataRepository.getMember();
+      this.connectionId = m.connectionId;
+    },
+
     deleteObjectStore() {
       this.connectionCt = Connection.all().forEach(async c => {
         this.connectionCt = c.id;
@@ -414,7 +431,7 @@ export default {
     },
 
     filterDate(t) {
-      let z = moment().add(-6, 'hour');
+      let z = moment().add(-36, 'hour');
       let tm = moment(t);
       console.log('tm', tm);
       return tm.isAfter(z);
@@ -577,16 +594,6 @@ export default {
       console.log('Room connection invitation url', this.roomInvitationUrl);
     },
 
-    async onGetNewVisitorQr() {
-      console.log(`getting QR code for ${this.connectionId}`);
-      axios('/connections/?name=' + this.connectionId).then(s => {
-        console.log('New Visitor QR:', s);
-        this.roomInvitationUrl = s.data.url;
-        // this.invitationSetup(s.data.invite);
-      });
-      console.log('Visitor connection invitation url', this.roomInvitationUrl);
-    },
-
     onChangeRiskThreshold() {
       this.roomRiskThreshold = this.select.score;
       this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
@@ -600,295 +607,16 @@ export default {
       console.log('in RoleCard this.state:', this.state);
       this.roomInvitationUrl = s.roomInvitationUrl;
       this.roomId = s.roomId;
-      this.connectionId = s.connectionId;
       this.incubationPeriod = s.incubationPeriod;
-
+      this.connectionId = s.connectionId;
       this.select = { score: s.roomRiskThreshold, desc: '' };
       this.$emit('changed-is-room-risk-manager', s.isRoomRiskManager);
-    },
-
-    invitationSetup(d_m) {
-      let isMobile = true; //window.document.width() < 576;
-      // let urlParams = new URLSearchParams(window.location.search);
-      // let d_m;
-      // let orig = 'https://link.streetcred.id/';
-      console.log(d_m.length);
-      console.log(d_m.length % 4);
-
-      /****************************************************************************
-    Check Parameters
-  ****************************************************************************/
-      // if (urlParams.has('d_m')) {
-      //   d_m = urlParams.get('d_m');
-      // } else if (urlParams.has('c_i')) {
-      //   d_m = urlParams.get('c_i');
-      // } else {
-      //   console.error('Missing d_m/c_i parameter');
-      //   this.invitationError();
-      //   return;
-      // }
-      // if (urlParams.has('orig')) {
-      //   this.orig = urlParams.get('orig');
-      // } else {
-      //   console.error('Missing orig parameter');
-      //   this.invitationError();
-      //   return;
-      // }
-
-      /****************************************************************************
-      Parse the DID Document
-      ****************************************************************************/
-      let didDoc = JSON.parse(atob(d_m));
-      console.log(didDoc);
-      let type = didDoc['@type'];
-
-      /****************************************************************************
-      If type is Connection Invitation
-      ****************************************************************************/
-      if (type.includes('invitation')) {
-        //   document.getElementById('root').innerHTML = `
-        //   <div class="container p-md-5 p-3 shadow-sm bg-white rounded">
-        //     <div class="row justify-content-center">
-        //       <div class="col-md-10 col-12">
-        //         <h4>You're invited to connect.</h4>
-        //         <p class="d-none d-md-block">Scan the QR code with your Trinsic wallet to connect with this organization.</p>
-        //         <h6>Organization: ${didDoc.label}</h6>
-        //       </div>
-        //       <div class="col-md-2 col-6 text-centered">
-        //         <img src=${didDoc.imageUrl} class="rounded" width="60%">
-        //       </div>
-        //     </div>
-        //     <div class="row justify-content-center">
-        //       <div class="col-7 text-centered w-50">
-        //         <img id="qrcode" class="p-3">
-        //       </div>
-        //     </div>
-        //     <div class="row justify-content-center">
-        //       <div class="col text-centered">
-        //         <button id="wallet" type="button" class="btn btn-streetcred mt-3 mb-3">Open in Wallet</button>
-        //       </div>
-        //     </div>
-        //   </div>
-        // `;
-      } else if (type.includes('request-presentation')) {
-        /****************************************************************************
-        If type is Connectionless Verification
-        ****************************************************************************/
-        let data = JSON.parse(
-          atob(didDoc['request_presentations~attach'][0].data.base64)
-        );
-        let requestedAttrs = data.requested_attributes;
-        let attrs = Object.keys(requestedAttrs);
-
-        attrs.forEach(attr => {
-          this.domAttrs += `<div class="normal-text attr">${attr}</div>`;
-        });
-
-        //   document.getElementById('root').innerHTML = `
-        //   <div class="container">
-        //     <h4>You've received a proof request from Trinsic.</h4>
-        //     <p class="d-none d-md-block">Scan the QR code with your Trinsic wallet to complete it.</p>
-        //   </div>
-        //   <div class="container p-md-5 p-3 shadow-sm bg-white rounded">
-        //     <div class="row justify-content-center">
-
-        //       <div class="col-md-7 order-md-1 col-7 order-12">
-
-        //         <div class="row justify-content-center">
-        //           <div class="col text-centered">
-        //             <img id="qrcode" class="p-3">
-        //           </div>
-        //         </div>
-
-        //         <div class="row justify-content-center">
-        //           <div class="col text-centered">
-        //             <button id="wallet" type="button" class="btn btn-streetcred mt-3 mb-3">Open in Wallet</button>
-        //           </div>
-        //         </div>
-
-        //       </div>
-
-        //       <div class="col-md-5 order-md-12 col-12 order-1">
-        //       <a class="attr-dropdown ${
-        //         isMobile ? '' : 'no-pointer'
-        //       }" data-toggle="${
-        //     isMobile ? 'collapse' : ''
-        //   }" href="#attrs" role="button" aria-expanded="false" aria-controls="proof attributes">
-        //         <h6>
-        //           <span>
-        //             <img id="chevron-down" src="./images/chevron-down.svg" style="display: none" >
-        //             <img id="chevron-right" src="./images/chevron-right.svg" style="display: ${
-        //               isMobile ? 'inline' : 'none'
-        //             }" >
-        //             Attributes to Prove
-        //           </span>
-        //         </h6>
-        //       </a>
-        //         <div class="collapse ${isMobile ? '' : 'show'}" id="attrs">
-        //           ${domAttrs}
-        //         </div>
-        //       </div>
-
-        //     </div>
-        //   </div>
-        // `;
-        // $('#attrs').on('hide.bs.collapse', function() {
-        //   let chevronDown = document.getElementById('chevron-down');
-        //   let chevronRight = document.getElementById('chevron-right');
-
-        //   chevronDown.style.display = 'none';
-        //   chevronRight.style.display = 'inline';
-        // });
-        // $('#attrs').on('show.bs.collapse', function() {
-        //   let chevronDown = document.getElementById('chevron-down');
-        //   let chevronRight = document.getElementById('chevron-right');
-
-        //   chevronDown.style.display = 'inline';
-        //   chevronRight.style.display = 'none';
-        // });
-      } else if (type.includes('offer-credential')) {
-        /****************************************************************************
-        If type is Connectionless Credential Offer
-        ****************************************************************************/
-        let data = JSON.parse(atob(didDoc['offers~attach'][0].data.base64));
-        let schemaId = data.schema_id;
-        let credentialTitle = schemaId.substring(schemaId.indexOf(':') + 1);
-        credentialTitle = credentialTitle.substring(
-          credentialTitle.indexOf(':') + 1
-        );
-        credentialTitle = credentialTitle.substring(
-          0,
-          credentialTitle.indexOf(':')
-        );
-        console.log(credentialTitle);
-        let previewAttrs = didDoc['credential_preview'].attributes;
-        // let domAttrs = '';
-        previewAttrs.forEach(attr => {
-          this.domAttrs += `
-          <div class="row normal-text">
-            <div class="col left">
-              <div class="attr">${attr.name}</div>
-            </div>
-            <div class="col right">
-              <div class="attrv">${attr.value}</div>
-            </div>
-          </div>
-        `;
-        });
-
-        //   document.getElementById('root').innerHTML = `
-        //   <div class="container">
-        //     <h4>You've received a credential offer.</h4>
-        //     <p class="d-none d-md-block">Scan the QR code with your Trinsic wallet to accept it.</p>
-        //   </div>
-        //   <div class="container p-md-5 p-3 shadow-sm bg-white rounded">
-
-        //     <div class="row justify-content-center no-gutters">
-        //       <div class="col-md-6 order-md-1 mr-md-auto col-7 order-12">
-
-        //         <div class="row justify-content-center">
-        //           <div class="col text-centered">
-        //             <img id="qrcode" class="p-3">
-        //           </div>
-        //         </div>
-
-        //         <div class="row justify-content-center">
-        //           <div class="col text-centered">
-        //             <button id="wallet" type="button" class="btn btn-streetcred mt-3 mb-3">Open in Wallet</button>
-        //           </div>
-        //         </div>
-
-        //       </div>
-
-        //       <div class="col-md-5 order-md-12 mr-md-5 pr-md-5 col-12 order-1">
-
-        //           <div class="card credential-card d-none d-md-block mr-auto ml-auto">
-        //             <div class="credential-banner"></div>
-        //             <div class="card-body">
-        //               <div class="row align-items-center">
-        //                 <div class="col-4">
-        //                   <div class="credential-logo">${credentialTitle.charAt(
-        //                     0
-        //                   )}</div>
-        //                 </div>
-
-        //                 <div class="col">
-        //                   <h6>${credentialTitle}</h6>
-        //                 </div>
-        //               </div>
-        //             </div>
-        //           </div>
-
-        //           <div class="d-block d-md-none">
-        //             <h6>${credentialTitle}</h6>
-        //           </div>
-
-        //           <a class="attr-dropdown ${
-        //             isMobile ? '' : 'no-pointer'
-        //           }" data-toggle="${
-        //     isMobile ? 'collapse' : ''
-        //   }" href="#attrs" role="button" aria-expanded="false" aria-controls="proof attributes">
-        //             <h6>
-        //               <span>
-        //                 <img id="chevron-down" src="./images/chevron-down.svg" style="display: none" >
-        //                 <img id="chevron-right" src="./images/chevron-right.svg" style="display: ${
-        //                   isMobile ? 'inline' : 'none'
-        //                 }" >
-        //                 Attributes
-        //               </span>
-        //             </h6>
-        //           </a>
-        //           <div class="collapse ${isMobile ? '' : 'show'}" id="attrs">
-        //             ${domAttrs}
-        //           </div>
-
-        //       </div>
-
-        //     </div>
-        //   </div>
-        // `;
-        // $('#attrs').on('hide.bs.collapse', function() {
-        //   let chevronDown = document.getElementById('chevron-down');
-        //   let chevronRight = document.getElementById('chevron-right');
-
-        //   chevronDown.style.display = 'none';
-        //   chevronRight.style.display = 'inline';
-        // });
-        // $('#attrs').on('show.bs.collapse', function() {
-        //   let chevronDown = document.getElementById('chevron-down');
-        //   let chevronRight = document.getElementById('chevron-right');
-
-        //   chevronDown.style.display = 'inline';
-        //   chevronRight.style.display = 'none';
-        // });
-      }
-
-      /****************************************************************************
-      QR Code and Wallet Link
-      ****************************************************************************/
-      if (isMobile === false) {
-        // var qr = new QRious({
-        // new QRious({
-        //   element: document.getElementById('qrcode'),
-        //   value: orig,
-        //   size: 300,
-        //   background: 'white',
-        //   foreground: 'black'
-        // });
-      }
-
-      // document.getElementById('wallet').addEventListener('click', function() {
-      //   window.location.href = `id.streetcred://launch?c_i=${d_m}`;
-      // });
-    },
-    invitationError() {
-      alert('Uh Oh! There seems to be a problem with the invitation link...');
     }
   },
 
   async created() {
     this.loading = true;
-    await Connection.$fetch();
+    // await Connection.$fetch();
 
     console.log('Entering created() in RoleCard: getting State');
     await this.getState();

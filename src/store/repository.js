@@ -16,12 +16,12 @@ export default class DataRepository {
           data: {
             firstName: '',
             lastName: '',
+            phoneName: '',
             age: '',
             gender: '',
             image: '',
             updated: new Date().toISOString(),
-            preferences: {},
-            activities: []
+            preferences: {}
           }
         }).then(m => {
           console.log(m);
@@ -42,11 +42,19 @@ export default class DataRepository {
       let states = await State.$create({
         data: {
           id: 0,
+          connectionId: '',
           isRoomRiskManager: false,
           roomRiskThreshold: 0
         }
       });
-      return states[0];
+      fetched = await Member.$fetch();
+
+      let state = {
+        state: states[0],
+        connectionId: fetched.members[0].connectionId
+      };
+
+      return state;
     }
   }
 
@@ -65,6 +73,7 @@ export default class DataRepository {
   }
 
   static async getConnections() {
+    Connection.$fetch();
     return Connection.all();
   }
 

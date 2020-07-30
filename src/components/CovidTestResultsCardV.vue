@@ -1,58 +1,10 @@
 <template>
-  <v-card>
-    <v-card-title>My PHI</v-card-title>
-    <v-card-subtitle>
-      My Covid-19 Test Result
-    </v-card-subtitle>
-    <v-card-text>
-      Verifiable credentials let you share your Covid test results without
-      compromising your privacy. A Positive and two Negative test results (in
-      that order) provide the best assurance you can reengage with others in
-      relative safety.
-    </v-card-text>
-    <form>
-      <v-card-text>
-        <v-autocomplete
-          v-model="testType"
-          :error-messages="testTypeErrors"
-          label="Test Type"
-          :items="['nasal swab', 'blood test']"
-          required
-          @input="$v.testType.$touch()"
-          @blur="$v.testType.$touch()"
-        ></v-autocomplete>
-        <v-card-text> </v-card-text>
-        <v-text-field
-          v-model="testSite"
-          :error-messages="testSiteErrors"
-          label="Test Site"
-          required
-          @input="$v.testSite.$touch()"
-          @blur="$v.testSite.$touch()"
-        ></v-text-field>
-      </v-card-text>
-      <v-card-text>
-        <v-select
-          v-model="testResult"
-          :items="['Positive', 'Negative']"
-          :error-messages="testResultErrors"
-          label="Test Result"
-          required
-          @change="$v.testResult.$touch()"
-          @blur="$v.testResult.$touch()"
-        ></v-select>
-      </v-card-text>
-      <v-card-text>
-        <v-text-field
-          v-model="testDate"
-          :error-messages="testDateErrors"
-          label="Test Date"
-          required
-          @input="$v.testDate.$touch()"
-          @blur="$v.testDate.$touch()"
-        ></v-text-field>
-      </v-card-text>
-
+  <div>
+    <v-row align="end" justify="center" no-gutters>
+      <v-card-text
+        >A verifiable credential lets you share your data without sacrificing
+        your privacy</v-card-text
+      >
       <v-card-actions>
         <v-btn
           color="primary"
@@ -60,17 +12,128 @@
           :loading="loading1"
           :disabled="loading1"
           @click="loader = 'loading1'"
-          >Get Your COVID Credential
-          <template v-slot:loader>
-            <span>Issuing COVID Credential...</span>
-          </template></v-btn
         >
+          Get Your Credential
+          <template v-slot:loader>
+            <span>Issuing Personal Credential...</span>
+          </template>
+        </v-btn>
       </v-card-actions>
-      <v-card-actions>
-        <v-btn block color="secondary" @click="clear">clear form</v-btn>
-      </v-card-actions>
-    </form>
-  </v-card>
+    </v-row>
+
+    <v-dialog v-if="dialog" v-model="dialog" persistent max-width="300px">
+      <template v-slot:activator="{ on }">
+        <v-layout align-center justify-center>
+          <v-btn color="primary" block dark v-on="on" class=".subtitle-2"
+            >Get Your Personal Credential</v-btn
+          >
+        </v-layout>
+      </template>
+
+      <v-card class="card">
+        <v-card-text
+          >We have captured your personal information in this QR code. To get
+          the data into a credential, scan the code using your digital
+          wallet.</v-card-text
+        >
+        <v-img
+          id="qr"
+          class="white--text align-end"
+          :src="qrSource"
+          lazy-src="https://picsum.photos/id/11/100/60"
+          height="200"
+          width="200"
+          alt="QR code appears here"
+        >
+          <template v-slot:placeholder>
+            <v-row class="fill-height ma-0" align="center" justify="center">
+              <v-progress-circular
+                indeterminate
+                color="grey lighten-5"
+              ></v-progress-circular>
+            </v-row>
+          </template>
+        </v-img>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="green darken-1" text @click="hide">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-card>
+      <v-card-title>My PHI</v-card-title>
+      <v-card-subtitle>
+        My Covid-19 Test Result
+      </v-card-subtitle>
+      <v-card-text>
+        Verifiable credentials let you share your Covid test results without
+        compromising your privacy. A Positive and two Negative test results (in
+        that order) provide the best assurance you can reengage with others in
+        relative safety.
+      </v-card-text>
+      <form>
+        <v-card-text>
+          <v-autocomplete
+            v-model="testType"
+            :error-messages="testTypeErrors"
+            label="Test Type"
+            :items="['nasal swab', 'blood test']"
+            required
+            @input="$v.testType.$touch()"
+            @blur="$v.testType.$touch()"
+          ></v-autocomplete>
+          <v-card-text> </v-card-text>
+          <v-text-field
+            v-model="testSite"
+            :error-messages="testSiteErrors"
+            label="Test Site"
+            required
+            @input="$v.testSite.$touch()"
+            @blur="$v.testSite.$touch()"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-text>
+          <v-select
+            v-model="testResult"
+            :items="['Positive', 'Negative']"
+            :error-messages="testResultErrors"
+            label="Test Result"
+            required
+            @change="$v.testResult.$touch()"
+            @blur="$v.testResult.$touch()"
+          ></v-select>
+        </v-card-text>
+        <v-card-text>
+          <v-text-field
+            v-model="testDate"
+            :error-messages="testDateErrors"
+            label="Test Date"
+            required
+            @input="$v.testDate.$touch()"
+            @blur="$v.testDate.$touch()"
+          ></v-text-field>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn
+            color="primary"
+            block
+            :loading="loading1"
+            :disabled="loading1"
+            @click="loader = 'loading1'"
+            >Get Your COVID Credential
+            <template v-slot:loader>
+              <span>Issuing COVID Credential...</span>
+            </template></v-btn
+          >
+        </v-card-actions>
+        <v-card-actions>
+          <v-btn block color="secondary" @click="clear">clear form</v-btn>
+        </v-card-actions>
+      </form>
+    </v-card>
+  </div>
 </template>
 
 <script>

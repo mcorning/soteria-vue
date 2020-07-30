@@ -4,8 +4,8 @@ import Profile from '../views/Profile.vue';
 import Risk from '../views/Risk.vue';
 import Tracing from '../views/Tracing.vue';
 import Onboard from '../views/Onboard.vue';
-// import Utils from '../views/Utils.vue';
-import ConnectionCard from '@/components/ConnectionCard';
+import Home from '../views/Home.vue';
+// import ConnectionCard from '@/components/ConnectionCard';
 
 Vue.use(VueRouter);
 
@@ -13,21 +13,7 @@ const routes = [
   {
     path: '/',
     name: 'home',
-    component: Tracing
-  },
-  // {
-  //   path: '/',
-  //   name: 'home',
-  //   component: Onboard
-  // },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: Home
   },
   {
     path: '/profile',
@@ -50,9 +36,13 @@ const routes = [
     component: Onboard
   },
   {
-    path: '/trace',
-    name: 'trace',
-    component: ConnectionCard
+    path: '/about',
+    name: 'about',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/About.vue')
   }
 ];
 

@@ -8,6 +8,7 @@ export default class State extends Model {
       id: this.number(0), // without a fvixed id, update() creates a record
       roomId: this.string(''),
       connectionId: this.string(''),
+
       roomInvitationUrl: this.string(''),
       isRoomRiskManager: this.boolean(false),
       // must be number (not string) for v-select to work

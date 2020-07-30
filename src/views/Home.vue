@@ -1,91 +1,70 @@
 <template>
-  <v-container justify="center" class="primary lighten-5">
+  <v-container>
     <v-card>
-      <v-card-title class="pb-1">Steps in Local Contact Tracing</v-card-title>
-      <HowTo class="pt-0"
-    /></v-card>
-    <v-card>
-      <v-card-title>Local Contact Tracing Rationale</v-card-title>
-      <v-card-text class="pb-1"
-        >Local contact tracing assumes:
-        <ul>
-          <li>the virus is local</li>
-          <li>risk of exposure is between two people</li>
-          <li>privacy is paramount</li>
-        </ul>
+      <v-card-title>Bottom Line Up Front</v-card-title>
+      <v-card-subtitle>Do this, the virus dies</v-card-subtitle>
+      <v-card-text
+        >Use the tool in your hands to leave a record of every public space or
+        room you occupy.
       </v-card-text>
-      <v-card-text class="pb-1">
-        Local contact tracing takes three perspectives:
-        <ul>
-          <li>The Room</li>
-          <li>A visitor</li>
-          <li>Occupants</li>
-        </ul>
+      <v-card-text
+        >If you need a test, tell every room you occupied that you increased the
+        exposure risk for others. Then quarantine yourself.
       </v-card-text>
-      <v-card-text class="pb-1">
-        Local contact tracing depends on three tasks:
-        <ol>
-          <li>Room assesses safety of the visitor</li>
-          <li>Visitor assesses safety of the room</li>
-          <li>Both exchange connection IDs</li>
-        </ol>
+      <v-card-text
+        >If you test positive, tell every room you occupied that you exposed
+        others to the virus. Then quarantine yourself.
       </v-card-text>
-      <v-card-text>
-        If an occupant tests positive:
-        <ol>
-          <li>
-            The occupent sends an encrypted message to each room they entered
-          </li>
-          <li>
-            Each room alerts each occupant of exposure
-          </li>
-        </ol>
+      <v-card-text
+        >If you manage a public space, use the tool in your hands to notify
+        every occupant in the last fourteen days that they may be exposed to the
+        virus. Then quarantine yourself.
+      </v-card-text>
+      <v-card-text
+        >If you recieve a virus exposure alert, use the tool in your hands to
+        notify every public space you occupied that you exposed others in the
+        room. Then quarantine yourself.
+      </v-card-text>
+      <v-card-text
+        >If you recieve a virus exposure alert, notify every public space you
+        occupied that you exposed others in the room. Then quarantine yourself.
+      </v-card-text>
+      <v-card-text
+        >Bottom Line: We all do this, the virus dies in two weeks.
       </v-card-text>
     </v-card>
-    <a href="https://sway.office.com/2gPCu04Gpv9Qws2H" target="_blank"
-      >Additional info</a
-    >
+    <v-card>
+      <v-card-title>The Tool in Your Hands</v-card-title>
+      <v-card-subtitle>Start simple.</v-card-subtitle>
+      <v-card-text
+        >We just described local contact tracing. It can kill the virus all by
+        itself.
+      </v-card-text>
+      <v-card-subtitle>Add capabilities as necessary.</v-card-subtitle>
+
+      <v-card-text
+        >If you live in a safe place, you may never receive and exposure alert.
+        But if you do, use the other capabilities of the tool in your hands to
+        further minimize pain and suffering and to hasten the day the virus is
+        history.
+      </v-card-text>
+      <v-card-text
+        >First, track your symptoms. We give you a risk number based on public
+        health data. If you get tested, install a digital ID wallet and enter
+        your test results in a Covid-19 credential. If you manage a room,
+        publish a risk threshold for your public space.
+      </v-card-text>
+
+      <v-card-text
+        >Second, be more careful when you chose which public space to enter. If
+        you manage a room, be more careful about who you admit into your space.
+      </v-card-text>
+    </v-card>
   </v-container>
 </template>
 
 <script>
-import moment from 'moment';
-
-// @ is an alias to /src
-import Member from '@/models/Member';
-import HowTo from '@/components/dialogs/HowTo.vue';
-
-export default {
-  name: 'home',
-  components: {
-    HowTo
-  },
-  computed: {
-    now() {
-      return moment().format(this.TIME);
-    }
-  },
-  data: () => ({
-    loading: false,
-    error: null,
-    member: null
-  }),
-
-  methods: {
-    async setup() {
-      let m = await Member.$fetch();
-
-      if (m && Object.keys(m).length > 0) {
-        this.member = m[0];
-      }
-    }
-  },
-
-  async created() {
-    console.log(this.now, 'Entering Home.vue created');
-    await this.setup();
-    console.log(this.now, 'Leaving Home created()');
-  },
-  mounted() {}
-};
+export default {};
 </script>
+
+<style lang="scss" scoped></style>

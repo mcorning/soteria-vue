@@ -13,6 +13,7 @@ export default class Member extends Model {
       id: this.uid(),
       firstName: this.string(''),
       lastName: this.string(''),
+      connectionId: this.string(''),
       email: this.string(''),
       age: this.string(''),
       gender: this.attr(''),

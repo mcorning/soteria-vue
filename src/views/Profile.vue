@@ -24,6 +24,10 @@
         <v-col cols="12">
           <ProfileCard />
         </v-col>
+      </v-row>
+    </div>
+    <div v-if="level2">
+      <v-row>
         <v-col cols="12">
           <SymptomsCard />
         </v-col>
@@ -53,6 +57,7 @@ export default {
   name: 'profile',
 
   data: () => ({
+    level2: false, //set this true after we have a way for users to upgrade
     VER: lctVer.VER,
 
     height: 24,
