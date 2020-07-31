@@ -96,7 +96,7 @@
         >...you occupied in the last
         {{ incubationPeriod }} days</v-card-subtitle
       >
-
+      {{ connections }}
       <template>
         <v-data-table
           v-model="selected"
@@ -666,7 +666,7 @@ export default {
     onRoomSignIn() {
       let text = JSON.stringify({
         sender: this.connectionId,
-        text: 'signed in',
+        text: 'day shift',
         type: 'check-in',
         id: Date.now()
       });
@@ -675,10 +675,14 @@ export default {
         text: text
       };
       console.log('Signing in with payload:', payload);
+      const connectionId = this.roomName;
       axios({ url: '/messages', data: payload, method: 'POST' })
         .then(() => {
-          console.log(`Signed into: ${this.roomName}`);
-          DataRepository.connect({ roomName: this.roomName, type: 'log' });
+          console.log(`Signed into: ${connectionId}`);
+          DataRepository.connect({
+            connectionId: connectionId,
+            type: 'check-in'
+          });
           Connection.$fetch();
         })
         .catch(e => console.error(e));
@@ -812,8 +816,8 @@ export default {
 
   async created() {
     this.loading = true;
-    // await Connection.$fetch();
-
+    let c = await Connection.$fetch();
+    console.log('Connections found:', c.connections?.length);
     console.log('Entering created() in RoleCard: getting State');
     await this.getState();
     console.log(axios.defaults.baseURL);
