@@ -71,11 +71,13 @@ export default class DataRepository {
     return Connection.all();
   }
 
-  static async connect(connectionId) {
+  static async connect(connection) {
+    const { connectionId, type } = connection;
     console.log('Repository updating', connectionId);
     Connection.$update({
       data: {
         connectionId: connectionId,
+        type: type,
         date: new Date()
       }
     });

@@ -1,132 +1,39 @@
 # Soteria-vue
 
-Soteria-vue uses VueJs on the front end, Trinsic server on the backend, and Azure functions in the middle.
+## Design
 
-For local development:
-  1. use the `serve` script for Soteria-vue
-  2. use the `start` script for streetcred
+### Roles
 
-> NOTE: to enable local development and debugging we updated the start script by adding the cors argument:
->
->     "start": "func host start --cors *",
+Soteria-Vue works with two Roles. A human is behind both Roles.
 
-## To debug Soteria-vue:
+1. Room
+2. Visitor
 
-1. run the `serve` script
-2. Press F5
+The person behind the Room can change; they can be a Room manager (e.g., Care Home Manager) or a receptionist. Rooms are part of Organizations. Organizations are secure data repositories.
 
-You should see (Network IP may differ):
->App running at:
->
->- Local:   http://localhost:8080/
->   - Network: http://192.168.1.7:8080/
->
->   Note that the development build is not optimized.
->   To create a production build, run npm run build.
+The Visitor is always the same person.
 
-## To debug SoteriaStreetcred:
+### Capabilities
 
-1. be sure you close any session in the terminal with a `ctrl-c` 
-2. Press F5
-3. wait for the screen to display
+Soteria-Vue has three levels of service (SLA):
 
-> Http Functions:
->
->         Streetcred: [GET,POST] http://localhost:7071/api/Streetcred
->
-> [6/12/2020 1:23:52 AM] Host lock lease acquired by instance ID '000000000000000000000000C12FDB8F'.
->
-> [6/12/2020 1:23:53 AM] Debugger attached.
->
->> NOTE: if you start using the azure function before you see the last line, the debugger will not be working. Wait until the debugger attaches before you use the debugger on the function.
+1. Local Contact Tracing (requires no interaction with Room)
+2. Symptom Tracking (with visual Risk Score) (enables limited interaction with Room)
+3. Cryptographic (automated Room risk policy verification using personal and covid credentials)
 
----------------------------------------------------------------------------------------------------------------------------
+## Workflow
 
-## Old Material (may be deprecated)
+We describe the steps each Role takes in making SLA1 work. These steps assume everybody has access to the Secure-Vue web application.
 
-bitly: <http://bit.ly/2SOMXEo>
+### Rooms
 
-## orm-localforage
+Each Room joins an Organization using a unique human-readable name. A record in the Connections store represents this Room room to Visitors. The Room manager/rep selects the Room Role in the Tracing screen. The Role list item has add and delete icons. To join an Organization, the Room selects the add icon and enters a human-friendly name. The app will ensure the name is unique to the Organization.
 
-```
-$fetch:  Load data from the IndexedDB store associated to a model and persist them in the Vuex Store
-$get:    Load data by id from the IndexedDB store associated and persist it to Vuex Store
-$create: Like VuexORM insertOrUpdate, but also persist data to IndexedDB
-$update: Update records using VuexORM update or insertOrUpdate then persist changes to IndexedDB
-$delete: Like VuexORM delete, but also remove data from IndexedDB
-```
+### Visitors
 
-## router guards
+Visitors select the Visitor Role in the Tracing screen. There they see a list of rooms supporting Local Contact Tracing. The Visitor list item has add and delete icons. To join an Organization, the Visitor selects the add icon and enters a human-friendly name (usually the name of the person's phone). The app will ensure the name is unique to the Organization.
 
-<https://router.vuejs.org/guide/advanced/data-fetching.html>
+### Note
 
-<https://stackoverflow.com/questions/49621891/vuejs-route-navigation-guard-on-async-auth-state-request>
+One reason for representing Roles in a list is that a single person can take on either Role. This is especially likely when Organizations have multiple Rooms. For example, a receptionist can take the Room Role during the day and then a Visitor Role at night when they go to a restaraunt. 
 
-with:
-
-```[{
-    path: '/reporting',
-    name: 'Reporting',
-    component: reporting,
-    meta: {
-        adminOnly: true
-    }
-},
-...]
-```
-
-from this:
-
-```
-if (to.matched.some(route => route.meta.adminOnly)) {
-    if (store.getters.userInfo.isAdmin) {
-        next()
-    } else {
-      next('/')
-    }
-} else {
-    next()
-}
-```
-
-to this:
-
-```
-if (store.getters.userInfo.isAdmin === null) {
-    const watcher = store.watch(store.getters.userInfo.isAdmin, isAdmin => {
-        watcher(); // stop watching
-        if (isAdmin) next();
-        else next('/');
-    });
-}
-else if (store.getters.userInfo.isAdmin) next();
-else next('/');
-```
-
-## Project setup
-
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
-
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-
-```
-npm run build
-```
-
-### Lints and fixes files
-
-```
-npm run lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
