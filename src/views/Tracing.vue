@@ -7,15 +7,11 @@
       :lights-out="lightsOut"
       :window="window"
     >
-      <span
-        ><small><v-icon>mdi-alert</v-icon>Alpha code R&D only</small></span
-      >
+      <span><v-icon>mdi-alert</v-icon>R&D only</span>
       <v-spacer></v-spacer>
-      <span><small>Use hard reload</small></span>
+      <span>Use hard reload</span>
       <v-spacer></v-spacer>
-      <span
-        ><small>v. {{ VER }} </small></span
-      >
+      <span>v. {{ VER }} </span>
     </v-system-bar>
     <RoleCard />
   </v-container>

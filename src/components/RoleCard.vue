@@ -96,7 +96,6 @@
         >...you occupied in the last
         {{ incubationPeriod }} days</v-card-subtitle
       >
-      {{ connections }}
       <template>
         <v-data-table
           v-model="selected"
@@ -373,7 +372,16 @@
       </v-card-text> -->
       </v-card-text>
     </v-card>
-    {{ roomName }}
+    <v-system-bar
+      color="secondary"
+      :height="height"
+      :lights-out="lightsOut"
+      :window="window"
+    >
+      <span>Room: {{ roomName }}</span>
+      <v-spacer></v-spacer>
+      <span>Visitor: {{ connectionId }} </span>
+    </v-system-bar>
   </div>
 </template>
 
@@ -520,6 +528,9 @@ export default {
   },
   data() {
     return {
+      height: 30,
+      lightsOut: true,
+      window: true,
       messageType: 'Presumptive',
       messageText: 'Presented symptoms',
       daysBack: 5,
