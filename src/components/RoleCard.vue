@@ -1,101 +1,124 @@
 <template>
   <div>
     <v-card class="mb-3">
-      <v-card-text>
-        <v-row align="center" justify="end" no-gutters>
-          <v-col cols="5"> <v-card-title>Your Role:</v-card-title> </v-col>
-          <v-col>
-            <!-- Room/Visitor List -->
-            <v-list shaped dense>
-              <v-list-item-group v-model="roleIndex" color="primary">
-                <v-list-item v-for="(role, i) in roles" :key="i">
-                  <v-list-item-content>
-                    <v-list-item-title
-                      v-text="role.name"
-                      @click="onGetRoomWarnings()"
-                    ></v-list-item-title>
-                  </v-list-item-content>
+      <v-row align="center" justify="end" no-gutters dense>
+        <v-col> <v-card-title>Your Role:</v-card-title> </v-col>
+        <v-col>
+          <v-row align="baseline" justify="center" no-gutters dense>
+            <v-col></v-col
+            ><v-col cols="3" class="pt-3 pb=0"> Add a role </v-col>
+          </v-row>
+          <v-row no-gutters dense>
+            <v-col cols="12">
+              <v-card-text class="pa-0">
+                <!-- Room/Visitor List -->
+                <v-list shaped dense>
+                  <v-list-item-group v-model="roleIndex" color="primary">
+                    <v-list-item v-for="(role, i) in roles" :key="i">
+                      <v-list-item-content>
+                        <v-list-item-title
+                          v-text="role.name"
+                        ></v-list-item-title>
+                      </v-list-item-content>
 
-                  <v-list-item-icon>
-                    <v-bottom-sheet v-model="sheet" persistent>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-icon v-bind="attrs" v-on="on"
-                          >{{ role.icon }}
-                        </v-icon>
-                      </template>
-                      <v-sheet class="text-center">
-                        <v-card>
-                          <v-card-title>{{ newRoleCardTitle }}</v-card-title>
-                          <v-card-text>
-                            <v-text-field
-                              v-model="newName"
-                              :label="newRoleLabel"
-                              :hint="newRoleHint"
-                            ></v-text-field
-                          ></v-card-text>
-                          <v-card-actions>
-                            <v-btn
-                              class="mt-6"
-                              text
-                              color="error"
-                              @click="onJoinRole"
-                              >Add</v-btn
+                      <v-list-item-icon>
+                        <v-bottom-sheet v-model="sheet" persistent>
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-icon v-bind="attrs" v-on="on"
+                              >{{ role.icon }}
+                            </v-icon>
+                          </template>
+                          <v-sheet class="text-center">
+                            <v-card>
+                              <v-card-title>{{
+                                newRoleCardTitle
+                              }}</v-card-title>
+                              <v-card-text>
+                                <v-text-field
+                                  v-model="newName"
+                                  :label="newRoleLabel"
+                                  :hint="newRoleHint"
+                                ></v-text-field
+                              ></v-card-text>
+                              <v-card-actions>
+                                <v-btn
+                                  class="mt-6"
+                                  text
+                                  color="error"
+                                  @click="onJoinRole"
+                                  >Add</v-btn
+                                >
+                                <v-btn
+                                  class="mt-6"
+                                  text
+                                  color="error"
+                                  @click="sheet = !sheet"
+                                  >cancel</v-btn
+                                ></v-card-actions
+                              ></v-card
                             >
-                            <v-btn
-                              class="mt-6"
-                              text
-                              color="error"
-                              @click="sheet = !sheet"
-                              >cancel</v-btn
-                            ></v-card-actions
-                          ></v-card
-                        >
-                      </v-sheet>
-                    </v-bottom-sheet>
-                  </v-list-item-icon>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
-          </v-col>
-        </v-row>
-      </v-card-text>
+                          </v-sheet>
+                        </v-bottom-sheet>
+                      </v-list-item-icon>
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
+              </v-card-text></v-col
+            ></v-row
+          >
+        </v-col>
+      </v-row>
     </v-card>
 
     <!-- Select a Room -->
-    <v-card class="mb-3">
-      <v-card-title
-        >Select a Room to {{ isVisitor ? `Enter` : 'Manage' }}</v-card-title
-      >
-      <v-card-text>
-        <v-list shaped dense>
-          <v-list-item-group v-model="room" color="primary">
-            <v-list-item v-for="(room, i) in rooms" :key="i">
-              <v-list-item-content>
-                <v-list-item-title v-text="room"></v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-icon v-if="isVisitor">
-                <v-icon @click="onRoomSignIn()">
-                  mdi-account-check
-                </v-icon></v-list-item-icon
-              >
+    <v-card class="mb-3" tile outlined>
+      <v-row align="center" justify="end" no-gutters>
+        <v-col>
+          <v-card-title
+            >Select a Room to {{ isVisitor ? `Enter` : 'Manage' }}</v-card-title
+          >
+        </v-col>
 
-              <v-list-item-icon v-if="!isVisitor">
-                <v-icon @click="onDeleteRoom" color="red">
-                  mdi-delete</v-icon
-                ></v-list-item-icon
-              >
-            </v-list-item>
-          </v-list-item-group>
-        </v-list>
-      </v-card-text>
+        <v-col>
+          <v-row align="baseline" justify="center" no-gutters dense>
+            <v-col></v-col>
+            <v-col cols="3" class="pt-3 pb=0">{{
+              isVisitor ? 'Check-in' : '   Delete'
+            }}</v-col>
+          </v-row>
+          <v-row no-gutters dense>
+            <v-col cols="12">
+              <v-card-text class="pa-0">
+                <v-list shaped dense>
+                  <v-list-item-group v-model="room" color="primary">
+                    <v-list-item v-for="(room, i) in rooms" :key="i">
+                      <v-list-item-content>
+                        <v-list-item-title v-text="room"></v-list-item-title>
+                      </v-list-item-content>
+                      <v-list-item-icon v-if="isVisitor">
+                        <v-icon @click="onRoomSignIn()">
+                          mdi-account-check
+                        </v-icon></v-list-item-icon
+                      >
+
+                      <v-list-item-icon v-if="!isVisitor">
+                        <v-icon @click="onDeleteRoom" color="red">
+                          mdi-delete</v-icon
+                        ></v-list-item-icon
+                      >
+                    </v-list-item>
+                  </v-list-item-group>
+                </v-list>
+              </v-card-text></v-col
+            >
+          </v-row>
+        </v-col>
+      </v-row>
     </v-card>
 
     <v-card v-if="isVisitor">
-      <v-card-title>Alert Rooms...</v-card-title>
-      <v-card-subtitle
-        >...you occupied in the last
-        {{ incubationPeriod }} days</v-card-subtitle
-      >
+      <v-card-title>Occupied Rooms </v-card-title>
+
       <template>
         <v-data-table
           v-model="selected"
@@ -130,14 +153,19 @@
               item.isRoomId ? 'mdi-account-multiple-check' : 'mdi-account-check'
             }}</v-icon>
           </template>
-          <template v-slot:item.actions="{ item }">
+          <template v-slot:item.delete="{ item }">
             <v-icon @click="deleteConnection(item.id)">
               mdi-delete
             </v-icon>
-            <!-- <v-icon @click="onWarnRooms()">
-                  mdi-alert
-                </v-icon> -->
-            <v-bottom-sheet v-model="sheet" persistent>
+          </template>
+          <template v-slot:item.alert="{}">
+            <v-bottom-sheet
+              v-if="selectedConnection"
+              v-model="sheet2"
+              persistent
+              inset
+              width="400"
+            >
               <template v-slot:activator="{ on, attrs }">
                 <v-icon v-bind="attrs" v-on="on">mdi-alert </v-icon>
               </template>
@@ -164,7 +192,7 @@
                       class="mt-6"
                       text
                       color="error"
-                      @click="sheet = !sheet"
+                      @click="sheet2 = !sheet2"
                       >cancel</v-btn
                     ></v-card-actions
                   ></v-card
@@ -189,7 +217,9 @@
           no-gutters
           dense
         >
-          <v-col cols="4"> <v-card-title>Message Query:</v-card-title></v-col>
+          <v-col cols="4">
+            <v-card-title>Visitor Message Query:</v-card-title></v-col
+          >
         </v-row>
 
         <v-row
@@ -380,6 +410,11 @@
     >
       <span>Room: {{ roomName }}</span>
       <v-spacer></v-spacer>
+      <span
+        >Selected:
+        {{ selectedConnection }}
+      </span>
+      <v-spacer></v-spacer>
       <span>Visitor: {{ connectionId }} </span>
     </v-system-bar>
   </div>
@@ -399,6 +434,15 @@ import DataRepository from '@/store/repository.js';
 
 export default {
   computed: {
+    selectedConnection() {
+      if (this.selected.length) {
+        if (this.selected.length > 1) {
+          return 'Multiple';
+        } else return this.selected[0].connectionId;
+      }
+      return '';
+    },
+
     noWord() {
       return this.messages.length == 0;
     },
@@ -535,6 +579,7 @@ export default {
       messageText: 'Presented symptoms',
       daysBack: 5,
       sheet: false,
+      sheet2: false,
       roles: [
         {
           name: 'Room',
@@ -561,7 +606,8 @@ export default {
         { text: 'Room ID', value: 'connectionId' },
         { text: 'Connected', value: 'date' },
         { text: 'Type', value: 'types' },
-        { text: 'Delete', value: 'actions' }
+        { text: 'Delete', value: 'delete' },
+        { text: 'Alert', value: 'alert' }
       ],
       loader: null,
       loading: false,
@@ -592,6 +638,7 @@ export default {
 
     async onJoinRole() {
       this.sheet = !this.sheet;
+
       if (this.isVisitor) {
         this.onGetNewVisitorQr();
       } else {
@@ -700,12 +747,12 @@ export default {
     },
 
     onWarnRooms() {
-      this.sheet = !this.sheet;
-      if (!this.roomName) {
-        alert('Missing roomName');
+      this.sheet2 = !this.sheet2;
+      if (!this.selectedConnection) {
+        alert('Check one or more of the rooms listed');
         return;
       }
-      console.warn(this.connectionId, this.roomName);
+      console.warn(this.connectionId, this.selectedConnection);
       let id = this.connectionId;
 
       let text = JSON.stringify({
@@ -716,7 +763,7 @@ export default {
       });
       console.warn(text);
       let payload = {
-        connectionId: this.roomName,
+        connectionId: this.selectedConnection,
         text: text
       };
 

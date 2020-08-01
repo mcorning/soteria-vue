@@ -7,7 +7,7 @@
       :lights-out="lightsOut"
       :window="window"
     >
-      <span><v-icon>mdi-alert</v-icon>R&D only</span>
+      <span><v-icon color="yellow">mdi-alert</v-icon>R&D only</span>
       <v-spacer></v-spacer>
       <span>Use hard reload</span>
       <v-spacer></v-spacer>

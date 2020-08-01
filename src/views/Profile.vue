@@ -7,7 +7,9 @@
       :window="window"
     >
       <span
-        ><small><v-icon>mdi-alert</v-icon>Alpha code R&D only</small></span
+        ><small
+          ><v-icon color="yellow">mdi-alert</v-icon>Alpha code R&D only</small
+        ></span
       >
       <v-spacer></v-spacer>
       <span><small>Use hard reload</small></span>
@@ -26,16 +28,39 @@
         </v-col>
       </v-row>
     </div>
-    <div v-if="level2">
+    <div v-if="sla.value > 0">
       <v-row>
         <v-col cols="12">
           <SymptomsCard />
         </v-col>
+      </v-row>
+    </div>
+    <div v-if="sla.value > 1">
+      <v-row>
         <v-col>
           <CovidTestResultsCardV />
         </v-col>
       </v-row>
     </div>
+
+    <v-row no-gutters dense justify="center">
+      <v-col cols="auto" md="6">
+        <span class="pl-2">Service Level Agreements: </span>
+      </v-col>
+      <v-spacer></v-spacer>
+      <v-col cols="3" md="1">
+        <v-select
+          class="pa-0 ma-0"
+          item-text="text"
+          item-value="value"
+          return-object
+          v-model="sla"
+          :items="slas"
+          dense
+          hide-details
+        ></v-select>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -57,10 +82,16 @@ export default {
   name: 'profile',
 
   data: () => ({
-    level2: false, //set this true after we have a way for users to upgrade
+    sla: { text: 'SLA-0', value: 0 },
+    slas: [
+      { text: 'SLA-0', value: 0 },
+      { text: 'SLA-1', value: 1 },
+      { text: 'SLA-2', value: 2 }
+    ],
+
     VER: lctVer.VER,
 
-    height: 24,
+    height: 36,
     lightsOut: false,
     window: false,
     TIME: 'hh:mm',
