@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-card class="mb-3">
+      <!-- Your Role -->
       <v-row align="center" justify="end" no-gutters dense>
         <v-col> <v-card-title>Your Role:</v-card-title> </v-col>
         <v-col>
@@ -77,6 +78,9 @@
           <v-card-title
             >Select a Room to {{ isVisitor ? `Enter` : 'Manage' }}</v-card-title
           >
+          <v-card-subtitle v-if="!isVisitor"
+            >You manage {{ roomId }}</v-card-subtitle
+          >
         </v-col>
 
         <v-col>
@@ -102,8 +106,14 @@
                       >
 
                       <v-list-item-icon v-if="!isVisitor">
-                        <v-icon @click="onDeleteRoom" color="red">
+                        <v-icon @click="onDeleteRoom" color="yello">
                           mdi-delete</v-icon
+                        ></v-list-item-icon
+                      >
+
+                      <v-list-item-icon v-if="!isVisitor">
+                        <v-icon @click="alertVisitors" color="red">
+                          mdi-alert</v-icon
                         ></v-list-item-icon
                       >
                     </v-list-item>
@@ -116,210 +126,347 @@
       </v-row>
     </v-card>
 
-    <v-card v-if="isVisitor">
-      <v-card-title>Occupied Rooms </v-card-title>
-
-      <template>
-        <v-data-table
-          v-model="selected"
-          :headers="headers"
-          :items="connections"
-          item-key="id"
-          show-select
-          class="elevation-1"
-          :footer-props="{
-            showFirstLastPage: true,
-            firstIcon: 'mdi-arrow-collapse-left',
-            lastIcon: 'mdi-arrow-collapse-right',
-            prevIcon: 'mdi-minus',
-            nextIcon: 'mdi-plus',
-            itemsPerPageOptions: [1, 5, 10, -1]
-          }"
-        >
-          <template v-slot:item.connectionId="{ item }">
-            {{ item.connectionId }}
-          </template>
-          <template v-slot:item.date="{ item }">
-            {{
-              item.date.toLocaleDateString('en-US', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-              })
-            }}
-          </template>
-          <template v-slot:item.types="{ item }">
-            <v-icon :color="item.isRoomId ? 'red' : 'black'">{{
-              item.isRoomId ? 'mdi-account-multiple-check' : 'mdi-account-check'
-            }}</v-icon>
-          </template>
-          <template v-slot:item.delete="{ item }">
-            <v-icon @click="deleteConnection(item.id)">
-              mdi-delete
-            </v-icon>
-          </template>
-          <template v-slot:item.alert="{}">
-            <v-bottom-sheet
-              v-if="selectedConnection"
-              v-model="sheet2"
-              persistent
-              inset
-              width="400"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon v-bind="attrs" v-on="on">mdi-alert </v-icon>
-              </template>
-              <v-sheet class="text-center">
-                <v-card>
-                  <v-card-title> Notify Rooms</v-card-title>
-                  <v-card-text>
-                    <v-text-field
-                      v-model="messageText"
-                      label="Text (optional)"
-                    ></v-text-field>
-                    <v-select
-                      v-model="messageType"
-                      :items="['Presumptive', 'Positive']"
-                      label="Room notification type"
-                      outlined
-                    ></v-select
-                  ></v-card-text>
-                  <v-card-actions>
-                    <v-btn class="mt-6" text color="error" @click="onWarnRooms"
-                      >Add</v-btn
-                    >
-                    <v-btn
-                      class="mt-6"
-                      text
-                      color="error"
-                      @click="sheet2 = !sheet2"
-                      >cancel</v-btn
-                    ></v-card-actions
-                  ></v-card
-                >
-              </v-sheet>
-            </v-bottom-sheet>
-            <!-- <v-icon @click="onWarnRooms()">
+    <!-- Room Interactions -->
+    <div v-if="isVisitor">
+      <v-card>
+        <v-card-title>Room Interactions </v-card-title>
+        <template>
+          <v-data-table
+            v-model="selected"
+            :headers="headers"
+            :items="connections"
+            :items-per-page="5"
+            item-key="id"
+            show-select
+            class="elevation-1"
+            :footer-props="{
+              showFirstLastPage: true,
+              firstIcon: 'mdi-arrow-collapse-left',
+              lastIcon: 'mdi-arrow-collapse-right',
+              prevIcon: 'mdi-minus',
+              nextIcon: 'mdi-plus',
+              itemsPerPageOptions: [1, 5, 10, -1]
+            }"
+          >
+            <template v-slot:item.connectionId="{ item }">
+              {{ item.connectionId }}
+            </template>
+            <template v-slot:item.date="{ item }">
+              {{
+                item.date.toLocaleDateString('en-US', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                })
+              }}
+            </template>
+            <template v-slot:item.types="{ item }">
+              <v-icon :color="item.isRoomId ? 'red' : 'black'">{{
+                item.isRoomId
+                  ? 'mdi-account-multiple-check'
+                  : 'mdi-account-check'
+              }}</v-icon>
+            </template>
+            <template v-slot:item.delete="{ item }">
+              <v-icon @click="deleteConnection(item.id)">
+                mdi-delete
+              </v-icon>
+            </template>
+            <template v-slot:item.alert="{}">
+              <v-bottom-sheet
+                v-if="selectedConnection"
+                v-model="sheet2"
+                persistent
+                inset
+                width="400"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon v-bind="attrs" v-on="on">mdi-alert </v-icon>
+                </template>
+                <v-sheet class="text-center">
+                  <v-card>
+                    <v-card-title> Notify Rooms</v-card-title>
+                    <v-card-text>
+                      <v-text-field
+                        v-model="messageText"
+                        label="Text (optional)"
+                      ></v-text-field>
+                      <v-select
+                        v-model="messageType"
+                        :items="['Negative', 'Presumptive', 'Positive']"
+                        label="Room notification type"
+                        outlined
+                      ></v-select
+                    ></v-card-text>
+                    <v-card-actions>
+                      <v-btn
+                        class="mt-6"
+                        text
+                        color="error"
+                        @click="onWarnRooms"
+                        >Add</v-btn
+                      >
+                      <v-btn
+                        class="mt-6"
+                        text
+                        color="error"
+                        @click="sheet2 = !sheet2"
+                        >cancel</v-btn
+                      ></v-card-actions
+                    ></v-card
+                  >
+                </v-sheet>
+              </v-bottom-sheet>
+              <!-- <v-icon @click="onWarnRooms()">
               mdi-alert
             </v-icon> -->
-          </template>
-        </v-data-table>
-      </template>
-    </v-card>
+            </template>
+          </v-data-table>
+        </template>
+      </v-card>
+      <v-card>
+        <v-card-title>Covid Alert:</v-card-title>
+        <v-card-text>
+          <v-row align="baseline" justify="space-between" no-gutters dense>
+            <template>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Search"
+                  single-line
+                  hide-details
+                  outlined
+                ></v-text-field
+              ></v-col>
+              <v-spacer></v-spacer>
+              <v-col cols="auto">
+                <v-icon x-large @click="onGetCovidAlerts"
+                  >mdi-email-sync</v-icon
+                ></v-col
+              >
+              <v-col cols="12">
+                <v-data-table
+                  v-model="selected"
+                  :headers="messageHeaders"
+                  :items="alerts"
+                  item-key="id"
+                  dense
+                  class="elevation-1"
+                  :search="search"
+                  :footer-props="{
+                    showFirstLastPage: true,
+                    firstIcon: 'mdi-arrow-collapse-left',
+                    lastIcon: 'mdi-arrow-collapse-right',
+                    prevIcon: 'mdi-minus',
+                    nextIcon: 'mdi-plus',
+                    itemsPerPageOptions: [1, 5, 10, -1]
+                  }"
+                >
+                  <template v-slot:item.sender="{ item }">
+                    {{ item.sender }}
+                  </template>
+                  <template v-slot:item.text="{ item }">
+                    {{ item.text }}
+                  </template>
+                  <template v-slot:item.type="{ item }">
+                    {{ item.type }}
+                  </template>
+                </v-data-table>
+              </v-col>
+            </template>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </div>
 
-    <!-- Messages Query -->
-    <v-card v-else>
-      <v-card-text>
-        <v-row
-          v-if="!isVisitor"
-          align="baseline"
-          justify="start"
-          no-gutters
-          dense
-        >
-          <v-col cols="4">
-            <v-card-title>Visitor Message Query:</v-card-title></v-col
-          >
-        </v-row>
-
-        <v-row
-          v-if="!isVisitor"
-          align="baseline"
-          justify="space-around"
-          no-gutters
-          dense
-        >
-          <v-col cols="3"
-            ><v-text-field
-              v-model="daysBack"
-              label="Look-back days"
-              @change="onGetRoomWarnings"
-              outlined
-            ></v-text-field
-          ></v-col>
-          <v-col cols="4"
-            ><v-text-field
-              v-model="lookBackDate"
-              readonly
-              label="Look-back date"
-              outlined
-            ></v-text-field
-          ></v-col>
-
-          <v-col cols="4">
-            <v-select
-              v-model="messageType"
-              :items="['Check-in', 'Presumptive', 'Positive']"
-              label="Visitor message types"
-              @change="onGetRoomWarnings"
-              outlined
-            ></v-select
-          ></v-col>
-        </v-row>
-
-        <v-row
-          v-if="!isVisitor"
-          align="baseline"
-          justify="space-around"
-          no-gutters
-          dense
-        >
-          <template>
-            <v-col cols="11">
-              <v-text-field
-                v-model="search"
-                append-icon="mdi-magnify"
-                label="Search"
-                single-line
-                hide-details
+    <!-- Visitor Messages -->
+    <div v-else>
+      <v-card>
+        <v-card-title>Visitor Messages:</v-card-title>
+        <v-card-text>
+          <v-row align="baseline" justify="space-between" no-gutters dense>
+            <v-col cols="2"
+              ><v-text-field
+                v-model="daysBack"
+                label="Look-back days"
+                @change="onGetRoomWarnings"
                 outlined
               ></v-text-field
             ></v-col>
             <v-col cols="auto"
-              ><v-icon @click="onGetRoomWarnings">mdi-email-sync</v-icon></v-col
-            >
-            <v-col cols="12">
-              <v-data-table
-                v-model="selected"
-                :headers="messageHeaders"
-                :items="messages"
-                item-key="id"
-                show-select
-                dense
-                class="elevation-1"
-                :search="search"
-                :footer-props="{
-                  showFirstLastPage: true,
-                  firstIcon: 'mdi-arrow-collapse-left',
-                  lastIcon: 'mdi-arrow-collapse-right',
-                  prevIcon: 'mdi-minus',
-                  nextIcon: 'mdi-plus',
-                  itemsPerPageOptions: [1, 5, 10, -1]
-                }"
-              >
-                <template v-slot:item.sender="{ item }">
-                  {{ item.sender }}
-                </template>
-                <template v-slot:item.text="{ item }">
-                  {{ item.text }}
-                </template>
-                <template v-slot:item.type="{ item }">
-                  {{ item.type }}
-                </template>
-              </v-data-table>
-            </v-col>
-          </template>
-        </v-row>
+              ><v-text-field
+                v-model="lookBackDate"
+                readonly
+                label="Look-back date"
+                outlined
+              ></v-text-field
+            ></v-col>
+          </v-row>
 
-        <!-- <v-row v-if="showDetail">
+          <v-row
+            v-if="!isVisitor"
+            align="baseline"
+            justify="space-between"
+            no-gutters
+            dense
+          >
+            <v-col cols="4">
+              <v-select
+                v-model="messageType"
+                autofocus
+                :items="['Check-in', 'Negative', 'Presumptive', 'Positive']"
+                label="Visitor message types"
+                @change="onGetRoomWarnings"
+                outlined
+              ></v-select
+            ></v-col>
+            <v-col cols="1">
+              <v-text-field
+                v-model="messageCount"
+                label="Count"
+                readonly
+                outlined
+              ></v-text-field>
+            </v-col>
+            <template>
+              <v-col cols="6">
+                <v-text-field
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Search"
+                  single-line
+                  hide-details
+                  outlined
+                ></v-text-field
+              ></v-col>
+              <v-spacer></v-spacer>
+              <v-col cols="auto"
+                ><v-icon large @click="onGetRoomWarnings"
+                  >mdi-email-sync</v-icon
+                ></v-col
+              >
+              <v-col cols="12">
+                <v-data-table
+                  v-model="selected"
+                  :headers="messageHeaders"
+                  :items="messages"
+                  item-key="id"
+                  dense
+                  class="elevation-1"
+                  :search="search"
+                  :footer-props="{
+                    showFirstLastPage: true,
+                    firstIcon: 'mdi-arrow-collapse-left',
+                    lastIcon: 'mdi-arrow-collapse-right',
+                    prevIcon: 'mdi-minus',
+                    nextIcon: 'mdi-plus',
+                    itemsPerPageOptions: [1, 5, 10, -1]
+                  }"
+                >
+                  <template v-slot:item.sender="{ item }">
+                    {{ item.sender }}
+                  </template>
+                  <template v-slot:item.text="{ item }">
+                    {{ item.text }}
+                  </template>
+                  <template v-slot:item.type="{ item }">
+                    {{ item.type }}
+                  </template>
+                </v-data-table>
+              </v-col>
+            </template>
+          </v-row>
+        </v-card-text>
+      </v-card>
+      <v-card>
+        <v-card-title>Alert List</v-card-title>
+        <v-row align="start" justify="space-between" dense no-gutters>
+          <v-col>
+            <v-list dense>
+              <v-list-item-group color="primary">
+                <v-list-item v-for="(msg, i) in messageSet" :key="i">
+                  <v-list-item-content>
+                    <v-list-item-title v-text="msg"></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-col>
+          <v-spacer></v-spacer>
+          <v-col
+            ><v-btn
+              :disabled="!messageSet.length"
+              color="primary"
+              @click="alertVisitors"
+              >Alert Visitors</v-btn
+            ></v-col
+          >
+        </v-row>
+      </v-card>
+    </div>
+    <div v-if="sla > 0">
+      <v-row v-if="showDetail">
+        <v-col cols="6">
+          <v-card-subtitle
+            >You can scan this QR code to make a connection with the Room in
+            your digital wallet. You would do this is you want to exchange
+            credentials with the Room.</v-card-subtitle
+          >
+        </v-col>
+        <v-col cols="6">
+          <v-img
+            id="qrRoom"
+            class="white--text align-end"
+            :src="qrSourceRoom"
+            height="200"
+            width="200"
+          >
+          </v-img>
+        </v-col>
+
+        <v-col cols="12">
+          <v-card-title class="pa-0"
+            >Stipulate Room's risk tolerance:</v-card-title
+          >
+        </v-col>
+
+        <v-col cols="6">
+          <v-card-text class="pt-0">
+            <v-select
+              :disabled="!isRoomRiskManager"
+              v-model="select"
+              @change="roomRiskThreshold = select.score"
+              :items="risks"
+              item-text="desc"
+              item-value="score"
+              label="Select"
+              return-object
+              single-line
+              dense
+            ></v-select
+          ></v-card-text>
+        </v-col>
+        <v-col cols="6">
+          <v-card-subtitle>Room risk (max): {{ select.score }}</v-card-subtitle>
+        </v-col>
+        <v-col cols="12">
+          <v-card-subtitle class="pa-0"
+            >Visitors can enter based on the Room's riskiness.
+          </v-card-subtitle>
+        </v-col>
+      </v-row>
+      <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
+        <v-col cols="12">
+          <v-text-field dense label="Phone ID:" :loading="loading1"
+            >{{ connectionId }}
+          </v-text-field>
+        </v-col>
+        <div v-if="showDetail">
           <v-col cols="6">
             <v-card-subtitle
-              >You can scan this QR code to make a connection with the Room in
-              your digital wallet. You would do this is you want to exchange
-              credentials with the Room.</v-card-subtitle
+              >Connection Invitation for {{ connectionId }}</v-card-subtitle
             >
-          </v-col>
-          <v-col cols="6">
             <v-img
               id="qrRoom"
               class="white--text align-end"
@@ -329,79 +476,17 @@
             >
             </v-img>
           </v-col>
-
-          <v-col cols="12">
-            <v-card-title class="pa-0"
-              >Stipulate Room's risk tolerance:</v-card-title
-            >
-          </v-col>
-
-          <v-col cols="6">
-            <v-card-text class="pt-0">
-              <v-select
-                :disabled="!isRoomRiskManager"
-                v-model="select"
-                @change="roomRiskThreshold = select.score"
-                :items="risks"
-                item-text="desc"
-                item-value="score"
-                label="Select"
-                return-object
-                single-line
-                dense
-              ></v-select
-            ></v-card-text>
-          </v-col>
           <v-col cols="6">
             <v-card-subtitle
-              >Room risk (max): {{ select.score }}</v-card-subtitle
+              >Rooms can scan this QR code to make a connection (as secure
+              communication channel) with your digital wallet. You would do this
+              is you want to exchange credentials with the
+              Room.</v-card-subtitle
             >
           </v-col>
-          <v-col cols="12">
-            <v-card-subtitle class="pa-0"
-              >Visitors can enter based on the Room's riskiness.
-            </v-card-subtitle>
-          </v-col>
-        </v-row>
-      </v-card-text>
-
-      <v-card-text>
-        <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
-          <v-col cols="12">
-            <v-text-field
-              dense
-              label="Phone ID:"
-              :loading="loading1"
-              >{{ connectionId }}
-            </v-text-field>
-          </v-col>
-          <div v-if="showDetail">
-            <v-col cols="6">
-              <v-card-subtitle
-                >Connection Invitation for {{ connectionId }}</v-card-subtitle
-              >
-              <v-img
-                id="qrRoom"
-                class="white--text align-end"
-                :src="qrSourceRoom"
-                height="200"
-                width="200"
-              >
-              </v-img>
-            </v-col>
-            <v-col cols="6">
-              <v-card-subtitle
-                >Rooms can scan this QR code to make a connection (as secure
-                communication channel) with your digital wallet. You would do
-                this is you want to exchange credentials with the
-                Room.</v-card-subtitle
-              >
-            </v-col>
-          </div>
-        </v-row>
-      </v-card-text> -->
-      </v-card-text>
-    </v-card>
+        </div>
+      </v-row>
+    </div>
     <v-system-bar
       color="secondary"
       :height="height"
@@ -434,6 +519,14 @@ import DataRepository from '@/store/repository.js';
 
 export default {
   computed: {
+    messageSet() {
+      let s = new Set(this.messages.map(v => v.sender));
+      return Array.from(s);
+    },
+    messageCount() {
+      return this.messages.length;
+    },
+
     selectedConnection() {
       if (this.selected.length) {
         if (this.selected.length > 1) {
@@ -572,10 +665,11 @@ export default {
   },
   data() {
     return {
+      sla: 0,
       height: 30,
       lightsOut: true,
       window: true,
-      messageType: 'Presumptive',
+      messageType: 'Check-in',
       messageText: 'Presented symptoms',
       daysBack: 5,
       sheet: false,
@@ -591,11 +685,12 @@ export default {
       search: '',
       message: '',
       messages: [],
+      alerts: [],
       messageHeaders: [
         { text: 'Occupant', value: 'sender' },
         { text: 'Message', value: 'text' },
         { text: 'Type', value: 'type' },
-        { text: 'Sent', value: 'sentTime' }
+        { text: 'Room saw message ', value: 'sentTime' }
       ],
       showDetail: false,
       incubationPeriod: 14,
@@ -630,7 +725,64 @@ export default {
   },
 
   methods: {
-    notifyVisitors() {},
+    alertVisitors() {
+      this.messageSet.forEach(visitor => {
+        console.info(`${this.roomId} alerting ${visitor}`);
+        let text = JSON.stringify({
+          sentTime: new Date(),
+          sender: this.roomId,
+          text:
+            'You may have been exposed to Covid-19 within the last 14 days.',
+          type: 'CovidAlert',
+          id: Date.now()
+        });
+        console.info(text);
+        let payload = {
+          connectionId: visitor,
+          text: text
+        };
+
+        axios({ url: '/messages', data: payload, method: 'POST' })
+          .then(() => {
+            console.log(`Alerted: ${this.roomId}`);
+            DataRepository.connect({
+              connectionId: this.roomId,
+              type: 'alert'
+            });
+            Connection.$fetch();
+          })
+          .catch(e => console.error(e));
+      });
+    },
+
+    onGetCovidAlerts() {
+      console.log(this.connectionId);
+      axios(`/messages/connection/?connectionId=${this.connectionId}`).then(
+        s => {
+          this.alerts = s.data
+            .map(v => this.tryParse(v.text))
+            .filter(v => {
+              if (v.sender) return v;
+            });
+          // get the text property as JSON
+          // let m = s.data
+          //   .map(v => {
+          //     let t = v.sentTime;
+
+          //     let x = this.tryParse(v.text);
+          //     if (x) {
+          //       x.sentTime = t;
+          //     }
+          //     return x;
+          //   })
+          // .filter(v => this.filterDate(v.sentTime))
+          //   .filter(v => v.type?.toLowerCase() == 'alert');
+          // console.dir('m:', m, { depth: 3 });
+          // this.alerts = m;
+          // console.log();
+        }
+      );
+    },
 
     test() {
       alert('test');
@@ -690,7 +842,8 @@ export default {
       return tm.isAfter(z);
     },
     filterType(t) {
-      console.log(t, this.messageType.toLowerCase());
+      console.log('Message type:', t);
+
       return t == this.messageType.toLowerCase();
     },
 
@@ -771,16 +924,13 @@ export default {
     },
 
     tryParse(str) {
-      console.log(str);
+      console.log('trying to parse:', str);
       let json = {};
       try {
         json = JSON.parse(str);
-      } catch (error) {
-        {
-          console.error(error);
-        }
+      } catch {
+        console.log('oops. no can do.');
       }
-      console.log(json);
       return json;
     },
 
@@ -881,6 +1031,8 @@ export default {
     console.log(axios.defaults.baseURL);
     console.log('Leaving created() in RoleCard');
     this.onGetRooms();
+    this.onGetRoomWarnings();
+    this.onGetCovidAlerts();
     this.loading = false;
   }
 };

@@ -21,14 +21,12 @@ Soteria-Vue has three levels of service (SLA):
 2. Symptom Tracking (with visual Risk Score) (enables limited interaction with Room)
 3. Cryptographic (automated Room risk policy verification using personal and covid credentials)
 
-
-
-
 ## Overview
 
 Soteria-vue uses VueJs on the front end, Trinsic server on the backend, and Azure functions in the middle.
 
 For local development:
+
   1. use the `serve` script for Soteria-vue
   2. use the `start` script for streetcred
 
@@ -36,7 +34,7 @@ For local development:
 >
 >     "start": "func host start --cors *",
 
-## To debug Soteria-vue:
+## To debug Soteria-vue
 
 1. run the `serve` script
 2. Press F5
@@ -44,15 +42,15 @@ For local development:
 You should see (Network IP may differ):
 >App running at:
 >
->- Local:   http://localhost:8080/
->   - Network: http://192.168.1.7:8080/
+>- Local:   <http://localhost:8080/>
+>   - Network: <http://192.168.1.7:8080/>
 >
 >   Note that the development build is not optimized.
 >   To create a production build, run npm run build.
 
-## To debug SoteriaStreetcred:
+## To debug SoteriaStreetcred
 
-1. be sure you close any session in the terminal with a `ctrl-c` 
+1. be sure you close any session in the terminal with a `ctrl-c` key
 2. Press F5
 3. wait for the screen to display
 
@@ -74,13 +72,11 @@ bitly: <http://bit.ly/2SOMXEo>
 
 ## orm-localforage
 
-```
 $fetch:  Load data from the IndexedDB store associated to a model and persist them in the Vuex Store
 $get:    Load data by id from the IndexedDB store associated and persist it to Vuex Store
 $create: Like VuexORM insertOrUpdate, but also persist data to IndexedDB
 $update: Update records using VuexORM update or insertOrUpdate then persist changes to IndexedDB
 $delete: Like VuexORM delete, but also remove data from IndexedDB
-```
 
 ## router guards
 
@@ -90,7 +86,7 @@ $delete: Like VuexORM delete, but also remove data from IndexedDB
 
 with:
 
-```[{
+[{
     path: '/reporting',
     name: 'Reporting',
     component: reporting,
@@ -99,11 +95,9 @@ with:
     }
 },
 ...]
-```
 
 from this:
 
-```
 if (to.matched.some(route => route.meta.adminOnly)) {
     if (store.getters.userInfo.isAdmin) {
         next()
@@ -113,11 +107,9 @@ if (to.matched.some(route => route.meta.adminOnly)) {
 } else {
     next()
 }
-```
 
 to this:
 
-```
 if (store.getters.userInfo.isAdmin === null) {
     const watcher = store.watch(store.getters.userInfo.isAdmin, isAdmin => {
         watcher(); // stop watching
@@ -127,31 +119,22 @@ if (store.getters.userInfo.isAdmin === null) {
 }
 else if (store.getters.userInfo.isAdmin) next();
 else next('/');
-```
 
 ## Project setup
 
-```
 npm install
-```
 
 ### Compiles and hot-reloads for development
 
-```
 npm run serve
-```
 
 ### Compiles and minifies for production
 
-```
 npm run build
-```
 
 ### Lints and fixes files
 
-```
 npm run lint
-```
 
 ### Customize configuration
 
