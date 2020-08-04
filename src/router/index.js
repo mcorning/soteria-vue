@@ -2,7 +2,8 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Profile from '../views/Profile.vue';
 import Risk from '../views/Risk.vue';
-import Tracing from '../views/Tracing.vue';
+import Visitor from '../views/Visitor.vue';
+import Room from '../views/Room.vue';
 import Onboard from '../views/Onboard.vue';
 import Home from '../views/Home.vue';
 // import ConnectionCard from '@/components/ConnectionCard';
@@ -26,9 +27,14 @@ const routes = [
     component: Risk
   },
   {
-    path: '/tracing',
-    name: 'tracing',
-    component: Tracing
+    path: '/Visitor',
+    name: 'Visitor',
+    component: Visitor
+  },
+  {
+    path: '/Room',
+    name: 'Room',
+    component: Room
   },
   {
     path: '/onboard',

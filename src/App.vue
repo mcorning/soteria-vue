@@ -122,14 +122,17 @@ export default {
 
       links: [
         {
-          label: 'Track',
-          url: '/profile'
+          label: 'Room',
+          url: '/Room'
         },
         {
-          label: 'Trace',
-          url: '/tracing'
+          label: 'Visitor',
+          url: '/Visitor'
+        },
+        {
+          label: 'Profile',
+          url: '/profile'
         }
-
         // {
         //   label: 'Check',
         //   url: '/risk'

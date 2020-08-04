@@ -13,17 +13,17 @@
       <v-spacer></v-spacer>
       <span>v. {{ VER }} </span>
     </v-system-bar>
-    <RoleCard />
+    <RoomCard />
   </v-container>
 </template>
 
 <script>
-import RoleCard from '@/components/RoleCard.vue';
+import RoomCard from '@/components/RoomCard.vue';
 import lctVer from '@/lct.ver.json';
 
 export default {
   components: {
-    RoleCard
+    RoomCard
   },
   computed: {},
   data() {
