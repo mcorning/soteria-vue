@@ -1,14 +1,19 @@
 <template>
   <div>
+    <div class="text-center">
+      <v-overlay :value="overlay">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+    </div>
     <!-- Select a Room -->
     <v-card class="mb-3" tile outlined>
       <v-row align="center" justify="end" no-gutters>
         <v-col>
           <v-card-title>Check-in with your selected Room</v-card-title>
-          <v-card-subtitle
-            >Contact {{ organization }} if your Room isn't
-            listed</v-card-subtitle
-          >
+          <v-card-subtitle>
+            Contact {{ organization }} if your Room isn't
+            listed
+          </v-card-subtitle>
         </v-col>
 
         <v-col>
@@ -26,15 +31,13 @@
                         <v-list-item-title v-text="room"></v-list-item-title>
                       </v-list-item-content>
                       <v-list-item-icon>
-                        <v-icon @click="onRoomSignIn()">
-                          mdi-account-check
-                        </v-icon></v-list-item-icon
-                      >
+                        <v-icon @click="onRoomSignIn()">mdi-account-check</v-icon>
+                      </v-list-item-icon>
                     </v-list-item>
                   </v-list-item-group>
                 </v-list>
-              </v-card-text></v-col
-            >
+              </v-card-text>
+            </v-col>
           </v-row>
         </v-col>
       </v-row>
@@ -42,10 +45,8 @@
 
     <!-- Visitor Messages -->
     <v-card>
-      <v-card-title>Visitor/Room Interactions:</v-card-title>
-      <v-card-subtitle
-        >Choose the kind of Room interaction to do:</v-card-subtitle
-      >
+      <v-card-title>Your Interactions with Rooms:</v-card-title>
+      <v-card-subtitle>Choose the kind of Room interaction to list:</v-card-subtitle>
 
       <v-card-text>
         <v-row align="baseline" justify="start" no-gutters dense>
@@ -57,8 +58,8 @@
               label="Interaction"
               @change="onGetRoomWarnings"
               hide-details
-            ></v-select
-          ></v-col>
+            ></v-select>
+          </v-col>
 
           <v-col cols="6" sm="4">
             <v-text-field
@@ -67,35 +68,28 @@
               label="Search"
               single-line
               hide-details
-            ></v-text-field
-          ></v-col>
+            ></v-text-field>
+          </v-col>
 
-          <v-col cols="3" sm="2"
-            ><v-text-field
+          <v-col cols="3" sm="2">
+            <v-text-field
               v-model="daysBack"
               label="Days past"
               @change="onGetRoomWarnings"
               hide-details
-            ></v-text-field
-          ></v-col>
-          <v-col cols="8" sm="3"
-            ><v-text-field
-              v-model="lookBackDate"
-              readonly
-              hide-details
-              label="Look-back date"
-            ></v-text-field
-          ></v-col>
-          <v-col cols="1"
-            ><v-icon class="pl-2" large @click="onGetRoomWarnings"
-              >mdi-email-sync</v-icon
-            ></v-col
-          >
+            ></v-text-field>
+          </v-col>
+          <v-col cols="8" sm="3">
+            <v-text-field v-model="lookBackDate" readonly hide-details label="Look-back date"></v-text-field>
+          </v-col>
+          <v-col cols="1">
+            <v-icon class="pl-2" large @click="onGetRoomWarnings">mdi-email-sync</v-icon>
+          </v-col>
           <v-col cols="12">
             <v-data-table
               v-model="selected"
-              :headers="messageHeaders"
-              :items="messages"
+              :headers="connectionHeaders"
+              :items="connections"
               item-key="id"
               dense
               class="elevation-1"
@@ -109,14 +103,10 @@
                 itemsPerPageOptions: [1, 5, 10, -1]
               }"
             >
-              <template v-slot:item.sender="{ item }">
-                {{ item.sender }}
-              </template>
-              <template v-slot:item.text="{ item }">
-                {{ item.text }}
-              </template>
-              <template v-slot:item.type="{ item }">
-                {{ item.type }}
+              <template v-slot:item.date="{ item }">
+                {{
+                visitedDate(item.date)
+                }}
               </template>
             </v-data-table>
           </v-col>
@@ -124,38 +114,64 @@
       </v-card-text>
     </v-card>
     <v-card>
-      <v-card-title>Alert List</v-card-title>
+      <v-card-title>Room Alert List</v-card-title>
+      <v-alert
+        v-model="alertRoom"
+        dark
+        border="top"
+        icon="mdi-home"
+        transition="scale-transition"
+        type="success"
+        dismissible
+      >
+        <p>You have successfully done your part. You have successfully alerted Rooms you occupied. Well done.</p>
+      </v-alert>
+
       <v-row align="start" justify="space-between" dense no-gutters>
         <v-col>
           <v-list dense>
             <v-list-item-group color="primary">
-              <v-list-item v-for="(msg, i) in messageSet" :key="i">
+              <v-list-item v-for="(room, i) in roomSet" :key="i">
                 <v-list-item-content>
-                  <v-list-item-title v-text="msg"></v-list-item-title>
+                  <v-list-item-title v-text="room"></v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
           </v-list>
         </v-col>
         <v-spacer></v-spacer>
-        <v-col
-          ><v-btn
-            :disabled="!messageSet.length"
-            color="primary"
-            @click="alertVisitors"
-            >Alert Visitors</v-btn
-          ></v-col
-        >
+        <v-col>
+          <v-dialog v-model="dialog" persistent max-width="290">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                dark
+                v-bind="attrs"
+                v-on="on"
+                :disabled="!roomSet.length"
+              >Alert Rooms</v-btn>
+            </template>
+            <v-card>
+              <v-card-title class="headline">Ready to alert Rooms?</v-card-title>
+              <v-card-text>This will send a message to each Room you occupied in the last {{incubationPeriod}} days.</v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green darken-1" text @click="alertRooms">Yes</v-btn>
+                <v-btn color="green darken-1" text @click="dialog=false">No</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-col>
       </v-row>
     </v-card>
     <div v-if="sla > 0">
       <v-row v-if="showDetail">
         <v-col cols="6">
-          <v-card-subtitle
-            >You can scan this QR code to make a connection with the Room in
-            your digital wallet. You would do this is you want to exchange
-            credentials with the Room.</v-card-subtitle
-          >
+          <v-card-subtitle>
+            You can scan this QR code to make a connection with the Room in your
+            digital wallet. You would do this is you want to exchange
+            credentials with the Room.
+          </v-card-subtitle>
         </v-col>
         <v-col cols="6">
           <v-img
@@ -164,14 +180,11 @@
             :src="qrSourceRoom"
             height="200"
             width="200"
-          >
-          </v-img>
+          ></v-img>
         </v-col>
 
         <v-col cols="12">
-          <v-card-title class="pa-0"
-            >Stipulate Room's risk tolerance:</v-card-title
-          >
+          <v-card-title class="pa-0">Stipulate Room's risk tolerance:</v-card-title>
         </v-col>
 
         <v-col cols="6">
@@ -187,63 +200,50 @@
               return-object
               single-line
               dense
-            ></v-select
-          ></v-card-text>
+            ></v-select>
+          </v-card-text>
         </v-col>
         <v-col cols="6">
           <v-card-subtitle>Room risk (max): {{ select.score }}</v-card-subtitle>
         </v-col>
         <v-col cols="12">
-          <v-card-subtitle class="pa-0"
-            >Visitors can enter based on the Room's riskiness.
-          </v-card-subtitle>
+          <v-card-subtitle class="pa-0">Visitors can enter based on the Room's riskiness.</v-card-subtitle>
         </v-col>
       </v-row>
       <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
         <v-col cols="12">
-          <v-text-field dense label="Phone ID:" :loading="loading1"
-            >{{ connectionId }}
-          </v-text-field>
+          <v-text-field dense label="Phone ID:" :loading="loading1">{{ connectionId }}</v-text-field>
         </v-col>
         <div v-if="showDetail">
           <v-col cols="6">
-            <v-card-subtitle
-              >Connection Invitation for {{ connectionId }}</v-card-subtitle
-            >
+            <v-card-subtitle>Connection Invitation for {{ connectionId }}</v-card-subtitle>
             <v-img
               id="qrRoom"
               class="white--text align-end"
               :src="qrSourceRoom"
               height="200"
               width="200"
-            >
-            </v-img>
+            ></v-img>
           </v-col>
           <v-col cols="6">
-            <v-card-subtitle
-              >Rooms can scan this QR code to make a connection (as secure
+            <v-card-subtitle>
+              Rooms can scan this QR code to make a connection (as secure
               communication channel) with your digital wallet. You would do this
-              is you want to exchange credentials with the
-              Room.</v-card-subtitle
-            >
+              is you want to exchange credentials with the Room.
+            </v-card-subtitle>
           </v-col>
         </div>
       </v-row>
     </div>
-    <v-system-bar
-      color="secondary"
-      :height="height"
-      :lights-out="lightsOut"
-      :window="window"
-    >
+    <v-system-bar color="secondary" :height="height" :lights-out="lightsOut" :window="window">
       <span>Room: {{ roomName }}</span>
       <v-spacer></v-spacer>
-      <span
-        >Selected:
-        {{ selectedConnection }}
+      <span>
+        API:
+        {{ this.api }}
       </span>
       <v-spacer></v-spacer>
-      <span>Visitor: {{ connectionId }} </span>
+      <span>Visitor: {{ connectionId }}</span>
     </v-system-bar>
   </div>
 </template>
@@ -262,6 +262,10 @@ import DataRepository from '@/store/repository.js';
 
 export default {
   computed: {
+    roomSet() {
+      let s = new Set(this.connections.map(v => v.connectionId));
+      return Array.from(s);
+    },
     messageSet() {
       let s = new Set(this.messages.map(v => v.sender));
       return Array.from(s);
@@ -400,6 +404,11 @@ export default {
   },
   data() {
     return {
+      dialog: false,
+      visitFormat: 'ddd, MMM d, HH:mm',
+      alertRoom: false,
+      api: '',
+      overlay: false,
       organization: config.ORGANIZATION,
       missingPhoneNamePrompt: 'Please provide a unique name for your phone',
       sla: 0,
@@ -434,12 +443,10 @@ export default {
       transition: 'scale-transition',
       singleSelect: true,
       selected: [],
-      headers: [
-        { text: 'Room ID', value: 'connectionId' },
-        { text: 'Connected', value: 'date' },
-        { text: 'Type', value: 'types' },
-        { text: 'Delete', value: 'delete' },
-        { text: 'Alert', value: 'alert' }
+      connectionHeaders: [
+        { text: 'Room', value: 'connectionId' },
+        { text: 'Date Visited', value: 'date' },
+        { text: 'Visit Type', value: 'type' }
       ],
       loader: null,
       loading: false,
@@ -462,40 +469,8 @@ export default {
   },
 
   methods: {
-    alertVisitors() {
-      if (!this.roomId) {
-        alert(
-          'Houston, we have a problem. We have a null value for this.roomId in alertVisitors()'
-        );
-        return;
-      }
-      this.messageSet.forEach(visitor => {
-        console.info(`${this.roomId} alerting ${visitor}`);
-        let text = JSON.stringify({
-          sentTime: new Date(),
-          sender: this.roomId,
-          text:
-            'You may have been exposed to Covid-19 within the last 14 days.',
-          type: 'CovidAlert',
-          id: Date.now()
-        });
-        console.info(text);
-        let payload = {
-          connectionId: visitor,
-          text: text
-        };
-
-        axios({ url: '/messages', data: payload, method: 'POST' })
-          .then(() => {
-            console.log(`Alerted: ${this.roomId}`);
-            DataRepository.connect({
-              connectionId: this.roomId,
-              type: 'alert'
-            });
-            Connection.$fetch();
-          })
-          .catch(e => console.error(e));
-      });
+    visitedDate(date) {
+      return moment(new Date(date)).format(this.visitFormat);
     },
 
     onGetCovidAlerts() {
@@ -505,6 +480,7 @@ export default {
         this.sheet = true;
         return;
       }
+      // this.overlay = true;
       console.log('this.connectionId', this.connectionId);
 
       axios(`/messages/connection/?connectionId=${this.connectionId}`).then(
@@ -514,6 +490,7 @@ export default {
             .filter(v => {
               if (v.sender) return v;
             });
+          // this.overlay = false;
         }
       );
     },
@@ -526,24 +503,6 @@ export default {
       this.sheet = !this.sheet;
 
       this.onGetNewVisitorQr();
-    },
-
-    onGetNewRoomQr() {
-      if (!this.roomId) {
-        alert(
-          'Houston, we have a problem. We have a null value for this.roomId in onGetNewRoomQR()'
-        );
-        return;
-      }
-      console.log(`getting QR code for room ${this.roomId}`);
-
-      axios('/invitations/?id=' + this.roomId).then(s => {
-        console.log('New Room QR:', s);
-        this.roomInvitationUrl = s.data.url;
-        this.onGetRooms();
-        // this.invitationSetup(s.data.invite);
-      });
-      console.log('Room connection invitation url', this.roomInvitationUrl);
     },
 
     async onGetNewVisitorQr() {
@@ -584,6 +543,7 @@ export default {
     },
 
     onGetRoomWarnings() {
+      this.api = 'this.onGetRoomWarnings()';
       if (!this.roomName) {
         this.onGetRooms();
       }
@@ -622,7 +582,7 @@ export default {
       }
       let text = JSON.stringify({
         sender: this.connectionId,
-        text: 'day shift',
+        text: 'visiting (make this dynamic)',
         type: 'check-in',
         id: Date.now()
       });
@@ -680,11 +640,14 @@ export default {
     },
 
     onGetRooms() {
+      this.overlay = true;
+      this.api = 'onGetRooms()';
       axios('/connections/list/?state=Invited').then(s => {
         console.log('Invited connections:', s);
         this.rooms = s.data.connections
           .filter(v => v.multiParty)
           .map(v => v.connectionId);
+        this.overlay = false;
       });
     },
 
@@ -730,39 +693,27 @@ export default {
       }
     },
 
-    alertRooms(id) {
-      if (!id) {
-        alert(
-          'Houston, we have a problem. We have a null value for the id arg passed to alertRooms().'
-        );
-        return;
-      }
-      if (!this.connectionId) {
-        alert(
-          'Houston, we have a problem. We have a null value for this.connectionId in alertRooms().'
-        );
-        return;
-      }
-      if (this.selected.length) {
-        if (confirm(`Alerting ${this.selected.length} rooms`)) {
-          new Set(this.selected.map(v => v.connectionId)).forEach(v => {
-            let payload = {
-              connectionId: v,
-              text: `ALERT: ${this.connectionId} is in quarantine.`
-            };
-            console.log('Alerting:', payload);
-            axios({
-              url: '/messages',
-              data: payload,
-              method: 'POST'
-            }).catch(e => console.error(e));
-          });
-        }
-      } else {
-        if (confirm('Alerting room ' + id)) {
-          console.log(id, 'alerted');
-        }
-      }
+    async alertRooms() {
+      this.dialog = false;
+      this.overlay = true;
+      await this.sendAlerts();
+      this.overlay = !this.overlay;
+      this.alertRoom = true;
+    },
+
+    async sendAlerts() {
+      this.roomSet.forEach(async v => {
+        let payload = {
+          connectionId: v,
+          text: `ALERT: ${this.connectionId} is in quarantine.`
+        };
+        console.log('Alerting:', payload);
+        await axios({
+          url: '/messages',
+          data: payload,
+          method: 'POST'
+        }).catch(e => console.error(e));
+      });
     },
 
     onChangeRiskThreshold() {
@@ -797,6 +748,7 @@ export default {
     this.onGetRoomWarnings();
     this.onGetCovidAlerts();
     this.loading = false;
+    this.overlay = !this.overlay;
   }
 };
 </script>
