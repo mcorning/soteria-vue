@@ -126,30 +126,58 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-card>
-      <v-card-title>Alert List</v-card-title>
-      <v-row align="start" justify="space-between" dense no-gutters>
-        <v-col>
-          <v-list dense>
-            <v-list-item-group color="primary">
-              <v-list-item v-for="(msg, i) in messageSet" :key="i">
-                <v-list-item-content>
-                  <v-list-item-title v-text="msg"></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col>
-          <v-btn
-            :disabled="!messageSet.length"
-            color="primary"
-            @click="alertVisitors"
-          >Alert Visitors</v-btn>
-        </v-col>
-      </v-row>
-    </v-card>
+    <v-row no-gutters v-if="alerts.length">
+      <v-col cols="7">
+        <v-card>
+          <v-card-title>Covid Alerts</v-card-title>
+          <v-card-subtitle>Vistors below occupied your Room in the last {{incubationPeriod}} days.</v-card-subtitle>
+          <v-card-text>
+            <p>Each listed Visitor may have exposed other occupants at the same time. The number of exposure alerts you see indicates the severity of the outbreak in your Room.</p>
+            <p>Now it's your turn: Alert Visitors listed on the right, and even you should self-isolate for two weeks.</p>
+          </v-card-text>
+          <v-data-table
+            :headers="alertHeaders"
+            :items="alerts"
+            item-key="id"
+            dense
+            class="elevation-1"
+          >
+            <template v-slot:item.sentTime="{ item }">
+              {{
+              visitedDate(item.sentTime)
+              }}
+            </template>
+          </v-data-table>
+        </v-card>
+      </v-col>
+      <v-col cols="5">
+        <v-card>
+          <v-card-title>Visitor Alert List</v-card-title>
+          <v-card-subtitle>This is a list of unique names taken from your Room Interactions card</v-card-subtitle>
+          <v-row align="start" justify="space-between" dense no-gutters>
+            <v-col>
+              <v-list dense>
+                <v-list-item-group color="primary">
+                  <v-list-item v-for="(msg, i) in messageSet" :key="i">
+                    <v-list-item-content>
+                      <v-list-item-title v-text="msg"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn
+                :disabled="!messageSet.length"
+                color="primary"
+                @click="alertVisitors"
+              >Alert Visitors</v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
     <div v-if="sla > 0">
       <v-row v-if="showDetail">
         <v-col cols="6">
@@ -367,6 +395,9 @@ export default {
           this.overlay = false;
         }, 10000);
     },
+    room() {
+      this.onGetCovidAlerts();
+    },
     loader() {
       const l = this.loader;
       console.log('loader', l);
@@ -384,6 +415,7 @@ export default {
       overlay: false,
       selectedRoom: '',
       organization: config.ORGANIZATION,
+      visitFormat: 'ddd, MMM d, HH:mm',
 
       missingPhoneNamePrompt: 'Please provide a unique name for your phone',
       sla: 0,
@@ -418,12 +450,16 @@ export default {
       transition: 'scale-transition',
       singleSelect: true,
       selected: [],
-      headers: [
-        { text: 'Room ID', value: 'connectionId' },
-        { text: 'Connected', value: 'date' },
-        { text: 'Type', value: 'types' },
-        { text: 'Delete', value: 'delete' },
-        { text: 'Alert', value: 'alert' }
+      // headers: [
+      //   { text: 'Room ID', value: 'connectionId' },
+      //   { text: 'Connected', value: 'date' },
+      //   { text: 'Type', value: 'types' },
+      //   { text: 'Delete', value: 'delete' },
+      //   { text: 'Alert', value: 'alert' }
+      // ],
+      alertHeaders: [
+        { text: 'Date of Alert', value: 'sentTime' },
+        { text: 'Message', value: 'text' }
       ],
       loader: null,
       loading: false,
@@ -446,6 +482,12 @@ export default {
   },
 
   methods: {
+    visitedDate(date) {
+      let x = moment(new Date(date)).format(this.visitFormat);
+      // let x = moment(date).format(this.visitFormat);
+      return x;
+    },
+
     manageRoom(room) {
       this.managedRoom = room;
     },
@@ -487,23 +529,20 @@ export default {
     },
 
     onGetCovidAlerts() {
+      this.api = 'onGetCovidAlerts()';
+      this.overlay = true;
+
       if (!this.connectionId) {
         // Probably a first time user who didn't know they need to tell the app their phone name
         // Send them to the JoinRole sheet
         this.sheet = true;
         return;
       }
-      console.log('this.connectionId', this.connectionId);
-
-      axios(`/messages/connection/?connectionId=${this.connectionId}`).then(
-        s => {
-          this.alerts = s.data
-            .map(v => this.tryParse(v.text))
-            .filter(v => {
-              if (v.sender) return v;
-            });
-        }
-      );
+      axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
+        this.alerts = s.data.filter(v => v.text.startsWith('ALERT'));
+        this.overlay = false;
+        console.log(this.alerts);
+      });
     },
 
     test() {
@@ -659,12 +698,11 @@ export default {
     },
 
     tryParse(str) {
-      console.log('trying to parse:', str);
       let json = {};
       try {
         json = JSON.parse(str);
       } catch {
-        console.log('oops. no can do.');
+        console.log('');
       }
       return json;
     },

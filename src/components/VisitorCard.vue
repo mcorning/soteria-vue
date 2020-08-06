@@ -114,57 +114,86 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-card>
-      <v-card-title>Room Alert List</v-card-title>
-      <v-alert
-        v-model="alertRoom"
-        dark
-        border="top"
-        icon="mdi-home"
-        transition="scale-transition"
-        type="success"
-        dismissible
-      >
-        <p>You have successfully done your part. You have successfully alerted Rooms you occupied. Well done.</p>
-      </v-alert>
-
-      <v-row align="start" justify="space-between" dense no-gutters>
-        <v-col>
-          <v-list dense>
-            <v-list-item-group color="primary">
-              <v-list-item v-for="(room, i) in roomSet" :key="i">
-                <v-list-item-content>
-                  <v-list-item-title v-text="room"></v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col>
-          <v-dialog v-model="dialog" persistent max-width="290">
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                color="primary"
-                dark
-                v-bind="attrs"
-                v-on="on"
-                :disabled="!roomSet.length"
-              >Alert Rooms</v-btn>
+    <v-row v-if="alerts.length">
+      <v-col cols="7">
+        <v-card>
+          <v-card-title>Covid Alerts</v-card-title>
+          <v-card-subtitle>You occupied these Room in the last {{incubationPeriod}} days.</v-card-subtitle>
+          <v-card-text>
+            <p>At least one other occupant has gone into quarantine since. The number of messages you see from the same room indicates the severity of the outbreak then and there.</p>
+            <p>Now it's your turn: Alert Rooms, and self-isolate for two weeks.</p>
+          </v-card-text>
+          <v-data-table
+            :headers="alertHeaders"
+            :items="alerts"
+            item-key="id"
+            dense
+            class="elevation-1"
+          >
+            <template v-slot:item.sentTime="{ item }">
+              {{
+              visitedDate(item.sentTime)
+              }}
             </template>
-            <v-card>
-              <v-card-title class="headline">Ready to alert Rooms?</v-card-title>
-              <v-card-text>This will send a message to each Room you occupied in the last {{incubationPeriod}} days.</v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="green darken-1" text @click="alertRooms">Yes</v-btn>
-                <v-btn color="green darken-1" text @click="dialog=false">No</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-col>
-      </v-row>
-    </v-card>
+          </v-data-table>
+        </v-card>
+      </v-col>
+      <v-col cols="5">
+        <v-card>
+          <v-card-title>Room Alert List</v-card-title>
+          <v-card-subtitle>This is a list of unique names taken from the Visitor Interactions card</v-card-subtitle>
+          <v-alert
+            v-model="alertRoom"
+            dark
+            border="top"
+            icon="mdi-home"
+            transition="scale-transition"
+            type="success"
+            dismissible
+          >
+            <p>You have successfully done your part. You have successfully alerted Rooms you occupied. Well done.</p>
+          </v-alert>
+
+          <v-row align="start" justify="space-between" dense no-gutters>
+            <v-col>
+              <v-list dense>
+                <v-list-item-group color="primary">
+                  <v-list-item v-for="(room, i) in roomSet" :key="i">
+                    <v-list-item-content>
+                      <v-list-item-title v-text="room"></v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-dialog v-model="dialog" persistent max-width="290">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    color="primary"
+                    dark
+                    v-bind="attrs"
+                    v-on="on"
+                    :disabled="!roomSet.length"
+                  >Alert Rooms</v-btn>
+                </template>
+                <v-card>
+                  <v-card-title class="headline">Ready to alert Rooms?</v-card-title>
+                  <v-card-text>This will send a message to each Room you occupied in the last {{incubationPeriod}} days.</v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="green darken-1" text @click="alertRooms">Yes</v-btn>
+                    <v-btn color="green darken-1" text @click="dialog=false">No</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <div v-if="sla > 0">
       <v-row v-if="showDetail">
         <v-col cols="6">
@@ -456,6 +485,11 @@ export default {
         { text: 'Date Visited', value: 'date' },
         { text: 'Visit Type', value: 'type' }
       ],
+      alertHeaders: [
+        { text: 'Room', value: 'sender' },
+        { text: 'Date of Alert', value: 'sentTime' },
+        { text: 'Message', value: 'text' }
+      ],
       loader: null,
       loading: false,
       loading1: false,
@@ -490,7 +524,7 @@ export default {
       }
       console.log('this.connectionId', this.connectionId);
 
-      // this.overlay = true;
+      this.overlay = true;
 
       axios(`/messages/connection/?connectionId=${this.connectionId}`).then(
         s => {
@@ -499,7 +533,7 @@ export default {
             .filter(v => {
               if (v.sender) return v;
             });
-          // this.overlay = false;
+          this.overlay = false;
         }
       );
     },
@@ -561,28 +595,30 @@ export default {
       }
       this.overlay = true;
       this.api = 'onGetRoomWarnings()';
-      axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
-        // console.log('Messages from server:', s);
-        // let mappedMsgs = new Map(
-        //   s.data.map(v => [v.sentTime, this.tryParse(v.text)])
-        // );
-        let m = s.data
-          .map(v => {
-            let t = v.sentTime;
+      axios(`/messages/connection/?connectionId=${this.connectionId}`).then(
+        s => {
+          console.log('Messages from server:', s);
+          // let mappedMsgs = new Map(
+          //   s.data.map(v => [v.sentTime, this.tryParse(v.text)])
+          // );
+          let m = s.data
+            .map(v => {
+              let t = v.sentTime;
 
-            let x = this.tryParse(v.text);
-            if (x) {
-              x.sentTime = t;
-            }
-            return x;
-          })
-          .filter(v => this.filterDate(v.sentTime))
-          .filter(v => this.filterType(v.type));
-        console.dir('m:', m, { depth: 3 });
-        this.messages = m;
-        console.log();
-        this.overlay = false;
-      });
+              let x = this.tryParse(v.text);
+              if (x) {
+                x.sentTime = t;
+              }
+              return x;
+            })
+            .filter(v => this.filterDate(v.sentTime))
+            .filter(v => this.filterType(v.type));
+          console.dir('m:', m, { depth: 3 });
+          this.messages = m;
+          console.log();
+          this.overlay = false;
+        }
+      );
     },
 
     // Visitor sends a login message to Room when they enter.
