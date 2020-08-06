@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="text-center">
-      <v-overlay :value="overlay">
+      <v-overlay v-model="overlay">
+        {{msg}}
         <v-progress-circular indeterminate size="64"></v-progress-circular>
       </v-overlay>
     </div>
@@ -390,6 +391,12 @@ export default {
     }
   },
   watch: {
+    // overlay(val) {
+    //   val &&
+    //     setTimeout(() => {
+    //       this.overlay = false;
+    //     }, 10000);
+    // },
     loader() {
       const l = this.loader;
       console.log('loader', l);
@@ -404,6 +411,7 @@ export default {
   },
   data() {
     return {
+      msg: '',
       dialog: false,
       visitFormat: 'ddd, MMM d, HH:mm',
       alertRoom: false,
@@ -480,8 +488,9 @@ export default {
         this.sheet = true;
         return;
       }
-      // this.overlay = true;
       console.log('this.connectionId', this.connectionId);
+
+      // this.overlay = true;
 
       axios(`/messages/connection/?connectionId=${this.connectionId}`).then(
         s => {
@@ -506,11 +515,14 @@ export default {
     },
 
     async onGetNewVisitorQr() {
+      // this.overlay = true;
+
       console.log(`getting QR code for ${this.connectionId}`);
-      axios('/connections/?name=' + this.connectionId).then(s => {
+      await axios('/connections/?name=' + this.connectionId).then(s => {
         console.log('New Visitor QR:', s);
         this.roomInvitationUrl = s.data.url;
         // this.invitationSetup(s.data.invite);
+        // this.overlay = false;
       });
       console.log('Visitor connection invitation url', this.roomInvitationUrl);
     },
@@ -547,6 +559,8 @@ export default {
       if (!this.roomName) {
         this.onGetRooms();
       }
+      this.overlay = true;
+      this.api = 'onGetRoomWarnings()';
       axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
         // console.log('Messages from server:', s);
         // let mappedMsgs = new Map(
@@ -567,6 +581,7 @@ export default {
         console.dir('m:', m, { depth: 3 });
         this.messages = m;
         console.log();
+        this.overlay = false;
       });
     },
 
@@ -580,6 +595,8 @@ export default {
         );
         return;
       }
+      // this.overlay = true;
+
       let text = JSON.stringify({
         sender: this.connectionId,
         text: 'visiting (make this dynamic)',
@@ -600,6 +617,7 @@ export default {
             type: 'check-in'
           });
           Connection.$fetch();
+          // this.overlay = false;
         })
         .catch(e => console.error(e));
     },
@@ -610,7 +628,8 @@ export default {
         alert('Check one or more of the rooms listed');
         return;
       }
-      console.warn(this.connectionId, this.selectedConnection);
+      // this.overlay = true;
+
       let id = this.connectionId;
 
       let text = JSON.stringify({
@@ -625,7 +644,10 @@ export default {
         text: text
       };
 
-      axios({ url: '/messages', data: payload, method: 'POST' });
+      axios({ url: '/messages', data: payload, method: 'POST' })
+        .then
+        // () => (this.overlay = false)
+        ();
     },
 
     tryParse(str) {
@@ -640,15 +662,43 @@ export default {
     },
 
     onGetRooms() {
-      this.overlay = true;
+      // this.overlay = true;
       this.api = 'onGetRooms()';
       axios('/connections/list/?state=Invited').then(s => {
         console.log('Invited connections:', s);
         this.rooms = s.data.connections
           .filter(v => v.multiParty)
           .map(v => v.connectionId);
-        this.overlay = false;
+        // this.overlay = false;
       });
+    },
+
+    async alertRooms() {
+      this.dialog = false;
+      // this.overlay = true;
+      await this.sendAlerts();
+      // this.overlay = false;
+      // this.alertRoom = true;
+    },
+
+    async sendAlerts() {
+      this.roomSet.forEach(async v => {
+        let payload = {
+          connectionId: v,
+          text: `ALERT: ${this.connectionId} is in quarantine.`
+        };
+        console.log('Alerting:', payload);
+        await axios({
+          url: '/messages',
+          data: payload,
+          method: 'POST'
+        }).catch(e => console.error(e));
+      });
+    },
+
+    onChangeRiskThreshold() {
+      this.roomRiskThreshold = this.select.score;
+      this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
     },
 
     onDeleteRoom() {
@@ -693,34 +743,6 @@ export default {
       }
     },
 
-    async alertRooms() {
-      this.dialog = false;
-      this.overlay = true;
-      await this.sendAlerts();
-      this.overlay = !this.overlay;
-      this.alertRoom = true;
-    },
-
-    async sendAlerts() {
-      this.roomSet.forEach(async v => {
-        let payload = {
-          connectionId: v,
-          text: `ALERT: ${this.connectionId} is in quarantine.`
-        };
-        console.log('Alerting:', payload);
-        await axios({
-          url: '/messages',
-          data: payload,
-          method: 'POST'
-        }).catch(e => console.error(e));
-      });
-    },
-
-    onChangeRiskThreshold() {
-      this.roomRiskThreshold = this.select.score;
-      this.$emit('changed-room-risk-threshold', this.roomRiskThreshold);
-    },
-
     async getState() {
       console.log('in RoleCard.getState()');
       let s = await DataRepository.getState();
@@ -737,7 +759,9 @@ export default {
   },
 
   async created() {
+    this.overlay = true;
     this.loading = true;
+
     let c = await Connection.$fetch();
     console.log('Connections found:', c.connections?.length);
     console.log('Entering created() in RoleCard: getting State');
@@ -747,8 +771,9 @@ export default {
     this.onGetRooms();
     this.onGetRoomWarnings();
     this.onGetCovidAlerts();
+
     this.loading = false;
-    this.overlay = !this.overlay;
+    this.overlay = false;
   }
 };
 </script>

@@ -1,21 +1,26 @@
 <template>
   <div>
+    <div class="text-center">
+      <v-overlay :value="overlay">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+    </div>
     <!-- Select a Room -->
     <v-card class="mb-3" tile outlined>
       <v-row align="center" justify="end" no-gutters>
         <v-col>
-          <div class="pl-4"><h3>Select your Room</h3></div>
-          <v-card-subtitle v-if="isRoomManager"
-            >You manage {{ managedRoom }}. Only you can alert
-            {{ managedRoom }} Visitors.</v-card-subtitle
-          >
-          <v-card-subtitle
-            >You can manage only one room at a time.</v-card-subtitle
-          >
-          <v-card-subtitle
-            >Contact {{ organization }} if a Room you need isn't
-            listed</v-card-subtitle
-          >
+          <div class="pl-4">
+            <h3>Select your Room</h3>
+          </div>
+          <v-card-subtitle v-if="isRoomManager">
+            You manage {{ managedRoom }}. Only you can alert
+            {{ managedRoom }} Visitors.
+          </v-card-subtitle>
+          <v-card-subtitle>You can manage only one room at a time.</v-card-subtitle>
+          <v-card-subtitle>
+            Contact {{ organization }} if a Room you need isn't
+            listed
+          </v-card-subtitle>
         </v-col>
         <v-col>
           <v-row align="baseline" justify="center" no-gutters dense>
@@ -38,20 +43,16 @@
                           @click="alertVisitors"
                           color="red"
                           :disabled="!messageSet.length"
-                        >
-                          mdi-alert</v-icon
-                        ></v-list-item-icon
-                      >
+                        >mdi-alert</v-icon>
+                      </v-list-item-icon>
                       <v-list-item-icon v-else>
-                        <v-icon @click="manageRoom(room)" color="green">
-                          mdi-account-plus</v-icon
-                        ></v-list-item-icon
-                      >
+                        <v-icon @click="manageRoom(room)" color="green">mdi-account-plus</v-icon>
+                      </v-list-item-icon>
                     </v-list-item>
                   </v-list-item-group>
                 </v-list>
-              </v-card-text></v-col
-            >
+              </v-card-text>
+            </v-col>
           </v-row>
         </v-col>
       </v-row>
@@ -72,8 +73,8 @@
               label="Interaction"
               @change="onGetRoomWarnings"
               hide-details
-            ></v-select
-          ></v-col>
+            ></v-select>
+          </v-col>
 
           <v-col cols="7" sm="4">
             <v-text-field
@@ -82,30 +83,23 @@
               label="Search"
               single-line
               hide-details
-            ></v-text-field
-          ></v-col>
+            ></v-text-field>
+          </v-col>
 
-          <v-col cols="3" sm="2"
-            ><v-text-field
+          <v-col cols="3" sm="2">
+            <v-text-field
               v-model="daysBack"
               label="Days past"
               @change="onGetRoomWarnings"
               hide-details
-            ></v-text-field
-          ></v-col>
-          <v-col cols="8" sm="3"
-            ><v-text-field
-              v-model="lookBackDate"
-              readonly
-              hide-details
-              label="Look-back date"
-            ></v-text-field
-          ></v-col>
-          <v-col cols="1"
-            ><v-icon class="pl-2" @click="onGetRoomWarnings"
-              >mdi-email-sync</v-icon
-            ></v-col
-          >
+            ></v-text-field>
+          </v-col>
+          <v-col cols="8" sm="3">
+            <v-text-field v-model="lookBackDate" readonly hide-details label="Look-back date"></v-text-field>
+          </v-col>
+          <v-col cols="1">
+            <v-icon class="pl-2" @click="onGetRoomWarnings">mdi-email-sync</v-icon>
+          </v-col>
           <v-col cols="12">
             <v-data-table
               v-model="selected"
@@ -124,15 +118,9 @@
                 itemsPerPageOptions: [1, 5, 10, -1]
               }"
             >
-              <template v-slot:item.sender="{ item }">
-                {{ item.sender }}
-              </template>
-              <template v-slot:item.text="{ item }">
-                {{ item.text }}
-              </template>
-              <template v-slot:item.type="{ item }">
-                {{ item.type }}
-              </template>
+              <template v-slot:item.sender="{ item }">{{ item.sender }}</template>
+              <template v-slot:item.text="{ item }">{{ item.text }}</template>
+              <template v-slot:item.type="{ item }">{{ item.type }}</template>
             </v-data-table>
           </v-col>
         </v-row>
@@ -153,24 +141,23 @@
           </v-list>
         </v-col>
         <v-spacer></v-spacer>
-        <v-col
-          ><v-btn
+        <v-col>
+          <v-btn
             :disabled="!messageSet.length"
             color="primary"
             @click="alertVisitors"
-            >Alert Visitors</v-btn
-          ></v-col
-        >
+          >Alert Visitors</v-btn>
+        </v-col>
       </v-row>
     </v-card>
     <div v-if="sla > 0">
       <v-row v-if="showDetail">
         <v-col cols="6">
-          <v-card-subtitle
-            >You can scan this QR code to make a connection with the Room in
+          <v-card-subtitle>
+            You can scan this QR code to make a connection with the Room in
             your digital wallet. You would do this is you want to exchange
-            credentials with the Room.</v-card-subtitle
-          >
+            credentials with the Room.
+          </v-card-subtitle>
         </v-col>
         <v-col cols="6">
           <v-img
@@ -179,14 +166,11 @@
             :src="qrSourceRoom"
             height="200"
             width="200"
-          >
-          </v-img>
+          ></v-img>
         </v-col>
 
         <v-col cols="12">
-          <v-card-title class="pa-0"
-            >Stipulate Room's risk tolerance:</v-card-title
-          >
+          <v-card-title class="pa-0">Stipulate Room's risk tolerance:</v-card-title>
         </v-col>
 
         <v-col cols="6">
@@ -202,67 +186,55 @@
               return-object
               single-line
               dense
-            ></v-select
-          ></v-card-text>
+            ></v-select>
+          </v-card-text>
         </v-col>
         <v-col cols="6">
           <v-card-subtitle>Room risk (max): {{ select.score }}</v-card-subtitle>
         </v-col>
         <v-col cols="12">
-          <v-card-subtitle class="pa-0"
-            >Visitors can enter based on the Room's riskiness.
-          </v-card-subtitle>
+          <v-card-subtitle class="pa-0">Visitors can enter based on the Room's riskiness.</v-card-subtitle>
         </v-col>
       </v-row>
       <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
         <v-col cols="12">
-          <v-text-field dense label="Phone ID:" :loading="loading1"
-            >{{ connectionId }}
-          </v-text-field>
+          <v-text-field dense label="Phone ID:" :loading="loading1">{{ connectionId }}</v-text-field>
         </v-col>
         <div v-if="showDetail">
           <v-col cols="6">
-            <v-card-subtitle
-              >Connection Invitation for {{ connectionId }}</v-card-subtitle
-            >
+            <v-card-subtitle>Connection Invitation for {{ connectionId }}</v-card-subtitle>
             <v-img
               id="qrRoom"
               class="white--text align-end"
               :src="qrSourceRoom"
               height="200"
               width="200"
-            >
-            </v-img>
+            ></v-img>
           </v-col>
           <v-col cols="6">
-            <v-card-subtitle
-              >Rooms can scan this QR code to make a connection (as secure
+            <v-card-subtitle>
+              Rooms can scan this QR code to make a connection (as secure
               communication channel) with your digital wallet. You would do this
               is you want to exchange credentials with the
-              Room.</v-card-subtitle
-            >
+              Room.
+            </v-card-subtitle>
           </v-col>
         </div>
       </v-row>
     </div>
-    <v-system-bar
-      color="secondary"
-      :height="height"
-      :lights-out="lightsOut"
-      :window="window"
-    >
+    <v-system-bar color="secondary" :height="height" :lights-out="lightsOut" :window="window">
       <span>Room: {{ roomName }}</span>
       <v-spacer></v-spacer>
-      <span
-        >Selected Room:
+      <span>
+        Selected Room:
         {{ selectedRoom }}
       </span>
-      <span
-        >Selected Room:
+      <span>
+        Selected Room:
         {{ selectedConnection }}
       </span>
       <v-spacer></v-spacer>
-      <span>Visitor: {{ connectionId }} </span>
+      <span>Visitor: {{ connectionId }}</span>
     </v-system-bar>
   </div>
 </template>
@@ -389,6 +361,12 @@ export default {
     }
   },
   watch: {
+    overlay(val) {
+      val &&
+        setTimeout(() => {
+          this.overlay = false;
+        }, 10000);
+    },
     loader() {
       const l = this.loader;
       console.log('loader', l);
@@ -403,6 +381,7 @@ export default {
   },
   data() {
     return {
+      overlay: false,
       selectedRoom: '',
       organization: config.ORGANIZATION,
 
@@ -797,7 +776,9 @@ export default {
   },
 
   async created() {
+    this.overlay = true;
     this.loading = true;
+
     let c = await Connection.$fetch();
     console.log('Connections found:', c.connections?.length);
     console.log('Entering created() in RoleCard: getting State');
@@ -807,7 +788,9 @@ export default {
     this.onGetRooms();
     this.onGetRoomWarnings();
     this.onGetCovidAlerts();
+
     this.loading = false;
+    this.overlay = false;
   }
 };
 </script>
