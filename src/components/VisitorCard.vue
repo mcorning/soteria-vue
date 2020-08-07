@@ -6,234 +6,267 @@
         <v-progress-circular indeterminate size="64"></v-progress-circular>
       </v-overlay>
     </div>
-    <!-- Select a Room -->
-    <v-container fluid>
-      <v-card color="black" dark flat tile>
-        <v-card-title class="title font-weight-regular justify-space-between">
-          <span>{{ currentTitle }}</span>
-          <v-avatar
-            color="primary lighten-2"
-            class="subheading white--text"
-            size="24"
-            v-text="step"
-          ></v-avatar>
-        </v-card-title>
-        <!-- 
+    <v-row align="stretch">
+      <v-col>
+        <v-card color="black" dark flat tile>
+          <v-card-title class="title font-weight-regular justify-space-between">
+            <span>{{ currentTitle }}</span>
+            <v-avatar
+              color="primary lighten-2"
+              class="subheading white--text"
+              size="24"
+              v-text="step"
+            ></v-avatar>
+          </v-card-title>
+          <!-- 
           checkinRoom=1,
           reviewVisits=2,
           monitorAlerts=3,
           alertOthers=4, 
           bravoZulu=5, 
           -->
-        <v-window v-model="step">
-          <v-window-item :value="checkinRoom">
-            <v-card class="mb-3" tile outlined>
-              <v-row align="center" justify="end" no-gutters>
-                <v-col>
-                  <v-card-subtitle
-                    >Select a Room and click the
-                    <v-icon color="green">mdi-account-check</v-icon
-                    >icon</v-card-subtitle
-                  >
-                  <v-card-subtitle>
-                    Contact {{ organization }} if the Room you need isn't
-                    listed.
-                  </v-card-subtitle>
-                </v-col>
+          <v-window v-model="step">
+            <v-window-item :value="checkinRoom">
+              <v-card class="mb-3" tile outlined>
+                <v-row align="center" justify="end" no-gutters>
+                  <v-col>
+                    <v-card-subtitle
+                      >Select a Room and click the
+                      <v-icon color="green">mdi-account-check</v-icon
+                      >icon</v-card-subtitle
+                    >
+                    <v-card-subtitle>
+                      Contact {{ organization }} if the Room you need isn't
+                      listed.
+                    </v-card-subtitle>
+                  </v-col>
 
-                <v-col>
-                  <v-row align="baseline" justify="center" no-gutters dense>
-                    <v-col cols="12"></v-col>
-                  </v-row>
-                  <v-row no-gutters dense>
-                    <v-col cols="12">
-                      <v-card-text class="pa-0">
-                        <v-list shaped dense>
-                          <v-list-item-group
-                            v-model="room"
-                            mandatory
-                            color="green"
-                          >
-                            <v-list-item v-for="(room, i) in rooms" :key="i">
-                              <v-list-item-content>
-                                <v-list-item-title
-                                  v-text="room"
-                                ></v-list-item-title>
-                              </v-list-item-content>
-                              <v-list-item-icon>
-                                <v-icon @click="onRoomSignIn()"
-                                  >mdi-account-check</v-icon
-                                >
-                              </v-list-item-icon>
-                            </v-list-item>
-                          </v-list-item-group>
-                        </v-list>
-                      </v-card-text>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-window-item>
+                  <v-col>
+                    <v-row align="baseline" justify="center" no-gutters dense>
+                      <v-col cols="12"></v-col>
+                    </v-row>
+                    <v-row no-gutters dense>
+                      <v-col cols="12">
+                        <v-card-text class="pa-0">
+                          <v-list shaped dense>
+                            <v-list-item-group
+                              v-model="room"
+                              mandatory
+                              color="green"
+                            >
+                              <v-list-item v-for="(room, i) in rooms" :key="i">
+                                <v-list-item-content>
+                                  <v-list-item-title
+                                    v-text="room"
+                                  ></v-list-item-title>
+                                </v-list-item-content>
+                                <v-list-item-icon>
+                                  <v-icon @click="onRoomSignIn()"
+                                    >mdi-account-check</v-icon
+                                  >
+                                </v-list-item-icon>
+                              </v-list-item>
+                            </v-list-item-group>
+                          </v-list>
+                        </v-card-text>
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-window-item>
 
-          <v-window-item :value="reviewVisits">
-            <v-card>
-              <v-card-subtitle
-                >Room interactions (they are Connections stored on your
-                phone):</v-card-subtitle
-              >
-              <v-card-text>
-                <v-data-table
-                  :headers="connectionHeaders"
-                  :items="connections"
-                  :items-per-page="1"
-                  item-key="id"
-                  dense
-                  group-by="connectionId"
-                  class="elevation-1"
-                  show-group-by
+            <v-window-item :value="reviewVisits">
+              <v-card>
+                <v-card-subtitle
+                  >Room interactions (they are Connections stored on your
+                  phone):</v-card-subtitle
                 >
+                <v-card-text>
+                  <v-data-table
+                    :headers="connectionHeaders"
+                    :items="connections"
+                    :items-per-page="1"
+                    item-key="id"
+                    dense
+                    group-by="connectionId"
+                    class="elevation-1"
+                    show-group-by
                   >
-                  <template v-slot:item.date="{ item }">
-                    {{ visitedDate(item.date) }}
-                  </template>
-                </v-data-table>
-              </v-card-text>
-            </v-card>
-          </v-window-item>
-
-          <v-window-item :value="monitorAlerts">
-            <v-data-table
-              :headers="alertHeaders"
-              :items="alerts"
-              item-key="id"
-              dense
-              class="elevation-1"
-            >
-              <template v-slot:item.sentTime="{ item }">
-                {{ visitedDate(item.sentTime) }}
-              </template>
-            </v-data-table>
-          </v-window-item>
-
-          <v-window-item :value="alertOthers">
-            <v-card>
-              <v-card-text>{{ alertText }}</v-card-text>
-              <v-dialog v-model="dialog" persistent max-width="290">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    color="primary"
-                    dark
-                    block
-                    v-bind="attrs"
-                    v-on="on"
-                    :disabled="!roomSet.length"
-                    v-model="alertRoom"
-                    >Alert Rooms</v-btn
-                  >
-                </template>
-                <v-card>
-                  <v-card-title class="headline"
-                    >Ready to alert Rooms?</v-card-title
-                  >
-                  <v-card-text
-                    >This will send a message to each Room you occupied in the
-                    last {{ incubationPeriod }} days.</v-card-text
-                  >
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="green darken-1" text @click="alertRooms"
-                      >Yes</v-btn
                     >
-                    <v-btn color="green darken-1" text @click="dialog = false"
-                      >No</v-btn
-                    >
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-alert
-                v-model="roomAlerted"
-                dark
-                border="top"
-                icon="mdi-home"
-                transition="scale-transition"
-                type="success"
-                dismissible
+                    <template v-slot:item.date="{ item }">
+                      {{ visitedDate(item.date) }}
+                    </template>
+                  </v-data-table>
+                </v-card-text>
+              </v-card>
+            </v-window-item>
+
+            <v-window-item :value="monitorAlerts">
+              <v-data-table
+                :headers="alertHeaders"
+                :items="alerts"
+                item-key="id"
+                dense
+                class="elevation-1"
               >
-                <p>
-                  You have successfully done your part. You have successfully
-                  alerted Rooms you occupied. Well done.
-                </p>
-              </v-alert>
+                <template v-slot:item.sentTime="{ item }">
+                  {{ visitedDate(item.sentTime) }}
+                </template>
+              </v-data-table>
+            </v-window-item>
 
-              <v-row align="start" justify="space-between" dense>
-                <v-col>
-                  <v-list dense>
-                    <v-list-item-group color="primary">
-                      <v-list-item v-for="(room, i) in roomSet" :key="i">
-                        <v-list-item-content>
-                          <v-list-item-title v-text="room"></v-list-item-title>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list-item-group>
-                  </v-list>
-                </v-col>
-                <v-spacer></v-spacer>
-                <v-col> </v-col>
-              </v-row>
-            </v-card>
-          </v-window-item>
+            <v-window-item :value="alertOthers">
+              <v-card>
+                <v-card-text>{{ alertText }}</v-card-text>
+                <v-dialog v-model="dialog" persistent max-width="290">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="primary"
+                      dark
+                      block
+                      v-bind="attrs"
+                      v-on="on"
+                      :disabled="!roomSet.length"
+                      v-model="alertRoom"
+                      >Alert Rooms</v-btn
+                    >
+                  </template>
+                  <v-card>
+                    <v-card-title class="headline"
+                      >Ready to alert Rooms?</v-card-title
+                    >
+                    <v-card-text
+                      >This will send a message to each Room you occupied in the
+                      last {{ incubationPeriod }} days.</v-card-text
+                    >
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="green darken-1" text @click="alertRooms"
+                        >Yes</v-btn
+                      >
+                      <v-btn color="green darken-1" text @click="dialog = false"
+                        >No</v-btn
+                      >
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+                <v-alert
+                  v-model="roomAlerted"
+                  dark
+                  border="top"
+                  icon="mdi-home"
+                  transition="scale-transition"
+                  type="success"
+                  dismissible
+                >
+                  <p>
+                    You have successfully done your part. You have successfully
+                    alerted Rooms you occupied. Well done.
+                  </p>
+                </v-alert>
 
-          <v-window-item :value="bravoZulu">
-            <div class="pa-4 text-center">
-              <v-img
-                class="mb-4"
-                contain
-                height="128"
-                src="../assets/covidLogo.jpg"
-              ></v-img>
-              <h4 class="title font-weight-light mb-2">
-                Thank you for doing your part to win the war against the virus.
-              </h4>
-              <span class="caption grey--text">Stay safe out there...</span>
-            </div>
-          </v-window-item>
-        </v-window>
+                <v-row align="start" justify="space-between" dense>
+                  <v-col>
+                    <v-list dense>
+                      <v-list-item-group color="primary">
+                        <v-list-item v-for="(room, i) in roomSet" :key="i">
+                          <v-list-item-content>
+                            <v-list-item-title
+                              v-text="room"
+                            ></v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-list-item-group>
+                    </v-list>
+                  </v-col>
+                  <v-spacer></v-spacer>
+                  <v-col> </v-col>
+                </v-row>
+              </v-card>
+            </v-window-item>
 
-        <v-divider></v-divider>
+            <v-window-item :value="bravoZulu">
+              <div class="pa-4 text-center">
+                <v-img
+                  class="mb-4"
+                  contain
+                  height="128"
+                  src="../assets/soteriaLogoCovidRed.jpg"
+                ></v-img>
+                <h4 class="title font-weight-light mb-2">
+                  Thank you for doing your part to win the war against the
+                  virus.
+                </h4>
+                <span class="caption grey--text">Stay safe out there...</span>
+              </div>
+            </v-window-item>
+          </v-window>
 
-        <v-card-actions>
-          <v-btn :disabled="step === 1" text @click="step--">
-            Back
-          </v-btn>
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-btn :disabled="step === 1" text @click="step--">
+              Back
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              :disabled="step === bravoZulu"
+              color="primary"
+              depressed
+              @click="step++"
+            >
+              Next
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+
+        <v-system-bar
+          color="secondary"
+          :height="height"
+          :lights-out="lightsOut"
+          :window="window"
+        >
+          <span>Room: {{ roomName }}</span>
           <v-spacer></v-spacer>
-          <v-btn
-            :disabled="step === bravoZulu"
-            color="primary"
-            depressed
-            @click="step++"
+          <span>
+            API:
+            {{ this.api }}
+          </span>
+          <v-spacer></v-spacer>
+          <span>Visitor: {{ connectionId }}</span>
+        </v-system-bar>
+      </v-col>
+    </v-row>
+
+    <v-dialog v-model="connectionDialog" persistent max-width="600px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Mobile Phone Name</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-text-field
+              v-model="connectionId"
+              label="Phone name*"
+              hint="Phone name must be unique in Organization"
+              persistent-hint
+              required
+            ></v-text-field>
+          </v-container>
+          <small>*indicates required field</small>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="connectionDialog = false"
+            >Close</v-btn
           >
-            Next
-          </v-btn>
+          <v-btn color="blue darken-1" text @click="connectionDialog = false"
+            >Save</v-btn
+          >
         </v-card-actions>
       </v-card>
-    </v-container>
-
-    <v-system-bar
-      color="secondary"
-      :height="height"
-      :lights-out="lightsOut"
-      :window="window"
-    >
-      <span>Room: {{ roomName }}</span>
-      <v-spacer></v-spacer>
-      <span>
-        API:
-        {{ this.api }}
-      </span>
-      <v-spacer></v-spacer>
-      <span>Visitor: {{ connectionId }}</span>
-    </v-system-bar>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -268,11 +301,11 @@ export default {
         case 1:
           return 'Check-in';
         case 2:
-          return 'Review';
+          return 'Alert Room';
         case 3:
-          return 'Alert';
+          return 'Review Your Travels';
         case 4:
-          return 'Monitor';
+          return 'Monitor Your Alerts';
         default:
           return 'Bravo Zulu';
       }
@@ -363,11 +396,12 @@ export default {
   },
   data() {
     return {
+      connectionDialog: false,
       today: 'YYYY-MM-DD',
       roomAlerted: false,
       checkinRoom: 1,
-      reviewVisits: 2,
-      alertOthers: 3,
+      alertOthers: 2,
+      reviewVisits: 3,
       monitorAlerts: 4,
       bravoZulu: 5,
       step: 1,
@@ -446,10 +480,11 @@ export default {
     // Because a phone connectionId is a guid, we cache the roomName and message type
     onRoomSignIn() {
       this.dialogCheckin = false;
-      if (!this.connectionId || !this.roomName) {
-        alert(
-          'Houston, we have a problem. onRoomSignIn() needs values for both this.connectionId and this.roomName.'
-        );
+      if (!this.connectionId) {
+        this.connectionDialog = true;
+      }
+      if (!this.roomName) {
+        alert('Select a Room first.');
         return;
       }
       // this.overlay = true;

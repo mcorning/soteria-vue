@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="primary" dark dense>
       <v-btn text to="/"
-        ><img height="30" width="30" src="./assets/covidLogo.jpg"
+        ><img width="36" height="36" src="./assets/soteriaLogoCovidRed.jpg"
       /></v-btn>
 
       <v-spacer></v-spacer>

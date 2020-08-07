@@ -24,9 +24,9 @@
           </v-card-subtitle>
         </v-col>
         <v-col>
-          <v-row align="baseline" justify="center" no-gutters dense>
-            <v-col></v-col>
-            <v-col cols="2" class="pt-3 pb=0">Manage</v-col>
+          <v-row align="baseline" justify="end" no-gutters dense>
+            <v-spacer></v-spacer>
+            <v-col cols="5" sm="2" class="pt-3 pb=0">Manage</v-col>
           </v-row>
 
           <v-row no-gutters dense justify="end">
@@ -38,12 +38,12 @@
                       <v-list-item-content>
                         <v-list-item-title v-text="room"></v-list-item-title>
                       </v-list-item-content>
-
                       <v-list-item-icon v-if="room == managedRoom">
+                        {{ alerts.length }}
                         <v-icon
                           @click="alertVisitors"
                           color="red"
-                          :disabled="!messageSet.length"
+                          :disabled="!alerts.length"
                           >mdi-alert</v-icon
                         >
                       </v-list-item-icon>
@@ -62,13 +62,70 @@
       </v-row>
     </v-card>
 
+    <v-card dark flat tile color="primary" v-if="alerts.length">
+      <v-card-title>Covid Alerts</v-card-title>
+      <v-card-subtitle
+        >These Vistors sent us a virus exposure alert.
+        <span @click="learnMoreAboutCovidAlerts = !learnMoreAboutCovidAlerts">
+          Read {{ learnMoreAboutCovidAlerts ? 'less' : 'more' }}...
+        </span></v-card-subtitle
+      >
+      <v-card-text v-if="learnMoreAboutCovidAlerts">
+        <p>
+          Each listed Visitor may have exposed other occupants at the same time.
+          The number of exposure alerts you see indicates the severity of the
+          outbreak in your Room.
+        </p>
+        <p>
+          Now it's your turn: Alert Visitors, and even you should self-isolate
+          for two weeks.
+        </p>
+      </v-card-text>
+      <v-data-table
+        :headers="alertHeaders"
+        :items="alerts"
+        item-key="id"
+        dense
+        class="elevation-1"
+      >
+        <template v-slot:item.sentTime="{ item }">
+          {{ visitedDate(item.sentTime) }}
+        </template>
+      </v-data-table>
+    </v-card>
+
     <!-- Visitor Messages -->
-    <v-card dark flat tile>
+    <v-card dark flat tile color="grey">
       <div class="pl-4 pt-4">
         <h3>Visitor Interactions with {{ managedRoom }}:</h3>
       </div>
       <v-card-text>
-        <v-row align="baseline" justify="start" no-gutters dense>
+        <v-checkbox
+          v-model="uniqueVisitors"
+          label="Unique list of names"
+          color="red"
+          hide-details
+        ></v-checkbox>
+        <v-list dense v-if="uniqueVisitors">
+          <v-subheader>Unique Vistors</v-subheader>
+          <v-list-item-group v-model="uniqueVisitors" color="primary">
+            <v-list-item v-for="(name, i) in uniqueVisitorNames" :key="i">
+              <v-list-item-icon>
+                <v-icon>mdi-phone</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="name"></v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+        <v-row
+          align="baseline"
+          justify="start"
+          no-gutters
+          dense
+          v-if="!uniqueVisitors"
+        >
           <v-col cols="5" sm="2">
             <v-select
               v-model="messageType"
@@ -134,6 +191,9 @@
               }}</template>
               <template v-slot:item.text="{ item }">{{ item.text }}</template>
               <template v-slot:item.type="{ item }">{{ item.type }}</template>
+              <template v-slot:item.sentTime="{ item }">
+                {{ visitedDate(item.sentTime) }}</template
+              >
             </v-data-table>
           </v-col>
         </v-row>
@@ -319,6 +379,10 @@ import DataRepository from '@/store/repository.js';
 
 export default {
   computed: {
+    uniqueVisitorNames() {
+      return Array.from(new Set(this.messages.map(v => v.sender)));
+    },
+
     messageSet() {
       let s = new Set(this.messages.map(v => v.sender));
       return Array.from(s);
@@ -420,7 +484,7 @@ export default {
     lookBackDate() {
       return moment()
         .add(-this.daysBack, 'day')
-        .toISOString();
+        .format(this.visitFormat);
     },
     isRoomManager() {
       return this.state?.roomId == this.roomName;
@@ -453,10 +517,12 @@ export default {
   },
   data() {
     return {
+      uniqueVisitors: true,
+      learnMoreAboutCovidAlerts: false,
       overlay: false,
       selectedRoom: '',
       organization: config.ORGANIZATION,
-      visitFormat: 'ddd, MMM d, HH:mm',
+      visitFormat: 'ddd, MMM DD, HH:mm',
 
       missingPhoneNamePrompt: 'Please provide a unique name for your phone',
       sla: 0,
@@ -484,7 +550,7 @@ export default {
         { text: 'Occupant', value: 'sender' },
         { text: 'Message', value: 'text' },
         { text: 'Type', value: 'type' },
-        { text: 'Room saw message ', value: 'sentTime' }
+        { text: 'Sent  ', value: 'sentTime' }
       ],
       showDetail: false,
       incubationPeriod: 14,
@@ -534,9 +600,10 @@ export default {
     },
 
     alertVisitors() {
+      this.api = 'alertVisitors()';
       if (!this.managedRoom) {
         alert(
-          'Houston, we have a problem. We have a null value for this.managedRoom in alertVisitors()'
+          'Houston, we have a problem. We have a null value for this.managedRoom. Ensure you click the icon to manage a Room.'
         );
         return;
       }
@@ -596,7 +663,7 @@ export default {
       this.onGetNewRoomQr();
     },
 
-    onGetNewRoomQr() {
+    async onGetNewRoomQr() {
       if (!this.managedRoom) {
         alert(
           'Houston, we have a problem. We have a null value for this.managedRoom in onGetNewRoomQR()'
@@ -605,7 +672,7 @@ export default {
       }
       console.log(`getting QR code for room ${this.managedRoom}`);
 
-      axios('/invitations/?id=' + this.managedRoom).then(s => {
+      await axios('/invitations/?id=' + this.managedRoom).then(s => {
         console.log('New Room QR:', s);
         this.roomInvitationUrl = s.data.url;
         this.onGetRooms();
@@ -651,9 +718,9 @@ export default {
       return t == this.messageType.toLowerCase();
     },
 
-    onGetRoomWarnings() {
+    async onGetRoomWarnings() {
       if (!this.roomName) {
-        this.onGetRooms();
+        await this.onGetRooms();
       }
       this.overlay = true;
       axios(`/messages/connection/?connectionId=${this.managedRoom}`).then(
@@ -675,6 +742,7 @@ export default {
             .filter(v => this.filterDate(v.sentTime))
             .filter(v => this.filterType(v.type));
           console.dir('m:', m, { depth: 3 });
+
           this.messages = m;
           console.log();
           this.overlay = false;
@@ -750,9 +818,9 @@ export default {
       return json;
     },
 
-    onGetRooms() {
+    async onGetRooms() {
       this.overlay = true;
-      axios('/connections/list/?state=Invited').then(s => {
+      await axios('/connections/list/?state=Invited').then(s => {
         console.log('Invited connections:', s);
         this.rooms = s.data.connections
           .filter(v => v.multiParty)
@@ -868,7 +936,7 @@ export default {
     await this.getState();
     console.log(axios.defaults.baseURL);
     console.log('Leaving created() in RoleCard');
-    this.onGetRooms();
+    await this.onGetRooms();
     this.onGetRoomWarnings();
     this.onGetCovidAlerts();
 
