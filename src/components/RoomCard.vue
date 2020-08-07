@@ -6,7 +6,7 @@
       </v-overlay>
     </div>
     <!-- Select a Room -->
-    <v-card class="mb-3" tile outlined>
+    <v-card class="mb-3" dark flat tile>
       <v-row align="center" justify="end" no-gutters>
         <v-col>
           <div class="pl-4">
@@ -63,8 +63,8 @@
     </v-card>
 
     <!-- Visitor Messages -->
-    <v-card>
-      <div class="pl-4">
+    <v-card dark flat tile>
+      <div class="pl-4 pt-4">
         <h3>Visitor Interactions with {{ managedRoom }}:</h3>
       </div>
       <v-card-text>

@@ -5,7 +5,7 @@
     </div>
 
     <div class=" mt-0 ml-0" v-else>
-      <v-card>
+      <v-card color="black" dark flat tile>
         <v-card-title>My PII</v-card-title>
         <v-card-subtitle>My Personal Identifying Information</v-card-subtitle>
 
