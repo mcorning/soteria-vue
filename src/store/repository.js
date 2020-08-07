@@ -73,8 +73,8 @@ export default class DataRepository {
 
   static async connect(connection) {
     const { connectionId, type } = connection;
-    console.log('Repository updating', connectionId);
-    Connection.$update({
+    console.log('Repository has new', connectionId);
+    Connection.$create({
       data: {
         connectionId: connectionId,
         type: type,

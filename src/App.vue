@@ -1,7 +1,9 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark dense>
-      <v-btn text rounded to="/">BLUF</v-btn>
+      <v-btn text to="/"
+        ><img height="30" width="30" src="./assets/covidLogo.jpg"
+      /></v-btn>
 
       <v-spacer></v-spacer>
       <v-btn

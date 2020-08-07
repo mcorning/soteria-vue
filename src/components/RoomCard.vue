@@ -16,10 +16,11 @@
             You manage {{ managedRoom }}. Only you can alert
             {{ managedRoom }} Visitors.
           </v-card-subtitle>
-          <v-card-subtitle>You can manage only one room at a time.</v-card-subtitle>
+          <v-card-subtitle
+            >You can manage only one room at a time.</v-card-subtitle
+          >
           <v-card-subtitle>
-            Contact {{ organization }} if a Room you need isn't
-            listed
+            Contact {{ organization }} if a Room you need isn't listed
           </v-card-subtitle>
         </v-col>
         <v-col>
@@ -43,10 +44,13 @@
                           @click="alertVisitors"
                           color="red"
                           :disabled="!messageSet.length"
-                        >mdi-alert</v-icon>
+                          >mdi-alert</v-icon
+                        >
                       </v-list-item-icon>
                       <v-list-item-icon v-else>
-                        <v-icon @click="manageRoom(room)" color="green">mdi-account-plus</v-icon>
+                        <v-icon @click="manageRoom(room)" color="green"
+                          >mdi-account-plus</v-icon
+                        >
                       </v-list-item-icon>
                     </v-list-item>
                   </v-list-item-group>
@@ -95,10 +99,17 @@
             ></v-text-field>
           </v-col>
           <v-col cols="8" sm="3">
-            <v-text-field v-model="lookBackDate" readonly hide-details label="Look-back date"></v-text-field>
+            <v-text-field
+              v-model="lookBackDate"
+              readonly
+              hide-details
+              label="Look-back date"
+            ></v-text-field>
           </v-col>
           <v-col cols="1">
-            <v-icon class="pl-2" @click="onGetRoomWarnings">mdi-email-sync</v-icon>
+            <v-icon class="pl-2" @click="onGetRoomWarnings"
+              >mdi-email-sync</v-icon
+            >
           </v-col>
           <v-col cols="12">
             <v-data-table
@@ -118,7 +129,9 @@
                 itemsPerPageOptions: [1, 5, 10, -1]
               }"
             >
-              <template v-slot:item.sender="{ item }">{{ item.sender }}</template>
+              <template v-slot:item.sender="{ item }">{{
+                item.sender
+              }}</template>
               <template v-slot:item.text="{ item }">{{ item.text }}</template>
               <template v-slot:item.type="{ item }">{{ item.type }}</template>
             </v-data-table>
@@ -126,14 +139,26 @@
         </v-row>
       </v-card-text>
     </v-card>
+
+    <!-- Covid Alerts -->
     <v-row no-gutters v-if="alerts.length">
       <v-col cols="7">
         <v-card>
           <v-card-title>Covid Alerts</v-card-title>
-          <v-card-subtitle>Vistors below occupied your Room in the last {{incubationPeriod}} days.</v-card-subtitle>
+          <v-card-subtitle
+            >Vistors below occupied your Room in the last
+            {{ incubationPeriod }} days.</v-card-subtitle
+          >
           <v-card-text>
-            <p>Each listed Visitor may have exposed other occupants at the same time. The number of exposure alerts you see indicates the severity of the outbreak in your Room.</p>
-            <p>Now it's your turn: Alert Visitors listed on the right, and even you should self-isolate for two weeks.</p>
+            <p>
+              Each listed Visitor may have exposed other occupants at the same
+              time. The number of exposure alerts you see indicates the severity
+              of the outbreak in your Room.
+            </p>
+            <p>
+              Now it's your turn: Alert Visitors listed on the right, and even
+              you should self-isolate for two weeks.
+            </p>
           </v-card-text>
           <v-data-table
             :headers="alertHeaders"
@@ -143,9 +168,7 @@
             class="elevation-1"
           >
             <template v-slot:item.sentTime="{ item }">
-              {{
-              visitedDate(item.sentTime)
-              }}
+              {{ visitedDate(item.sentTime) }}
             </template>
           </v-data-table>
         </v-card>
@@ -153,7 +176,10 @@
       <v-col cols="5">
         <v-card>
           <v-card-title>Visitor Alert List</v-card-title>
-          <v-card-subtitle>This is a list of unique names taken from your Room Interactions card</v-card-subtitle>
+          <v-card-subtitle
+            >This is a list of unique names taken from your Visitor Interactions
+            card</v-card-subtitle
+          >
           <v-row align="start" justify="space-between" dense no-gutters>
             <v-col>
               <v-list dense>
@@ -172,18 +198,21 @@
                 :disabled="!messageSet.length"
                 color="primary"
                 @click="alertVisitors"
-              >Alert Visitors</v-btn>
+                >Alert Visitors</v-btn
+              >
             </v-col>
           </v-row>
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- SLA-1 -->
     <div v-if="sla > 0">
       <v-row v-if="showDetail">
         <v-col cols="6">
           <v-card-subtitle>
-            You can scan this QR code to make a connection with the Room in
-            your digital wallet. You would do this is you want to exchange
+            You can scan this QR code to make a connection with the Room in your
+            digital wallet. You would do this is you want to exchange
             credentials with the Room.
           </v-card-subtitle>
         </v-col>
@@ -198,7 +227,9 @@
         </v-col>
 
         <v-col cols="12">
-          <v-card-title class="pa-0">Stipulate Room's risk tolerance:</v-card-title>
+          <v-card-title class="pa-0"
+            >Stipulate Room's risk tolerance:</v-card-title
+          >
         </v-col>
 
         <v-col cols="6">
@@ -221,16 +252,22 @@
           <v-card-subtitle>Room risk (max): {{ select.score }}</v-card-subtitle>
         </v-col>
         <v-col cols="12">
-          <v-card-subtitle class="pa-0">Visitors can enter based on the Room's riskiness.</v-card-subtitle>
+          <v-card-subtitle class="pa-0"
+            >Visitors can enter based on the Room's riskiness.</v-card-subtitle
+          >
         </v-col>
       </v-row>
       <v-row v-if="!isRoomRiskManager" align="center" no-gutters>
         <v-col cols="12">
-          <v-text-field dense label="Phone ID:" :loading="loading1">{{ connectionId }}</v-text-field>
+          <v-text-field dense label="Phone ID:" :loading="loading1">{{
+            connectionId
+          }}</v-text-field>
         </v-col>
         <div v-if="showDetail">
           <v-col cols="6">
-            <v-card-subtitle>Connection Invitation for {{ connectionId }}</v-card-subtitle>
+            <v-card-subtitle
+              >Connection Invitation for {{ connectionId }}</v-card-subtitle
+            >
             <v-img
               id="qrRoom"
               class="white--text align-end"
@@ -243,23 +280,24 @@
             <v-card-subtitle>
               Rooms can scan this QR code to make a connection (as secure
               communication channel) with your digital wallet. You would do this
-              is you want to exchange credentials with the
-              Room.
+              is you want to exchange credentials with the Room.
             </v-card-subtitle>
           </v-col>
         </div>
       </v-row>
     </div>
-    <v-system-bar color="secondary" :height="height" :lights-out="lightsOut" :window="window">
+
+    <v-system-bar
+      color="secondary"
+      :height="height"
+      :lights-out="lightsOut"
+      :window="window"
+    >
       <span>Room: {{ roomName }}</span>
       <v-spacer></v-spacer>
       <span>
-        Selected Room:
-        {{ selectedRoom }}
-      </span>
-      <span>
-        Selected Room:
-        {{ selectedConnection }}
+        Infra:
+        {{ organization }}
       </span>
       <v-spacer></v-spacer>
       <span>Visitor: {{ connectionId }}</span>
@@ -395,8 +433,11 @@ export default {
           this.overlay = false;
         }, 10000);
     },
-    room() {
-      this.onGetCovidAlerts();
+    room(val) {
+      console.log('val', val);
+      if (this.room == this.managedRoom) {
+        this.onGetCovidAlerts();
+      }
     },
     loader() {
       const l = this.loader;
@@ -614,6 +655,7 @@ export default {
       if (!this.roomName) {
         this.onGetRooms();
       }
+      this.overlay = true;
       axios(`/messages/connection/?connectionId=${this.managedRoom}`).then(
         s => {
           // console.log('Messages from server:', s);
@@ -635,6 +677,7 @@ export default {
           console.dir('m:', m, { depth: 3 });
           this.messages = m;
           console.log();
+          this.overlay = false;
         }
       );
     },
@@ -708,11 +751,13 @@ export default {
     },
 
     onGetRooms() {
+      this.overlay = true;
       axios('/connections/list/?state=Invited').then(s => {
         console.log('Invited connections:', s);
         this.rooms = s.data.connections
           .filter(v => v.multiParty)
           .map(v => v.connectionId);
+        this.overlay = false;
       });
     },
 
