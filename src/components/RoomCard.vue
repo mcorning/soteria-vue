@@ -201,7 +201,7 @@
     </v-card>
 
     <!-- Covid Alerts -->
-    <v-row no-gutters v-if="alerts.length">
+    <v-row no-gutters v-if="alerts.length == 100">
       <v-col cols="7">
         <v-card>
           <v-card-title>Covid Alerts</v-card-title>
@@ -646,7 +646,9 @@ export default {
         this.sheet = true;
         return;
       }
-      axios(`/messages/connection/?connectionId=${this.roomName}`).then(s => {
+      axios(
+        `/messages/connection/?connectionId=${this.roomName}&field=ACCESSTOK_SOTERIA_LAB`
+      ).then(s => {
         this.alerts = s.data.filter(v => v.text.startsWith('ALERT'));
         this.overlay = false;
         console.log(this.alerts);
@@ -723,31 +725,31 @@ export default {
         await this.onGetRooms();
       }
       this.overlay = true;
-      axios(`/messages/connection/?connectionId=${this.managedRoom}`).then(
-        s => {
-          // console.log('Messages from server:', s);
-          // let mappedMsgs = new Map(
-          //   s.data.map(v => [v.sentTime, this.tryParse(v.text)])
-          // );
-          let m = s.data
-            .map(v => {
-              let t = v.sentTime;
+      axios(
+        `/messages/connection/?connectionId=${this.managedRoom}&field=ACCESSTOK_SOTERIA_LAB`
+      ).then(s => {
+        // console.log('Messages from server:', s);
+        // let mappedMsgs = new Map(
+        //   s.data.map(v => [v.sentTime, this.tryParse(v.text)])
+        // );
+        let m = s.data
+          .map(v => {
+            let t = v.sentTime;
 
-              let x = this.tryParse(v.text);
-              if (x) {
-                x.sentTime = t;
-              }
-              return x;
-            })
-            .filter(v => this.filterDate(v.sentTime))
-            .filter(v => this.filterType(v.type));
-          console.dir('m:', m, { depth: 3 });
+            let x = this.tryParse(v.text);
+            if (x) {
+              x.sentTime = t;
+            }
+            return x;
+          })
+          .filter(v => this.filterDate(v.sentTime))
+          .filter(v => this.filterType(v.type));
+        console.dir('m:', m, { depth: 3 });
 
-          this.messages = m;
-          console.log();
-          this.overlay = false;
-        }
-      );
+        this.messages = m;
+        console.log();
+        this.overlay = false;
+      });
     },
 
     // Visitor sends a login message to Room when they enter.
@@ -820,7 +822,9 @@ export default {
 
     async onGetRooms() {
       this.overlay = true;
-      await axios('/connections/list/?state=Invited').then(s => {
+      await axios(
+        '/connections/list/?state=Invited&field=ACCESSTOK_SOTERIA_LAB'
+      ).then(s => {
         console.log('Invited connections:', s);
         this.rooms = s.data.connections
           .filter(v => v.multiParty)
@@ -867,41 +871,6 @@ export default {
           await this.connectionDelete(id);
           await Connection.$fetch();
           console.log('this.connections:', this.connections);
-        }
-      }
-    },
-
-    alertRooms(id) {
-      if (!id) {
-        alert(
-          'Houston, we have a problem. We have a null value for the id arg passed to alertRooms().'
-        );
-        return;
-      }
-      if (!this.connectionId) {
-        alert(
-          'Houston, we have a problem. We have a null value for this.connectionId in alertRooms().'
-        );
-        return;
-      }
-      if (this.selected.length) {
-        if (confirm(`Alerting ${this.selected.length} rooms`)) {
-          new Set(this.selected.map(v => v.connectionId)).forEach(v => {
-            let payload = {
-              connectionId: v,
-              text: `ALERT: ${this.connectionId} is in quarantine.`
-            };
-            console.log('Alerting:', payload);
-            axios({
-              url: '/messages',
-              data: payload,
-              method: 'POST'
-            }).catch(e => console.error(e));
-          });
-        }
-      } else {
-        if (confirm('Alerting room ' + id)) {
-          console.log(id, 'alerted');
         }
       }
     },

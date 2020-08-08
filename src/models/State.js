@@ -8,6 +8,7 @@ export default class State extends Model {
       id: this.number(0), // without a fvixed id, update() creates a record
       roomId: this.string(''),
       connectionId: this.string(''),
+      organization: this.string(''),
 
       roomInvitationUrl: this.string(''),
       isRoomRiskManager: this.boolean(false),
@@ -16,6 +17,12 @@ export default class State extends Model {
       incubationPeriod: this.number(14),
       showHardwareSetup: this.boolean(true)
     };
+  }
+  static async updateOrg(val) {
+    let p = await this.$update({
+      data: { id: 0, organization: val }
+    });
+    return p;
   }
   static async changeRoomInvitationUrl(val) {
     let p = await this.$update({

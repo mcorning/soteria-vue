@@ -12,7 +12,7 @@
         <v-card-text>
           <v-row no-gutters justify="center">
             <!-- change photo and helpers-->
-            <v-col cols="6">
+            <v-col cols="5">
               <v-row justify="space-between">
                 <v-col v-if="changePhoto" cols="6">
                   <picture-input
@@ -51,7 +51,37 @@
             </v-col>
             <!-- Data entry form -->
             <v-col>
-              <v-row justify="center" no-gutters>
+              <v-row no-gutters>
+                <v-subheader class="py-5">Fields for LCT</v-subheader>
+
+                <v-col cols="12">
+                  <v-text-field
+                    label="Phone name*"
+                    required
+                    :rules="[rules.required]"
+                    dense
+                    v-model="connectionId"
+                    @blur="onGetNewQr"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                  <v-autocomplete
+                    v-model="organization"
+                    :loading="loading"
+                    :items="organizations"
+                    :search-input.sync="search"
+                    cache-items
+                    flat
+                    hint="This community organization brought you Local Contact Tracing"
+                    persistent-hint
+                    label="What community organization are you part of?"
+                    solo-inverted
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+              <v-spacer></v-spacer>
+              <v-subheader class="pt-7">Fields for Credentials</v-subheader>
+              <v-row justify="center" dense>
                 <v-col cols="12">
                   <v-text-field
                     label="First name*"
@@ -71,18 +101,6 @@
                     v-model="lastName"
                   ></v-text-field>
                 </v-col>
-
-                <v-col cols="12">
-                  <v-text-field
-                    label="Phone name*"
-                    required
-                    :rules="[rules.required]"
-                    dense
-                    v-model="connectionId"
-                    @blur="onGetNewQr"
-                  ></v-text-field>
-                </v-col>
-
                 <v-col cols="12">
                   <v-text-field
                     label="ZipCode*"
@@ -133,18 +151,11 @@ import DataRepository from '@/store/repository.js';
 
 export default {
   watch: {
-    loader() {
-      const l = this.loader;
-      console.log('loader', l);
-      this[l] = !this[l];
-      if (l == 'loading1') {
-        this.onPersonalCredential().then(() => {
-          this[l] = false;
-          this.loader = null;
-        });
-      }
+    search(val) {
+      val && val !== this.organization && this.querySelections(val);
     }
   },
+
   components: {
     PictureInput
   },
@@ -233,6 +244,15 @@ export default {
         State.changeConnectionId(newName);
       }
     },
+    organization: {
+      get() {
+        let x = this.state ? this.state.organization : '';
+        return x;
+      },
+      set(newName) {
+        State.updateOrg(newName);
+      }
+    },
     email: {
       get() {
         let x = this.member.email;
@@ -293,12 +313,15 @@ export default {
   },
 
   data: () => ({
+    orgs: [],
+    search: null,
+    select: null,
+    orgIndex: 0,
+    organizations: ['ACCESSTOK_SOTERIA_LAB', 'ENDURING_NET'],
     onboard: true,
     dialog: false,
     offerUrl: '',
-    loader: null,
     loading: false,
-    loading1: false,
     deepLink: `id.streetcred://launch?c_i=`,
     creds: '',
     headers: [
@@ -338,6 +361,17 @@ export default {
   }),
 
   methods: {
+    querySelections(v) {
+      this.loading = true;
+      // Simulated ajax query
+      // setTimeout(() => {
+      this.orgs = this.organizations.filter(e => {
+        return (e || '').toLowerCase().indexOf((v || '').toLowerCase()) > -1;
+      });
+      this.loading = false;
+      // }, 500);
+    },
+
     async onGetNewQr() {
       console.log(`getting QR code for ${this.connectionId}`);
       axios('/connections/?name=' + this.connectionId).then(s => {

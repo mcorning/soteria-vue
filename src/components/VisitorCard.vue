@@ -468,7 +468,9 @@ export default {
     onGetRooms() {
       // this.overlay = true;
       this.api = 'onGetRooms()';
-      axios('/connections/list/?state=Invited').then(s => {
+      axios(
+        '/connections/list/?state=Invited&field=ACCESSTOK_SOTERIA_LAB'
+      ).then(s => {
         console.log('Invited connections:', s);
         this.rooms = s.data.connections
           .filter(v => v.multiParty)
@@ -554,16 +556,16 @@ export default {
 
       this.overlay = true;
 
-      axios(`/messages/connection/?connectionId=${this.connectionId}`).then(
-        s => {
-          this.alerts = s.data
-            .map(v => this.tryParse(v.text))
-            .filter(v => {
-              if (v.sender && this.isToday(v.sentTime)) return v;
-            });
-          this.overlay = false;
-        }
-      );
+      axios(
+        `/messages/connection/?connectionId=${this.connectionId}&field=ACCESSTOK_SOTERIA_LAB`
+      ).then(s => {
+        this.alerts = s.data
+          .map(v => this.tryParse(v.text))
+          .filter(v => {
+            if (v.sender && this.isToday(v.sentTime)) return v;
+          });
+        this.overlay = false;
+      });
     },
 
     // Other functions

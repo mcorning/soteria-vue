@@ -299,7 +299,7 @@ export default {
     },
 
     async onGetLastMessage() {
-      let url = `/messages/connection/?connectionId=${this.newConnectionId}`;
+      let url = `/messages/connection/?connectionId=${this.newConnectionId}&field=ACCESSTOK_SOTERIA_LAB`;
       console.log('url:', url);
 
       let results = await axios({
