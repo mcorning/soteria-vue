@@ -68,7 +68,7 @@
 import moment from 'moment';
 
 // @ is an alias to /src
-import ProfileCard from '@/components/ProfileCard.vue'; // contains PII
+import ProfileCard from '@/components/ProfileCard0.vue'; // contains PII
 import SymptomsCard from '@/components/SymptomsCard.vue'; // permits user to track the risk of exposing others based on data realted to symptoms presented
 import CovidTestResultsCardV from '@/components/CovidTestResultsCardV.vue'; // enables user to convert their covid test results into verifiable credential
 

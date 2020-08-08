@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import VisitorCard from '@/components/VisitorCard.vue';
+import VisitorCard from '@/components/VisitorCard0.vue';
 import lctVer from '@/lct.ver.json';
 
 export default {

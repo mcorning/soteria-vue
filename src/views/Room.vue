@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import RoomCard from '@/components/RoomCard.vue';
+import RoomCard from '@/components/RoomCard0.vue';
 import lctVer from '@/lct.ver.json';
 
 export default {

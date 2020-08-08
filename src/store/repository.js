@@ -42,9 +42,11 @@ export default class DataRepository {
       let states = await State.$create({
         data: {
           id: 0,
-          connectionId: '',
-          isRoomRiskManager: false,
-          roomRiskThreshold: 0
+          organization: '',
+          roomId: '',
+          myId: '',
+          zipcode: '',
+          incubationPeriod: ''
         }
       });
 
@@ -76,7 +78,7 @@ export default class DataRepository {
     console.log('Repository has new', connectionId);
     Connection.$create({
       data: {
-        connectionId: connectionId,
+        myId: connectionId,
         type: type,
         date: new Date()
       }

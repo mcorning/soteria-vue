@@ -77,6 +77,10 @@
                     label="What community organization are you part of?"
                     solo-inverted
                   ></v-autocomplete>
+                  <v-text-field
+                    label="Room Name"
+                    v-model="managedRoom"
+                  ></v-text-field>
                 </v-col>
               </v-row>
               <v-spacer></v-spacer>
@@ -161,6 +165,28 @@ export default {
   },
 
   computed: {
+    managedRoom: {
+      get() {
+        return this.state?.roomId;
+      },
+      set(newVal) {
+        State.changeRoomId(newVal).then(state => {
+          // ORM returns an array of State objects
+          this.state = state[0];
+        });
+      }
+    },
+    state: {
+      get() {
+        let s = State.query().first();
+
+        console.log('returning state', s);
+        return s;
+      },
+      set(newVal) {
+        console.log(newVal);
+      }
+    },
     invitation() {
       return this.inviteUrl
         ? `https://chart.googleapis.com/chart?cht=qr&chl=${this.inviteUrl}&chs=200x200&chld=L|1`
@@ -186,12 +212,6 @@ export default {
 
       console.log('returning member', m);
       return m;
-    },
-    state() {
-      let s = State.query().first();
-
-      console.log('returning state', s);
-      return s;
     },
 
     image() {
